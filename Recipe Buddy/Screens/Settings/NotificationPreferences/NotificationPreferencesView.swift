@@ -5,7 +5,7 @@ struct NotificationPreferencesView: View {
 
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("BİLDİRİMLER")
@@ -15,7 +15,7 @@ struct NotificationPreferencesView: View {
 
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "bell.circle.fill")
-                            .foregroundStyle(.EBA_72_B)
+                            .foregroundStyle(.AppPrimary)
                             .font(.title3)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Bildirimler Hakkında")
@@ -30,7 +30,7 @@ struct NotificationPreferencesView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     VStack(spacing: 0) {
                         // System level toggle info
@@ -55,7 +55,7 @@ struct NotificationPreferencesView: View {
                                 }
                             }
                             .font(.footnote)
-                            .tint(.A_3_A_3_A_3)
+                            .tint(.AppPrimary)
                             .buttonStyle(.bordered)
                         }
                         .padding()
@@ -64,7 +64,7 @@ struct NotificationPreferencesView: View {
 
                         Toggle(isOn: $viewModel.pushComments) {
                             HStack(spacing: 12) {
-                                Image(systemName: "text.bubble.fill").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "text.bubble.fill").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Yorumlar")
                                         .fontWeight(.semibold)
@@ -79,7 +79,7 @@ struct NotificationPreferencesView: View {
 
                         Toggle(isOn: $viewModel.pushFavorites) {
                             HStack(spacing: 12) {
-                                Image(systemName: "heart.fill").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "heart.fill").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Favoriler")
                                         .fontWeight(.semibold)
@@ -94,7 +94,7 @@ struct NotificationPreferencesView: View {
 
                         Toggle(isOn: $viewModel.pushRecipeUpdates) {
                             HStack(spacing: 12) {
-                                Image(systemName: "fork.knife").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "fork.knife").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Tarif Güncellemeleri")
                                         .fontWeight(.semibold)
@@ -109,7 +109,7 @@ struct NotificationPreferencesView: View {
 
                         Toggle(isOn: $viewModel.pushMarketing) {
                             HStack(spacing: 12) {
-                                Image(systemName: "megaphone.fill").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "megaphone.fill").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Kampanya ve Duyurular")
                                         .fontWeight(.semibold)
@@ -123,7 +123,7 @@ struct NotificationPreferencesView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     if let error = viewModel.errorMessage {
                         Text(error)
@@ -135,7 +135,7 @@ struct NotificationPreferencesView: View {
                 .padding()
             }
             .navigationTitle("Bildirimler")
-            .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
 
             if viewModel.isLoading || viewModel.isSaving {
                 Color.black.opacity(0.2).ignoresSafeArea()
@@ -145,10 +145,11 @@ struct NotificationPreferencesView: View {
                     .cornerRadius(12)
             }
         }
-        .tint(.EBA_72_B)
+        .tint(.AppPrimary)
     }
 }
 
 #Preview {
     NavigationStack { NotificationPreferencesView(viewModel: NotificationPreferencesViewModel()) }
 }
+

@@ -7,7 +7,7 @@ struct RegisterView: View {
     
     var body: some View {
         ZStack {
-            Color("FBFBFB")
+            Color.Background
                 .ignoresSafeArea()
             
             ScrollView {
@@ -16,10 +16,10 @@ struct RegisterView: View {
                         Text("Aramıza Katıl")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .foregroundStyle(Color("181818"))
+                            .foregroundStyle(.TextPrimary)
                         Text("Yeni bir hesap oluşturarak tariflerini kaydet")
                             .font(.subheadline)
-                            .foregroundStyle(Color("A3A3A3"))
+                            .foregroundStyle(.TextSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
@@ -52,7 +52,7 @@ struct RegisterView: View {
                             onNavigateToLogin()
                         }
                         .fontWeight(.bold)
-                        .tint(Color("EBA72B"))
+                        .tint(.AppPrimary)
                     }
                     .font(.footnote)
                     .padding(.bottom)

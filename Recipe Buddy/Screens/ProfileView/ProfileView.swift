@@ -37,16 +37,16 @@ struct ProfileView: View {
                 }
                 .padding()
             }
-            .background(Color.FBFBFB)
+            .background(Color.Background)
             .navigationTitle("Profilim")
-            .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         navigationPath.append(AppNavigation.settings)
                     } label: {
                         Image(systemName: "gearshape.fill")
-                            .foregroundStyle(.EBA_72_B)
+                            .foregroundStyle(.AppPrimary)
                     }
                 }
             }
@@ -69,7 +69,7 @@ struct ProfileView: View {
             }
             .frame(width: 80, height: 80)
             .clipShape(Circle())
-            .overlay(Circle().stroke(Color(.systemGray5), lineWidth: 1))
+            .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 1))
             
             VStack {
                 Text(user.fullName ?? "İsimsiz")
@@ -77,14 +77,14 @@ struct ProfileView: View {
                     .fontWeight(.bold)
                 Text("@\(user.username ?? "")")
                     .font(.subheadline)
-                    .foregroundStyle(.A_3_A_3_A_3)
+                    .foregroundStyle(.TextSecondary)
             }
             
             NavigationLink {
                 EditProfileView(viewModel: EditProfileViewModel())
             } label: {
                 Text("Profili Düzenle")
-                    .tint(.EBA_72_B)
+                    .tint(.AppPrimary)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 8)
@@ -149,7 +149,7 @@ struct ProfileView: View {
             .padding()
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -165,7 +165,7 @@ struct ProfileView: View {
                     // Example: viewModel.coordinator.navigate(to: .recipe)
                 }
                 .font(.footnote)
-                .tint(.EBA_72_B)
+                .tint(.AppPrimary)
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -206,7 +206,7 @@ struct ProfileView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(.thinMaterial.opacity(0.3))
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
                     }
                 }
                 .padding(.vertical, 4)
@@ -228,7 +228,7 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
             } else {
                 VStack(spacing: 8) {
                     ForEach(Array(top.enumerated()), id: \.offset) { idx, recipe in
@@ -249,7 +249,7 @@ struct ProfileView: View {
                         .padding(12)
                         .background(.thinMaterial.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
                     }
                 }
             }
@@ -276,7 +276,7 @@ struct ProfileView: View {
                         HStack {
                             Text("\(star)★").font(.caption).frame(width: 28, alignment: .leading)
                             RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.EBA_72_B.opacity(0.4))
+                                .fill(Color.AppPrimary.opacity(0.4))
                                 .frame(width: 140 * (star == Int(round(dataManager.averageRating)) ? 0.8 : 0.3), height: 8)
                         }
                     }
@@ -285,7 +285,7 @@ struct ProfileView: View {
             .padding()
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -300,7 +300,7 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.thinMaterial.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -326,7 +326,7 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
             } else {
                 // chip-like tags (centered cluster)
                 TagWrapLayout(alignment: .center, spacing: 8, lineSpacing: 8) {
@@ -342,7 +342,7 @@ struct ProfileView: View {
                         .padding(.vertical, 6)
                         .background(.thinMaterial)
                         .clipShape(Capsule())
-                        .overlay(Capsule().stroke(Color(.systemGray4), lineWidth: 1))
+                        .overlay(Capsule().stroke(Color.SurfaceBorder, lineWidth: 1))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -467,7 +467,7 @@ struct ProfileStatView: View {
         .frame(maxWidth: .infinity)
         .background(.thinMaterial.opacity(0.3))
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
     }
 }
 

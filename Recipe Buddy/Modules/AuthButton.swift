@@ -20,8 +20,8 @@ struct AuthButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color("EBA72B"))
-            .foregroundColor(Color("FFFFFF"))
+            .background(.AppPrimary)
+            .foregroundColor(.white)
             .cornerRadius(12)
         }
         .disabled(isDisabled || isLoading)

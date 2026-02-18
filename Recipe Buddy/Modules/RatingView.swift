@@ -40,7 +40,7 @@ struct RatingView: View {
                     dismiss()
                 }
                 .padding()
-                .background(Color("EBA72B"))
+                .background(.AppPrimary)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .disabled(selectedRating == 0)

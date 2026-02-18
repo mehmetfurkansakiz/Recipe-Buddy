@@ -8,7 +8,7 @@ struct ShoppingListView: View {
     
     var body: some View {
         ZStack {
-            Color("FBFBFB").ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             
             if viewModel.isLoading {
                 ProgressView()
@@ -28,7 +28,7 @@ struct ShoppingListView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.EBA_72_B)
+                                .fill(Color.AppPrimary)
                                 .frame(width: 56, height: 56)
                                 .shadow(color: .black.opacity(0.4), radius: 8, y: 4)
                                 .overlay(
@@ -52,7 +52,7 @@ struct ShoppingListView: View {
         }
         // Navigation title and appearance with helper modifier
         .navigationTitle("Alışveriş Listelerim")
-        .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+        .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
         .task {
             await viewModel.fetchAllLists(dataManager: dataManager)
         }
@@ -158,7 +158,7 @@ struct ShoppingListSectionView: View {
             }
         }
         .overlay(RoundedRectangle(cornerRadius: 12)
-            .stroke(.A_3_A_3_A_3.opacity(0.5), lineWidth: 1))
+            .stroke(Color.SurfaceBorder, lineWidth: 1))
         .padding(.horizontal)
         .padding(.vertical, 6)
     }
@@ -169,18 +169,18 @@ struct ShoppingListSectionView: View {
                 Text(list.name)
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundStyle(areAllItemsChecked ? .A_3_A_3_A_3 : ._303030)
-                    .strikethrough(areAllItemsChecked, color: .A_3_A_3_A_3)
+                    .foregroundStyle(areAllItemsChecked ? .TextSecondary : .TextPrimary)
+                    .strikethrough(areAllItemsChecked, color: .TextSecondary)
                     .lineLimit(1)
                 
                 Circle()
                     .frame(width: 4, height: 4)
-                    .foregroundStyle(.A_3_A_3_A_3)
+                    .foregroundStyle(.TextSecondary)
                     .opacity(0.5)
                 
                 Text("\(list.itemCount) adet")
                     .font(.callout)
-                    .foregroundStyle(.A_3_A_3_A_3)
+                    .foregroundStyle(.TextSecondary)
                     .lineLimit(1)
                 
                 Spacer()
@@ -197,7 +197,7 @@ struct ShoppingListSectionView: View {
             if !list.formattedDate.isEmpty {
                 Text(list.formattedDate)
                     .font(.caption)
-                    .foregroundStyle(.C_2_C_2_C_2)
+                    .foregroundStyle(.TextSecondary)
             }
         }
         .padding()

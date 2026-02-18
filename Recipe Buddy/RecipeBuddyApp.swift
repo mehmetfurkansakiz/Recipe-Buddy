@@ -7,7 +7,6 @@ struct RecipeBuddyApp: App {
     var body: some Scene {
         WindowGroup {
             coordinator.rootView
-                .preferredColorScheme(.light)
                 .environmentObject(coordinator.dataManager)
                 .hideKeyboardOnTap()
                 .onOpenURL { url in

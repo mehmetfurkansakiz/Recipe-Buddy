@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0F2025862E55345800EDC16A /* AWSSDKIdentity in Frameworks */ = {isa = PBXBuildFile; productRef = 0F2025852E55345800EDC16A /* AWSSDKIdentity */; };
+		0F82997F2F41EDA700D2E9C8 /* Color+AppPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F82997E2F41EDA700D2E9C8 /* Color+AppPalette.swift */; };
 		0FBD6FD02F3CA4D8004F8ECC /* NotificationPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBD6FCF2F3CA4D7004F8ECC /* NotificationPreferencesService.swift */; };
 		0FBF6B1B2E52AF700014EB7C /* AWSClientRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 0FBF6B1A2E52AF700014EB7C /* AWSClientRuntime */; };
 		0FBF6B1D2E52AF700014EB7C /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 0FBF6B1C2E52AF700014EB7C /* AWSS3 */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		0F232DF52DAF2490002F758D /* Recipe Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Recipe Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0F82997E2F41EDA700D2E9C8 /* Color+AppPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+AppPalette.swift"; sourceTree = "<group>"; };
 		0FBD6FCF2F3CA4D7004F8ECC /* NotificationPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPreferencesService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,6 +61,7 @@
 				0FE591742DED11D8005EF0D8 /* Frameworks */,
 				0F232DF62DAF2490002F758D /* Products */,
 				0FBD6FCF2F3CA4D7004F8ECC /* NotificationPreferencesService.swift */,
+				0F82997E2F41EDA700D2E9C8 /* Color+AppPalette.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -165,6 +168,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F82997F2F41EDA700D2E9C8 /* Color+AppPalette.swift in Sources */,
 				0FBD6FD02F3CA4D8004F8ECC /* NotificationPreferencesService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

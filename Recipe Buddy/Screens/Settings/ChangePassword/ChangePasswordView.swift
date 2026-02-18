@@ -6,7 +6,7 @@ struct ChangePasswordView: View {
 
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("PAROLAYI DEĞİŞTİR")
@@ -42,7 +42,7 @@ struct ChangePasswordView: View {
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.EBA_72_B)
+                            .background(Color.AppPrimary)
                             .foregroundStyle(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
@@ -52,7 +52,7 @@ struct ChangePasswordView: View {
                 .padding()
             }
             .navigationTitle("Parola")
-            .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
             .onChange(of: viewModel.showSuccess) {
                 if viewModel.showSuccess { dismiss() }
             }
@@ -65,7 +65,7 @@ struct ChangePasswordView: View {
                     .cornerRadius(12)
             }
         }
-        .tint(.EBA_72_B)
+        .tint(.AppPrimary)
     }
 }
 

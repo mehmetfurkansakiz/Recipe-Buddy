@@ -12,7 +12,7 @@ struct Step3_Preparation: View {
                     HStack(alignment: .top) {
                         Text("\(index + 1).")
                             .font(.headline)
-                            .foregroundStyle(Color("EBA72B"))
+                            .foregroundStyle(.AppPrimary)
                             .padding(.top, 12)
                         
                         TextField("Adımı yazın...", text: $step.text, axis: .vertical)
@@ -43,3 +43,4 @@ struct Step3_Preparation: View {
         }
     }
 }
+

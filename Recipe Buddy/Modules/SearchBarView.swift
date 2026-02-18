@@ -6,13 +6,13 @@ struct SearchBarView: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color("A3A3A3"))
+                .foregroundStyle(.TextSecondary)
             
             TextField("Tarif Ara...", text: $searchText)
                 .textFieldStyle(.plain)
                 .font(.system(size: 16))
-                .foregroundColor(Color("181818"))
-                .tint(Color("EBA72B"))
+                .foregroundColor(.TextPrimary)
+                .tint(.AppPrimary)
             
             if !searchText.isEmpty {
                 Button(action: {
@@ -20,7 +20,7 @@ struct SearchBarView: View {
                 }) {
                     Image("close.circle.icon")
                         .resizable()
-                        .foregroundStyle(Color("A3A3A3"))
+                        .foregroundStyle(.TextSecondary)
                         .frame(width: 18, height: 18)
                 }
             }
@@ -28,7 +28,7 @@ struct SearchBarView: View {
         .frame(height: 40)
         .padding(.horizontal)
         .padding(.vertical, 6)
-        .background(Color("F2F2F7"))
+        .background(.Surface)
         .cornerRadius(12)
         
     }

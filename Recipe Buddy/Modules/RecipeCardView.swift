@@ -26,25 +26,25 @@ struct RecipeCardView: View {
             Text(recipe.name)
                 .font(.headline)
                 .lineLimit(1)
-                .foregroundStyle(Color("181818"))
+                .foregroundStyle(.TextPrimary)
             
             HStack(spacing: 8) {
                 Image("clock.icon")
                     .resizable()
-                    .foregroundStyle(Color("A3A3A3"))
+                    .foregroundStyle(.TextSecondary)
                     .frame(width: 18, height: 18)
                 Text("\(recipe.cookingTime) dk")
                     .font(.caption)
-                    .foregroundStyle(Color("A3A3A3"))
+                    .foregroundStyle(.TextSecondary)
                 
                 Spacer()
                 
                 if let rating = recipe.rating {
                     Image("star.fill.icon")
-                        .foregroundStyle(Color("FFCB1F"))
+                        .foregroundStyle(.AppPrimary)
                     Text(String(format: "%.1f", rating))
                         .font(.caption)
-                        .foregroundStyle(Color("A3A3A3"))
+                        .foregroundStyle(.TextSecondary)
                 } else {
                     Image("star.icon")
                         .foregroundStyle(Color("C2C2C2"))
@@ -52,7 +52,7 @@ struct RecipeCardView: View {
             }
         }
         .padding(8)
-        .background(Color("FBFBFB"))
+        .background(.Surface)
         .cornerRadius(8)
         .shadow(radius: 1)
         .padding(.vertical, 8)

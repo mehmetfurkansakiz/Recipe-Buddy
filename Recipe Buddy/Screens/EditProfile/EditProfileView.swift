@@ -14,7 +14,7 @@ struct EditProfileView: View {
 
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
@@ -28,7 +28,7 @@ struct EditProfileView: View {
                 .padding(.vertical)
             }
             .navigationTitle("Profili Düzenle")
-            .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
             .onAppear { viewModel.loadInitial(from: dataManager.currentUser) }
             .alert("Kaydedildi", isPresented: $viewModel.showSavedAlert) {
                 Button("Tamam") { dismiss() }
@@ -63,7 +63,7 @@ struct EditProfileView: View {
         HStack {
             Text("Profil Bilgileri")
                 .font(.title2).bold()
-                .foregroundStyle(Color.EBA_72_B)
+                .foregroundStyle(.AppPrimary)
             Spacer()
         }
     }
@@ -101,7 +101,7 @@ struct EditProfileView: View {
                     }
                     .frame(width: 84, height: 84)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     // Dark overlay on preview to make edited image appear slightly dim
                     Circle()
@@ -125,9 +125,9 @@ struct EditProfileView: View {
                             .frame(maxWidth: .infinity)
                             .background(.thinMaterial)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(Color(.systemGray4), lineWidth: 1))
+                            .overlay(Capsule().stroke(Color.SurfaceBorder, lineWidth: 1))
                         }
-                        .tint(.EBA_72_B)
+                        .tint(.AppPrimary)
                         .layoutPriority(1)
 
                         Button(role: .destructive, action: { showRemoveAvatarAlert = true }) {
@@ -136,7 +136,7 @@ struct EditProfileView: View {
                                 .padding(10)
                                 .background(.thinMaterial)
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color(.systemGray4), lineWidth: 1))
+                                .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 1))
                                 .accessibilityLabel("Fotoğrafı Kaldır")
                         }
                         .disabled(!(viewModel.selectedImageData != nil || dataManager.currentUser?.avatarPublicURL() != nil) || viewModel.wantsToRemoveAvatar)
@@ -145,7 +145,7 @@ struct EditProfileView: View {
 
                     Text("Fotoğraf seçtikten sonra kırpma ekranı açılır.")
                         .font(.caption)
-                        .foregroundStyle(.A_3_A_3_A_3)
+                        .foregroundStyle(.TextSecondary)
 
                     if viewModel.wantsToRemoveAvatar {
                         Text("Fotoğraf kaldırılacak. Kaydet'e bastığınızda uygulanır.")
@@ -158,7 +158,7 @@ struct EditProfileView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -185,7 +185,7 @@ struct EditProfileView: View {
                             .frame(maxWidth: .infinity)
 
                         Toggle("Şehri göster", isOn: $viewModel.showCity)
-                            .tint(.EBA_72_B)
+                            .tint(.AppPrimary)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .gridColumnAlignment(.trailing)
                     }
@@ -202,7 +202,7 @@ struct EditProfileView: View {
                                 .lineLimit(2)
                                 .minimumScaleFactor(0.2)
                         }
-                        .tint(.EBA_72_B)
+                        .tint(.AppPrimary)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .gridColumnAlignment(.trailing)
                     }
@@ -222,7 +222,7 @@ struct EditProfileView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                         Toggle("Yaşı göster", isOn: $viewModel.showBirthDate)
-                            .tint(.EBA_72_B)
+                            .tint(.AppPrimary)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .gridColumnAlignment(.trailing)
                     }
@@ -232,7 +232,7 @@ struct EditProfileView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
 
@@ -249,7 +249,7 @@ struct EditProfileView: View {
                     .overlay(alignment: .topLeading) {
                         if viewModel.bio.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             Text("Kendinden bahset...")
-                                .foregroundStyle(.A_3_A_3_A_3)
+                                .foregroundStyle(.TextSecondary)
                                 .padding(12)
                         }
                     }
@@ -257,7 +257,7 @@ struct EditProfileView: View {
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
 

@@ -24,7 +24,7 @@ struct ListEditView: View {
             saveButtonView
                 .padding()
         }
-        .background(Color("FBFBFB").ignoresSafeArea())
+        .background(Color.Background.ignoresSafeArea())
     }
     
     /// The header view with title and close button.
@@ -35,7 +35,7 @@ struct ListEditView: View {
             Spacer()
             Button(action: onCancel) {
                 Image("close.circle.icon")
-                    .font(.title2).foregroundStyle(Color("EBA72B"))
+                    .font(.title2).foregroundStyle(.AppPrimary)
             }
         }
         .padding()
@@ -67,7 +67,7 @@ struct ListEditView: View {
                         .frame(maxWidth: .infinity, minHeight: 60)
                         .background(.thinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
                 } else {
                     ForEach($viewModel.itemsForEditingList) { $item in
                         EditableShoppingItemRow(item: $item) {
@@ -91,7 +91,7 @@ struct ListEditView: View {
                     }
                     .disabled(viewModel.newItemName.trimmingCharacters(in: .whitespaces).isEmpty)
                     .fontWeight(.semibold)
-                    .foregroundStyle(Color("EBA72B"))
+                    .foregroundStyle(.AppPrimary)
                     .padding(.horizontal)
                 }
             }
@@ -103,7 +103,7 @@ struct ListEditView: View {
         Button(action: onSave) {
             Text(viewModel.listToEdit != nil ? "Değişiklikleri Kaydet" : "Listeyi Oluştur")
                 .fontWeight(.semibold).frame(maxWidth: .infinity).padding()
-                .background(Color("EBA72B")).foregroundStyle(.white).cornerRadius(12)
+                .background(Color.AppPrimary).foregroundStyle(.white).cornerRadius(12)
         }
         .disabled(viewModel.listNameForSheet.trimmingCharacters(in: .whitespaces).isEmpty)
         .opacity(viewModel.listNameForSheet.trimmingCharacters(in: .whitespaces).isEmpty ? 0.6 : 1.0)

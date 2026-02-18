@@ -6,7 +6,7 @@ struct FavoriteRecipesView: View {
     
     var body: some View {
         ScrollView {
-            Color.FBFBFB.ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             LazyVStack {
                 if dataManager.favoritedRecipes.isEmpty {
                     Text("Henüz favori tarifi eklemediniz.")
@@ -26,6 +26,6 @@ struct FavoriteRecipesView: View {
             }
         }
         .navigationTitle("Favori Tariflerim")
-        .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+        .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
     }
 }

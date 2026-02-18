@@ -8,7 +8,7 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             // main scrollview
             ScrollView(.vertical, showsIndicators: false) {
                 // main vstack
@@ -74,8 +74,8 @@ struct HomeView: View {
                     Text(discoverSection.title)
                         .font(.title2).bold()
                         .padding(.horizontal)
-                        .foregroundStyle(Color("EBA72B"))
-                        .shadow(color: Color("000000").opacity(0.1), radius: 8, y: 4)
+                        .foregroundStyle(.AppPrimary)
+                        .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
                     
                     LazyVGrid(
                         columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)],spacing: 16)
@@ -115,13 +115,13 @@ struct HeaderView: View {
             Text("Merhaba \(username) 👋")
                 .font(.title2)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color("EBA72B"))
-                .shadow(color: Color("000000").opacity(0.1), radius: 8, y: 4)
+                .foregroundStyle(.AppPrimary)
+                .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
             Text("Ne pişirmek istersin?")
                 .font(.title)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color("181818"))
-                .shadow(color: Color("000000").opacity(0.1), radius: 8, y: 4)
+                .foregroundStyle(.TextPrimary)
+                .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
             
             SearchBarView(searchText: $searchText)
         }
@@ -188,7 +188,7 @@ struct SearchResultRow: View {
                         .resizable()
                         .scaledToFill()
                 } else {
-                    Color.F_2_F_2_F_7
+                    Color.Surface
                 }
             }
             .frame(width: 60, height: 60)
@@ -197,11 +197,11 @@ struct SearchResultRow: View {
             VStack(alignment: .leading) {
                 Text(recipe.name)
                     .font(.headline)
-                    .foregroundStyle(Color("181818"))
+                    .foregroundStyle(.TextPrimary)
                                      
                 Text("\(recipe.user?.fullName ?? "")")
                     .font(.caption)
-                    .foregroundStyle(Color("303030"))
+                    .foregroundStyle(.TextPrimary)
             }
             Spacer()
         }
@@ -222,8 +222,8 @@ struct RecipeCarouselSection: View {
             Text(title)
                 .font(.title2).bold()
                 .padding(.horizontal)
-                .foregroundStyle(Color("EBA72B"))
-                .shadow(color: Color("000000").opacity(0.1), radius: 8, y: 4)
+                .foregroundStyle(.AppPrimary)
+                .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 16) {
