@@ -17,6 +17,7 @@ Build/
 
 # Keys
 Keys.plist
+GoogleService-Info.plist
 
 # Swift Package Manager (SPM)
 

@@ -137,8 +137,8 @@ struct SettingsView: View {
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
-                Button {
-                    viewModel.showPremiumAlert = true
+                NavigationLink {
+                    DataConsentPreferencesView(viewModel: DataConsentPreferencesViewModel())
                 } label: {
                     SettingsRowView(title: "Veri İzni", icon: "lock.shield.fill", iconColor: .AppPrimary)
                 }

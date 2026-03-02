@@ -59,6 +59,7 @@ struct RegisterView: View {
                     .onChange(of: viewModel.didRegister) {
                         if viewModel.didRegister {
                             DispatchQueue.main.async {
+                                UserDefaults.standard.set(true, forKey: "consent_prompt_after_signup")
                                 onRegisterSuccess(viewModel.email)
                             }
                         }

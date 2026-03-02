@@ -93,6 +93,7 @@ class AppCoordinator: ObservableObject {
         print("✅ Veriler yükleniyor...")
         await dataManager.loadInitialUserData()
         await dataManager.loadHomePageData()
+        TelemetryManager.configureFromConsent()
         print("✅ Veriler yüklendi, ana ekrana yönlendiriliyor.")
         currentView = .main
     }

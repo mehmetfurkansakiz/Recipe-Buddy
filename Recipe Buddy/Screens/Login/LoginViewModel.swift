@@ -25,7 +25,8 @@ class LoginViewModel: ObservableObject {
         
         do {
             let _ = try await supabase.auth.signIn(email: email, password: password)
-
+            
+            UserDefaults.standard.set(true, forKey: "consent_prompt_after_login")
             self.didAuthenticate = true
         } catch {
             let specificError = AuthError.from(supabaseError: error)

@@ -5,6 +5,7 @@ struct HomeView: View {
     @StateObject var viewModel: HomeViewModel
     @Binding var navigationPath: NavigationPath
     @EnvironmentObject var dataManager: DataManager
+    @State private var showConsentSheet = false
     
     var body: some View {
         ZStack {
@@ -55,6 +56,37 @@ struct HomeView: View {
             .refreshable {
                 await dataManager.refreshAllData()
             }
+        }
+        .onAppear {
+            // If user just registered, force showing consent sheet once
+            if UserDefaults.standard.bool(forKey: "consent_prompt_after_signup") {
+                UserDefaults.standard.removeObject(forKey: "consent_prompt_after_signup")
+                showConsentSheet = true
+            } else if UserDefaults.standard.bool(forKey: "consent_prompt_after_login") {
+                // If user just logged in (existing user) and hasn't decided yet
+                UserDefaults.standard.removeObject(forKey: "consent_prompt_after_login")
+                if ConsentManager.shared.needsGeneralConsent() {
+                    showConsentSheet = true
+                }
+            } else if ConsentManager.shared.needsGeneralConsent() {
+                showConsentSheet = true
+            }
+        }
+        .sheet(isPresented: $showConsentSheet, onDismiss: {
+            // After consent completed, if personalization is allowed, consider requesting tracking authorization for ads
+            if ConsentManager.shared.personalizationAllowed() {
+                ConsentManager.shared.requestTrackingAuthorizationIfNeeded()
+            }
+            // Reconfigure telemetry according to latest consent
+            TelemetryManager.configureFromConsent()
+        }) {
+            NavigationStack {
+                DataConsentPreferencesView(viewModel: DataConsentPreferencesViewModel())
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .task {
+            await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
         }
     }
     
