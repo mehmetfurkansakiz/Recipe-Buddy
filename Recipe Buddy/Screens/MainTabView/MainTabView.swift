@@ -56,6 +56,8 @@ struct MainTabView: View {
                     NotificationPreferencesView(viewModel: NotificationPreferencesViewModel())
                 case .themePreferences:
                     ThemePreferencesView(viewModel: ThemePreferencesViewModel())
+                case .helpCenter:
+                    HelpCenterView(viewModel: HelpCenterViewModel())
                 }
             }
         }

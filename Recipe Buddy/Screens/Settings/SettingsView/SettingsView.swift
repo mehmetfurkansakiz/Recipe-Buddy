@@ -159,7 +159,7 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 Button {
-                    viewModel.showPremiumAlert = true
+                    navigationPath.append(AppNavigation.helpCenter)
                 } label: {
                     SettingsRowView(title: "Yardım Merkezi", icon: "questionmark.circle.fill", iconColor: .AppPrimary)
                 }
