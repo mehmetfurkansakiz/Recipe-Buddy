@@ -14,4 +14,6 @@ enum AppNavigation: Hashable {
     case themePreferences
     case helpCenter
     case sendFeedback
+    case advancedSettings
+    case deleteAccount
 }

@@ -4,7 +4,6 @@ import NukeUI
 struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
     @Binding var navigationPath: NavigationPath
-    @EnvironmentObject var dataManager: DataManager
     
     var body: some View {
         ZStack {
@@ -16,7 +15,7 @@ struct SettingsView: View {
                     dataPrivacySection
                     helpSupportSection
                     aboutSection
-                    dangerZoneSection
+                    advancedSection
                     
                     Spacer(minLength: 72)
                 }
@@ -212,30 +211,19 @@ struct SettingsView: View {
         }
     }
     
-    /// Section with destructive actions pinned at the bottom.
-    private var dangerZoneSection: some View {
+    /// Section for advanced account actions.
+    private var advancedSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("HESAP İŞLEMLERİ")
+            Text("GELİŞMİŞ")
                 .font(.caption)
                 .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
                 Button {
-                    Task { await viewModel.signOut(dataManager: dataManager) }
+                    navigationPath.append(AppNavigation.advancedSettings)
                 } label: {
-                    SettingsRowView(title: "Çıkış Yap", icon: "rectangle.portrait.and.arrow.right", iconColor: .red)
-                        .foregroundColor(.red)
-                }
-                .buttonStyle(.plain)
-                
-                Divider().padding(.leading)
-                
-                Button(role: .destructive) {
-                    // TODO: Implement account deletion action
-                } label: {
-                    SettingsRowView(title: "Hesabı Sil", icon: "trash.fill", iconColor: .red)
-                        .foregroundColor(.red)
+                    SettingsRowView(title: "Gelişmiş Ayarlar", icon: "gearshape.2.fill", iconColor: .AppPrimary)
                 }
                 .buttonStyle(.plain)
             }
@@ -284,6 +272,8 @@ struct SettingsRowView: View {
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 

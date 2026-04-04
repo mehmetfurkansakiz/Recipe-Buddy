@@ -60,6 +60,10 @@ struct MainTabView: View {
                     HelpCenterView(viewModel: HelpCenterViewModel())
                 case .sendFeedback:
                     FeedbackView(viewModel: FeedbackViewModel())
+                case .advancedSettings:
+                    AdvancedSettingsView(viewModel: SettingsViewModel(coordinator: coordinator), navigationPath: $navigationPath)
+                case .deleteAccount:
+                    DeleteAccountView(viewModel: DeleteAccountViewModel())
                 }
             }
         }
