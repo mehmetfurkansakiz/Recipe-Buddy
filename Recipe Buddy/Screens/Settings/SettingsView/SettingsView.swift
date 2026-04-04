@@ -187,13 +187,13 @@ struct SettingsView: View {
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
-                Link(destination: URL(string: "https://www.yourapp.com/privacy")!) {
+                Link(destination: SupportInfo.privacyPolicyURL) {
                     SettingsRowView(title: "Gizlilik Politikası", icon: "shield.fill", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
                 
-                Link(destination: URL(string: "https://www.yourapp.com/terms")!) {
+                Link(destination: SupportInfo.termsURL) {
                     SettingsRowView(title: "Kullanım Koşulları", icon: "doc.text.fill", iconColor: .AppPrimary)
                 }
                 
@@ -296,4 +296,3 @@ struct SettingsRowView: View {
         .environmentObject(DataManager())
     }
 }
-

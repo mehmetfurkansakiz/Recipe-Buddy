@@ -2,7 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>PrivacyPolicyURL</key>
+    <string>https://recipebuddy.com.tr/gizlilik-politikasi</string>
     <key>SupportEmail</key>
     <string>help@recipebuddy.com.tr</string>
+    <key>TermsOfUseURL</key>
+    <string>https://recipebuddy.com.tr/kullanim-kosullari</string>
 </dict>
 </plist>

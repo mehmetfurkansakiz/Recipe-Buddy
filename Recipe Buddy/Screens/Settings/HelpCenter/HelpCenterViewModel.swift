@@ -19,8 +19,8 @@ final class HelpCenterViewModel: ObservableObject {
 
     // Configurable resources
     let supportEmail: String = SupportInfo.supportEmail
-    let privacyPolicyURL: URL = URL(string: "https://example.com/privacy")!
-    let termsURL: URL = URL(string: "https://example.com/terms")!
+    let privacyPolicyURL: URL = SupportInfo.privacyPolicyURL
+    let termsURL: URL = SupportInfo.termsURL
 
     // App info
     var appName: String {
