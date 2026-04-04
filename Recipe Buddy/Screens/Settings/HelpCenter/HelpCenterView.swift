@@ -93,9 +93,7 @@ struct HelpCenterView: View {
                 }
                 .buttonStyle(.plain)
 
-                Button {
-                    openSupportEmail(subject: "Geri Bildirim")
-                } label: {
+                NavigationLink(destination: FeedbackView(viewModel: FeedbackViewModel())) {
                     HStack(spacing: 8) {
                         Image(systemName: "bubble.left.and.bubble.right")
                         Text("Geri Bildirim Gönder")
@@ -240,3 +238,4 @@ private extension View {
         HelpCenterView(viewModel: HelpCenterViewModel())
     }
 }
+

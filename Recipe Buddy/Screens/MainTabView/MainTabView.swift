@@ -58,6 +58,8 @@ struct MainTabView: View {
                     ThemePreferencesView(viewModel: ThemePreferencesViewModel())
                 case .helpCenter:
                     HelpCenterView(viewModel: HelpCenterViewModel())
+                case .sendFeedback:
+                    FeedbackView(viewModel: FeedbackViewModel())
                 }
             }
         }

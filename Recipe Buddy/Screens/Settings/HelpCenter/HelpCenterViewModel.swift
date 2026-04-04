@@ -18,7 +18,7 @@ final class HelpCenterViewModel: ObservableObject {
     ]
 
     // Configurable resources
-    let supportEmail: String = "destek@uygulama.com" // TODO: Replace with support email
+    let supportEmail: String = SupportInfo.supportEmail
     let privacyPolicyURL: URL = URL(string: "https://example.com/privacy")!
     let termsURL: URL = URL(string: "https://example.com/terms")!
 

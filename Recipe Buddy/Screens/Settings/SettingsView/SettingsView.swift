@@ -167,7 +167,7 @@ struct SettingsView: View {
                 Divider().padding(.leading)
                 
                 Button {
-                    viewModel.showPremiumAlert = true
+                    navigationPath.append(AppNavigation.sendFeedback)
                 } label: {
                     SettingsRowView(title: "Geri Bildirim Gönder", icon: "paperplane.fill", iconColor: .AppPrimary)
                 }

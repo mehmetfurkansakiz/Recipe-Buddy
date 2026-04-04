@@ -13,4 +13,5 @@ enum AppNavigation: Hashable {
     case notificationPreferences
     case themePreferences
     case helpCenter
+    case sendFeedback
 }
