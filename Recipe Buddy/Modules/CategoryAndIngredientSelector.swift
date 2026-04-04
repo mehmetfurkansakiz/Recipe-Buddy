@@ -7,20 +7,20 @@ struct CategorySelectorView: View {
     
     var body: some View {
         ZStack {
-            Color("FBFBFB").opacity(0.4)
+            Color.Background.opacity(0.4)
                 .ignoresSafeArea()
             NavigationStack {
                 List(availableCategories) { category in
                     HStack {
                         Text(category.name)
-                            .foregroundStyle(Color("181818"))
+                            .foregroundStyle(.TextPrimary)
                         Spacer()
                         if selectedCategories.contains(category) {
                             Image("checkbox.check.icon")
-                                .foregroundStyle(Color("A3A3A3"))
+                                .foregroundStyle(.TextSecondary)
                         } else {
                             Image("checkbox.unchecked.icon")
-                                .foregroundStyle(Color("A3A3A3"))
+                                .foregroundStyle(.TextSecondary)
                         }
                     }
                     .contentShape(Rectangle())
@@ -47,7 +47,7 @@ struct CategorySelectorView: View {
                             dismiss()
                         }) {
                             Text("Bitti")
-                                .foregroundStyle(Color("EBA72B"))
+                                .foregroundStyle(.AppPrimary)
                         }
                         
                     }
@@ -63,7 +63,7 @@ struct IngredientSelectorView: View {
     
     var body: some View {
         ZStack {
-            Color("FBFBFB").opacity(0.4)
+            Color.Background.opacity(0.4)
                 .ignoresSafeArea()
             NavigationStack {
                 VStack {
@@ -77,7 +77,7 @@ struct IngredientSelectorView: View {
                                  dismiss()
                              }) {
                                  Label("\"\(viewModel.ingredientSearchText)\" olarak özel malzeme ekle", systemImage: "plus.circle.fill")
-                                     .foregroundStyle(Color("EBA72B"))
+                                     .foregroundStyle(.AppPrimary)
                              }
                          }
                         
@@ -87,7 +87,7 @@ struct IngredientSelectorView: View {
                                 dismiss()
                             }) {
                                 Text(ingredient.name)
-                                    .foregroundStyle(Color("181818"))
+                                    .foregroundStyle(.TextPrimary)
                             }
                         }
                     }
@@ -98,7 +98,7 @@ struct IngredientSelectorView: View {
                     dismiss()
                 }) {
                     Text("Bitti")
-                        .foregroundStyle(Color("EBA72B"))
+                        .foregroundStyle(.AppPrimary)
                 })
             }
         }

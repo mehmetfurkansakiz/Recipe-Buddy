@@ -1,13 +1,23 @@
 import SwiftUI
+#if canImport(FirebaseCore)
+import FirebaseCore
+#endif
 
 @main
 struct RecipeBuddyApp: App {
     @StateObject private var coordinator = AppCoordinator()
+    init() {
+        #if canImport(FirebaseCore)
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+            print("ℹ️ FirebaseApp configured at app launch.")
+        }
+        #endif
+    }
     
     var body: some Scene {
         WindowGroup {
             coordinator.rootView
-                .preferredColorScheme(.light)
                 .environmentObject(coordinator.dataManager)
                 .hideKeyboardOnTap()
                 .onOpenURL { url in
@@ -29,3 +39,4 @@ struct RecipeBuddyApp: App {
         }
     }
 }
+

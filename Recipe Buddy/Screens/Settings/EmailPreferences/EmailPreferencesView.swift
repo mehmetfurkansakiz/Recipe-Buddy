@@ -6,7 +6,7 @@ struct EmailPreferencesView: View {
 
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("E-POSTA TERCİHLERİ")
@@ -16,7 +16,7 @@ struct EmailPreferencesView: View {
 
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "info.circle.fill")
-                            .foregroundStyle(.EBA_72_B)
+                            .foregroundStyle(.AppPrimary)
                             .font(.title3)
                         VStack(alignment: .leading, spacing: 4) {
                             Text("E-posta Bildirimleri Hakkında")
@@ -31,12 +31,12 @@ struct EmailPreferencesView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     VStack(spacing: 0) {
                         Toggle(isOn: $viewModel.emailNewsletter) {
                             HStack(spacing: 12) {
-                                Image(systemName: "envelope.fill").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "envelope.fill").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Bültenler").fontWeight(.semibold)
                                     Text("Haftalık ipuçları ve öneriler").font(.caption).foregroundStyle(.secondary)
@@ -52,7 +52,7 @@ struct EmailPreferencesView: View {
 
                         Toggle(isOn: $viewModel.emailProductUpdates) {
                             HStack(spacing: 12) {
-                                Image(systemName: "sparkles").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "sparkles").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Ürün Güncellemeleri").fontWeight(.semibold)
                                     Text("Yeni özellikler ve duyurular").font(.caption).foregroundStyle(.secondary)
@@ -68,7 +68,7 @@ struct EmailPreferencesView: View {
 
                         Toggle(isOn: $viewModel.emailRecipeTips) {
                             HStack(spacing: 12) {
-                                Image(systemName: "fork.knife").foregroundStyle(.EBA_72_B)
+                                Image(systemName: "fork.knife").foregroundStyle(.AppPrimary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Tarif İpuçları").fontWeight(.semibold)
                                     Text("Özel içerikler ve öneriler").font(.caption).foregroundStyle(.secondary)
@@ -83,7 +83,7 @@ struct EmailPreferencesView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     if let error = viewModel.errorMessage {
                         Text(error)
@@ -95,7 +95,7 @@ struct EmailPreferencesView: View {
                 .padding()
             }
             .navigationTitle("E-posta")
-            .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
 
             if viewModel.isLoading {
                 Color.black.opacity(0.2).ignoresSafeArea()
@@ -105,7 +105,7 @@ struct EmailPreferencesView: View {
                     .cornerRadius(12)
             }
         }
-        .tint(.EBA_72_B)
+        .tint(.AppPrimary)
     }
 }
 

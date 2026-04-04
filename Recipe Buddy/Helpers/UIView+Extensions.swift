@@ -85,7 +85,7 @@ extension View {
     // Applies an inline navigation bar style with custom title color/font and optional hide-on-swipe
     func inlineColoredNavigationBar(
         titleColor: Color,
-        tintColor: Color = .EBA_72_B,
+        tintColor: Color = .AppPrimary,
         textStyle: UIFont.TextStyle = .headline,
         weight: UIFont.Weight = .bold,
         hidesOnSwipe: Bool = true,

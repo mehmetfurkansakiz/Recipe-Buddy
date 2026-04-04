@@ -6,17 +6,17 @@ struct ForgotPasswordView: View {
 
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea().onTapGesture { endEditing() }
+            Color.Background.ignoresSafeArea().onTapGesture { endEditing() }
 
             VStack(spacing: 20) {
                 // Title and Description
                 VStack {
                     Text("Şifreni Sıfırla")
                         .font(.largeTitle).fontWeight(.bold)
-                        .foregroundStyle(._181818)
+                        .foregroundStyle(.TextPrimary)
                     Text("Hesabına kayıtlı e-posta adresini girerek şifreni sıfırlayabilirsin.")
                         .font(.subheadline)
-                        .foregroundStyle(.A_3_A_3_A_3)
+                        .foregroundStyle(.TextSecondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.top, 40)
@@ -53,7 +53,7 @@ struct ForgotPasswordView: View {
                     onNavigateToLogin()
                 }
                 .fontWeight(.bold)
-                .tint(.EBA_72_B)
+                .tint(.AppPrimary)
                 .font(.footnote)
                 .padding(.bottom)
             }
@@ -90,13 +90,13 @@ struct CircularTimerView: View {
             Circle()
                 .trim(from: 0.0, to: min(progress, 1.0))
                 .stroke(style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
-                .foregroundColor(Color("EBA72B"))
+                .foregroundColor(.AppPrimary)
                 .rotationEffect(Angle(degrees: 270.0))
                 .animation(.linear, value: progress)
             
             Text("\(timeRemaining)s")
                 .font(.system(size: 24, weight: .bold))
-                .foregroundStyle(Color("303030"))
+                .foregroundStyle(.TextPrimary)
         }
     }
 }

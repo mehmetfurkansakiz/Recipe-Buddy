@@ -63,6 +63,7 @@ class RegisterViewModel: ObservableObject {
                 ]
             )
 
+            UserDefaults.standard.set(true, forKey: "consent_prompt_after_signup")
             self.didRegister = true
         } catch {
             self.authError = AuthError.from(supabaseError: error)

@@ -16,7 +16,7 @@ struct CustomTabBar: View {
                         Image(tabs[index].icon)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .foregroundColor(selectedTab == index ? Color("EBA72B") : Color("666666"))
+                            .foregroundColor(selectedTab == index ? Color.AppPrimary : Color.TextSecondary)
                             .frame(width: 24, height: 24)
                     }
                     // Her bir butona eşit alan vererek yayılmalarını sağla

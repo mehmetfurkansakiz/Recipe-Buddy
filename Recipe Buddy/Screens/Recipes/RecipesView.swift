@@ -8,7 +8,7 @@ struct RecipesView: View {
     
     var body: some View {
         ZStack {
-            Color("FBFBFB").ignoresSafeArea()
+            Color.Background.ignoresSafeArea()
             
             VStack(spacing: 0) {
                 ScrollView {
@@ -40,7 +40,7 @@ struct RecipesView: View {
                     }) {
                         ZStack {
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.EBA_72_B)
+                                .fill(Color.AppPrimary)
                                 .frame(width: 56, height: 56)
                                 .shadow(color: .black.opacity(0.4), radius: 8, y: 4)
                                 .overlay(
@@ -71,7 +71,7 @@ struct RecipesView: View {
         }
         // Navigation title and appearance with helper modifier
         .navigationTitle("Tariflerim")
-        .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+        .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
     }
     
     // MARK: - Supporting Views
@@ -118,7 +118,7 @@ struct RecipesView: View {
             Text("Oluşturduğum Tarifler")
                 .font(.title2).bold()
                 .padding(.horizontal)
-                .foregroundStyle(Color.EBA_72_B)
+                .foregroundStyle(.AppPrimary)
             
             LazyVGrid(
                 columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
@@ -147,7 +147,7 @@ struct RecipesView: View {
             Text("Favori Tariflerim")
                 .font(.title2).bold()
                 .padding(.horizontal)
-                .foregroundStyle(.EBA_72_B)
+                .foregroundStyle(.AppPrimary)
             
             if dataManager.favoritedRecipes.isEmpty {
                 // if list is empty, show the empty state message
@@ -155,16 +155,16 @@ struct RecipesView: View {
                     Text("Henüz favori tarifiniz yok.")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundStyle(._303030)
+                        .foregroundStyle(.TextPrimary)
                     Text("Tariflerin yanındaki ❤️ simgesine tıklayarak favorilerinizi burada görebilirsiniz.")
                         .font(.caption)
-                        .foregroundStyle(.A_3_A_3_A_3)
+                        .foregroundStyle(.TextSecondary)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.thinMaterial.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.A_3_A_3_A_3.opacity(0.5) , lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder , lineWidth: 1))
                 .padding(.horizontal)
                 
             } else {
@@ -175,17 +175,17 @@ struct RecipesView: View {
                     HStack {
                         Text("Tümünü Gör")
                             .fontWeight(.semibold)
-                            .foregroundStyle(._303030)
+                            .foregroundStyle(.TextPrimary)
                         Spacer()
                         Text("\(dataManager.favoritedRecipes.count) tarif")
-                            .foregroundStyle(.A_3_A_3_A_3)
+                            .foregroundStyle(.TextSecondary)
                         Image(systemName: "chevron.right")
-                            .foregroundStyle(.A_3_A_3_A_3)
+                            .foregroundStyle(.TextSecondary)
                     }
                     .padding()
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.A_3_A_3_A_3.opacity(0.5) , lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.TextSecondary.opacity(0.5) , lineWidth: 1))
                     .padding(.horizontal)
                 }
             }
@@ -196,11 +196,11 @@ struct RecipesView: View {
         VStack(spacing: 16) {
             Image(systemName: "bookmark.slash")
                 .font(.system(size: 50))
-                .foregroundColor(.A_3_A_3_A_3)
+                .foregroundColor(.TextSecondary)
             
             Text("Henüz Tarifiniz Yok")
                 .font(.headline)
-                .foregroundColor(._181818)
+                .foregroundColor(.TextPrimary)
             
             Text("Yeni bir tarif oluşturun veya Ana sayfadan beğendiklerinizi favorilerinize ekleyin.")
                 .font(.subheadline)
@@ -229,3 +229,4 @@ struct RecipesView: View {
             .environmentObject(dataManager)
     }
 }
+

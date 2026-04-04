@@ -4,6 +4,7 @@ struct MainTabView: View {
     @ObservedObject var coordinator: AppCoordinator
     @State private var selectedTab: ContentTab = .home
     @State private var navigationPath = NavigationPath()
+    @State private var selectedTheme: ThemeOption = ThemePreferencesViewModel().selected
     
     private let tabs = [
         TabItem(icon: "home.icon"),
@@ -53,7 +54,23 @@ struct MainTabView: View {
                     EmailPreferencesView(viewModel: EmailPreferencesViewModel())
                 case .notificationPreferences:
                     NotificationPreferencesView(viewModel: NotificationPreferencesViewModel())
+                case .themePreferences:
+                    ThemePreferencesView(viewModel: ThemePreferencesViewModel())
+                case .helpCenter:
+                    HelpCenterView(viewModel: HelpCenterViewModel())
+                case .sendFeedback:
+                    FeedbackView(viewModel: FeedbackViewModel())
+                case .advancedSettings:
+                    AdvancedSettingsView(viewModel: SettingsViewModel(coordinator: coordinator), navigationPath: $navigationPath)
+                case .deleteAccount:
+                    DeleteAccountView(viewModel: DeleteAccountViewModel())
                 }
+            }
+        }
+        .preferredColorScheme(selectedTheme.colorScheme)
+        .onReceive(NotificationCenter.default.publisher(for: .themeChanged)) { notification in
+            if let option = notification.object as? ThemeOption {
+                selectedTheme = option
             }
         }
     }

@@ -11,7 +11,7 @@ struct ListSelectorView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.FBFBFB.ignoresSafeArea()
+                Color.Background.ignoresSafeArea()
                 
                 Group {
                     if isLoading {
@@ -40,7 +40,7 @@ struct ListSelectorView: View {
                         Button("Yeni Liste", systemImage: "plus", action: onCreateNewList)
                     }
                 }
-                .tint(Color.EBA_72_B)
+                .tint(.AppPrimary)
                 .task {
                     await fetchLists()
                 }
@@ -77,27 +77,27 @@ struct ListSelectorView: View {
                     Text(list.name)
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundStyle(Color("303030"))
+                        .foregroundStyle(.TextPrimary)
                     
                     Circle()
                         .frame(width: 4, height: 4)
-                        .foregroundStyle(Color("A3A3A3").opacity(0.5))
+                        .foregroundStyle(.TextSecondary.opacity(0.5))
                     
                     Text("\(list.itemCount) öge")
                         .font(.callout)
-                        .foregroundStyle(Color("A3A3A3"))
+                        .foregroundStyle(.TextSecondary)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color("A3A3A3"))
+                        .foregroundStyle(.TextSecondary.opacity(0.5))
                 }
                 .padding()
                 .background(.thinMaterial.opacity(0.3)) // Arka plan
                 .clipShape(RoundedRectangle(cornerRadius: 12)) // Köşeleri yuvarla
                 .overlay(RoundedRectangle(cornerRadius: 12) // Kenarlık ekle
-                    .stroke(Color("A3A3A3").opacity(0.5), lineWidth: 1))
+                    .stroke(Color.SurfaceBorder, lineWidth: 1))
                 .padding(.horizontal)
             }
             .buttonStyle(.plain)

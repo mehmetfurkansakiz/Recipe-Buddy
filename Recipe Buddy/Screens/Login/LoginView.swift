@@ -9,7 +9,7 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea().onTapGesture { endEditing() }
+            Color.Background.ignoresSafeArea().onTapGesture { endEditing() }
             
             VStack(spacing: 20) {
                 
@@ -20,10 +20,10 @@ struct LoginView: View {
                         .frame(height: 240)
                     Text("Tekrar Hoş Geldin!")
                         .font(.largeTitle).fontWeight(.bold)
-                        .foregroundStyle(Color("181818"))
+                        .foregroundStyle(.TextPrimary)
                     Text("Kaldığın yerden devam et")
                         .font(.subheadline)
-                        .foregroundStyle(Color("A3A3A3"))
+                        .foregroundStyle(.TextSecondary)
                 }
                 
                 // Login form
@@ -40,7 +40,7 @@ struct LoginView: View {
                         onNavigateToForgotPassword()
                     }
                     .font(.footnote)
-                    .tint(.EBA_72_B)
+                    .tint(.AppPrimary)
                 }
                 
                 AuthButton(
@@ -60,7 +60,7 @@ struct LoginView: View {
                         onNavigateToRegister()
                     }
                     .fontWeight(.bold)
-                    .tint(Color("EBA72B"))
+                    .tint(.AppPrimary)
                 }
                 .font(.footnote)
                 .padding(.bottom)

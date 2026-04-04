@@ -74,13 +74,13 @@ struct EditableRecipeIngredientRow: View {
                         .frame(maxHeight: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Color("EBA72B"))
+                .tint(.AppPrimary)
             }
         }
         .padding()
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
     }
 }
 

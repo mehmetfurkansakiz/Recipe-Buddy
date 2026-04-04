@@ -40,10 +40,10 @@ struct ExploreRecipeCard: View {
                             .aspectRatio(contentMode: .fill)
                     } else {
                         ZStack {
-                            Color("F2F2F7")
+                            Color.Surface
                                 .overlay {
                                     Image(systemName: "photo")
-                                        .foregroundStyle(Color.C_2_C_2_C_2)
+                                        .foregroundStyle(.TextSecondary)
                                         .font(.largeTitle)
                                 }
                         }
@@ -104,7 +104,7 @@ struct ExploreRecipeCard: View {
                         .clipShape(CornerBadgeShape(radius: cornerRadius, corners: [.topLeft, .bottomLeft]))
                     }
                 }
-                .foregroundColor(Color("FFFFFF"))
+                .foregroundColor(.white)
                 .fontWeight(.heavy)
             }
             .frame(width: cardWidth, height: cardWidth)
@@ -116,18 +116,18 @@ struct ExploreRecipeCard: View {
                     
                     Text(recipe.name)
                         .font(.headline)
-                        .foregroundStyle(Color("181818"))
+                        .foregroundStyle(.TextPrimary)
                         .lineLimit(1)
                     
                     Text(recipe.user?.fullName ?? "Anonim")
                         .font(.caption)
-                        .foregroundStyle(Color("303030"))
+                        .foregroundStyle(.TextSecondary)
                         .lineLimit(1)
                 } else {
                     
                     Text(recipe.name)
                         .font(.caption)
-                        .foregroundStyle(Color("181818"))
+                        .foregroundStyle(.TextPrimary)
                         .lineLimit(1)
                         .padding(.leading, 4)
                 }

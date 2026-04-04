@@ -9,23 +9,23 @@ struct AuthTextField: View {
     var body: some View {
         Group {
             if isSecure {
-                SecureField("", text: $text, prompt: Text(placeholder).foregroundStyle(Color("A3A3A3")))
+                SecureField("", text: $text, prompt: Text(placeholder).foregroundStyle(.TextSecondary))
             } else {
-                TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(Color("A3A3A3")))
+                TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(.TextSecondary))
             }
         }
         .padding()
-        .tint(Color("EBA72B"))
+        .tint(.AppPrimary)
         .autocapitalization(.none)
         .textContentType(contentType)
         .autocorrectionDisabled(true)
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("A3A3A3").opacity(0.5))
+                    .fill(Color.SurfaceBorder.opacity(0.5))
                     .offset(y: 1)
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("F2F2F7"))
+                    .fill(Color.Surface)
             }
         )
     }

@@ -39,14 +39,14 @@ struct Step1_BasicInfo: View {
                                         .font(.largeTitle)
                                     Text("Tarif Resmi Seç")
                                 }
-                                .foregroundColor(Color("A3A3A3"))
+                                .foregroundColor(.TextSecondary)
                             }
                         }
                     }
                     
                     .frame(height: 240).cornerRadius(12)
                 }
-                .tint(Color("EBA72B"))
+                .tint(.AppPrimary)
                 .task(id: viewModel.selectedPhotoItem) {
                     await viewModel.loadImage(from: viewModel.selectedPhotoItem)
                 }
@@ -84,7 +84,7 @@ struct Step1_BasicInfo: View {
                     HStack {
                         if viewModel.selectedCategories.isEmpty {
                             Text("Kategori Seç")
-                                .foregroundStyle(Color("A3A3A3"))
+                                .foregroundStyle(.TextSecondary)
                         } else {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 8) {
@@ -93,8 +93,8 @@ struct Step1_BasicInfo: View {
                                             .font(.caption)
                                             .padding(.horizontal, 8)
                                             .padding(.vertical, 4)
-                                            .background(Color("EBA72B").opacity(0.2))
-                                            .foregroundStyle(Color("EBA72B"))
+                                            .background(.AppPrimary.opacity(0.2))
+                                            .foregroundStyle(.AppPrimary)
                                             .cornerRadius(8)
                                     }
                                 }
@@ -116,10 +116,10 @@ struct Step1_BasicInfo: View {
                         HStack(spacing: 8) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Porsiyon")
-                                    .foregroundStyle(Color("A3A3A3"))
+                                    .foregroundStyle(.TextSecondary)
                                 Text("\(viewModel.servings) kişilik")
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(Color("181818"))
+                                    .foregroundStyle(.TextPrimary)
                                     .lineLimit(2)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -137,10 +137,10 @@ struct Step1_BasicInfo: View {
                         HStack(spacing: 8) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Süre")
-                                    .foregroundStyle(Color("A3A3A3"))
+                                    .foregroundStyle(.TextSecondary)
                                 Text("\(viewModel.cookingTime) dk")
                                     .fontWeight(.semibold)
-                                    .foregroundStyle(Color("181818"))
+                                    .foregroundStyle(.TextPrimary)
                                     .lineLimit(2)
                                     .fixedSize(horizontal: false, vertical: true)
                             }
@@ -160,7 +160,7 @@ struct Step1_BasicInfo: View {
                     HStack {
                         Spacer()
                         Button("Bitti") { activePicker = nil }
-                            .tint(Color("EBA72B"))
+                            .tint(.AppPrimary)
                     }
                     .padding()
 
@@ -173,7 +173,7 @@ struct Step1_BasicInfo: View {
                         }
                         .pickerStyle(.wheel)
                         .labelsHidden()
-                        .tint(Color("EBA72B"))
+                        .tint(.AppPrimary)
 
                     case .time:
                         Picker("Süre", selection: $viewModel.cookingTime) {
@@ -183,7 +183,7 @@ struct Step1_BasicInfo: View {
                         }
                         .pickerStyle(.wheel)
                         .labelsHidden()
-                        .tint(Color("EBA72B"))
+                        .tint(.AppPrimary)
                     }
                 }
                 .presentationDetents([.height(300)])
@@ -200,7 +200,7 @@ struct CustomTextFieldStyle: TextFieldStyle {
             .padding(12)
             .background(.thinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
     }
 }
 
@@ -211,7 +211,7 @@ struct CustomPickerStyle: ButtonStyle {
             .frame(maxWidth: .infinity)
             .background(.thinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
     }
 }
 

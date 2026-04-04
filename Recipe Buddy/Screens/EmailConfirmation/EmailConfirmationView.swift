@@ -17,19 +17,19 @@ struct EmailConfirmationView: View {
     
     var body: some View {
         ZStack {
-            Color.FBFBFB.ignoresSafeArea().onTapGesture { endEditing() }
+            Color.Background.ignoresSafeArea().onTapGesture { endEditing() }
             
             VStack(spacing: 30) {
                 Image(systemName: "envelope.circle.fill")
                     .font(.system(size: 80))
-                    .foregroundStyle(.EBA_72_B)
+                    .foregroundStyle(.AppPrimary)
                 
                 VStack(spacing: 12) {
                     Text("E-postanı Onayla")
-                        .font(.largeTitle).fontWeight(.bold).foregroundStyle(._181818)
+                        .font(.largeTitle).fontWeight(.bold).foregroundStyle(.TextPrimary)
                     
                     Text("Lütfen e-posta adresine gönderdiğimiz 6 haneli kodu gir.")
-                        .font(.subheadline).foregroundStyle(.A_3_A_3_A_3).multilineTextAlignment(.center)
+                        .font(.subheadline).foregroundStyle(.TextSecondary).multilineTextAlignment(.center)
                 }
                 
                 Text(viewModel.email)
@@ -38,7 +38,7 @@ struct EmailConfirmationView: View {
                     .frame(maxWidth: .infinity)
                     .background(.thinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(.A_3_A_3_A_3, lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
                 
                 // 6 digit OTP Input
                 otpInputView
@@ -46,7 +46,7 @@ struct EmailConfirmationView: View {
                 if viewModel.isTimerActive {
                     VStack {
                         Text("Tekrar göndermek için bekle:")
-                            .font(.caption).foregroundStyle(.A_3_A_3_A_3)
+                            .font(.caption).foregroundStyle(.TextSecondary)
                         
                         CircularTimerView(
                             progress: Double(viewModel.timeRemaining) / Double(viewModel.countdownDuration),
@@ -60,7 +60,7 @@ struct EmailConfirmationView: View {
                         Task { await viewModel.sendOTP() }
                     }
                     .fontWeight(.bold)
-                    .tint(Color.EBA_72_B)
+                    .tint(.AppPrimary)
                     .font(.footnote)
                 }
                 
@@ -78,7 +78,7 @@ struct EmailConfirmationView: View {
                     onNavigateBack()
                 }
                 .fontWeight(.bold)
-                .tint(.EBA_72_B)
+                .tint(.AppPrimary)
                 .font(.footnote)
                 .padding(.bottom)
                 
@@ -106,7 +106,7 @@ struct EmailConfirmationView: View {
                     .cornerRadius(8)
                     .overlay(
                         RoundedRectangle(cornerRadius: 8)
-                            .stroke(focusedField == index ? .EBA_72_B : .A_3_A_3_A_3 , lineWidth: 1)
+                            .stroke(focusedField == index ? Color.AppPrimary : Color.SurfaceBorder , lineWidth: 1)
                     )
                     .multilineTextAlignment(.center)
                     .font(.title2)

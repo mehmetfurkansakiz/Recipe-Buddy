@@ -30,7 +30,7 @@ struct RecipeCreateView: View {
                         dismiss()
                     }) {
                         Text("İptal")
-                            .foregroundStyle(Color("EBA72B"))
+                            .foregroundStyle(.AppPrimary)
                             .disabled(viewModel.isSaving)
                             .opacity(viewModel.isSaving ? 0.4 : 1.0)
                     }
@@ -65,7 +65,7 @@ struct RecipeCreateView: View {
                     .transition(.opacity)
             }
         }
-        .tint(Color("EBA72B"))
+        .tint(.AppPrimary)
         .animation(.easeInOut(duration: 0.25), value: viewModel.isSaving)
         .animation(.default, value: viewModel.selection)
         // Sheets
@@ -99,10 +99,10 @@ struct ProgressHeader: View {
                 VStack(spacing: 8) {
                     Text(steps[index])
                         .font(.caption)
-                        .foregroundStyle(selection >= index ? Color("EBA72B") : .secondary)
+                        .foregroundStyle(selection >= index ? .AppPrimary : .secondary)
                     
                     Capsule()
-                        .fill(selection >= index ? Color("EBA72B") : Color(.systemGray4))
+                        .fill(selection >= index ? Color.AppPrimary : Color.SurfaceBorder)
                         .frame(height: 4)
                 }
             }
@@ -118,8 +118,8 @@ struct StepNavigation: View {
         HStack {
             if viewModel.selection == 0 {
                 Toggle("Herkesle Paylaş", isOn: $viewModel.isPublic)
-                    .tint(Color("EBA72B"))
-                    .toggleStyle(SwitchToggleStyle(tint: Color("EBA72B")))
+                    .tint(.AppPrimary)
+                    .toggleStyle(SwitchToggleStyle(tint: .AppPrimary))
                     .padding(.vertical, 8)
                     .padding(.horizontal, 12)
                     .background(.thinMaterial)
@@ -132,7 +132,7 @@ struct StepNavigation: View {
                         .padding().frame(maxWidth: .infinity)
                 }
                 .background(.gray.opacity(0.2))
-                .foregroundStyle(._181818)
+                .foregroundStyle(.TextPrimary)
                 .clipShape(Capsule())
                 .contentShape(Rectangle())
             }
@@ -145,7 +145,7 @@ struct StepNavigation: View {
                     }
                     .padding().frame(maxWidth: .infinity)
                 }
-                .background(Color("EBA72B"))
+                .background(Color.AppPrimary)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
                 .contentShape(Rectangle())
@@ -158,7 +158,7 @@ struct StepNavigation: View {
                     Text(viewModel.recipeToEdit != nil ? "Güncelle" : "Kaydet")
                         .padding().frame(maxWidth: .infinity)
                 }
-                .background(Color("EBA72B"))
+                .background(Color.AppPrimary)
                 .foregroundStyle(.white)
                 .clipShape(Capsule())
                 .contentShape(Rectangle())

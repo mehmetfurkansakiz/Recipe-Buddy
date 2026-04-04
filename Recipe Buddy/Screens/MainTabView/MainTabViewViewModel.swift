@@ -11,4 +11,9 @@ enum AppNavigation: Hashable {
     case changePassword
     case emailPreferences
     case notificationPreferences
+    case themePreferences
+    case helpCenter
+    case sendFeedback
+    case advancedSettings
+    case deleteAccount
 }

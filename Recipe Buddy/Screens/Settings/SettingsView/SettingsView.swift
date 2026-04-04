@@ -4,7 +4,6 @@ import NukeUI
 struct SettingsView: View {
     @ObservedObject var viewModel: SettingsViewModel
     @Binding var navigationPath: NavigationPath
-    @EnvironmentObject var dataManager: DataManager
     
     var body: some View {
         ZStack {
@@ -16,16 +15,16 @@ struct SettingsView: View {
                     dataPrivacySection
                     helpSupportSection
                     aboutSection
-                    dangerZoneSection
+                    advancedSection
                     
                     Spacer(minLength: 72)
                 }
                 .padding()
             }
             .allowsHitTesting(!viewModel.isSigningOut)
-            .background(Color("FBFBFB"))
+            .background(Color.Background)
             .navigationTitle("Ayarlar")
-            .inlineColoredNavigationBar(titleColor: .EBA_72_B, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
             .alert("Yakında", isPresented: $viewModel.showPremiumAlert) {
                 Button("Tamam", role: .cancel) { }
             } message: {
@@ -53,7 +52,7 @@ struct SettingsView: View {
             
             VStack(spacing: 0) {
                 Button(action: { viewModel.showPremiumAlert = true }) {
-                    SettingsRowView(title: "Üyeliği Yönet", icon: "crown.fill", iconColor: .EBA_72_B)
+                    SettingsRowView(title: "Üyeliği Yönet", icon: "crown.fill", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
@@ -61,7 +60,7 @@ struct SettingsView: View {
                 Button {
                     navigationPath.append(AppNavigation.editProfile)
                 } label: {
-                    SettingsRowView(title: "Profili Düzenle", icon: "pencil", iconColor: .EBA_72_B)
+                    SettingsRowView(title: "Profili Düzenle", icon: "pencil", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
@@ -69,7 +68,7 @@ struct SettingsView: View {
                 Button {
                     navigationPath.append(AppNavigation.changePassword)
                 } label: {
-                    SettingsRowView(title: "Parolayı Değiştir", icon: "key.fill", iconColor: .EBA_72_B)
+                    SettingsRowView(title: "Parolayı Değiştir", icon: "key.fill", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
@@ -77,12 +76,12 @@ struct SettingsView: View {
                 Button {
                     navigationPath.append(AppNavigation.emailPreferences)
                 } label: {
-                    SettingsRowView(title: "E-posta Tercihleri", icon: "envelope.fill", iconColor: .EBA_72_B)
+                    SettingsRowView(title: "E-posta Tercihleri", icon: "envelope.fill", iconColor: .AppPrimary)
                 }
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -91,19 +90,19 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("BİLDİRİMLER")
                 .font(.caption)
-                .foregroundStyle(.A_3_A_3_A_3)
+                .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
                 Button {
                     navigationPath.append(AppNavigation.notificationPreferences)
                 } label: {
-                    SettingsRowView(title: "Bildirimleri Yönet", icon: "bell.fill", iconColor: .A_3_A_3_A_3)
+                    SettingsRowView(title: "Bildirimleri Yönet", icon: "bell.fill", iconColor: .AppPrimary)
                 }
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -112,19 +111,19 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("GÖRÜNÜM")
                 .font(.caption)
-                .foregroundStyle(.A_3_A_3_A_3)
+                .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
                 Button {
-                    viewModel.showPremiumAlert = true
+                    navigationPath.append(AppNavigation.themePreferences)
                 } label: {
-                    SettingsRowView(title: "Tema", icon: "paintbrush.fill", iconColor: .A_3_A_3_A_3)
+                    SettingsRowView(title: "Tema", icon: "paintbrush.fill", iconColor: .AppPrimary)
                 }
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -133,19 +132,19 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("VERİ & GİZLİLİK")
                 .font(.caption)
-                .foregroundStyle(.A_3_A_3_A_3)
+                .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
-                Button {
-                    viewModel.showPremiumAlert = true
+                NavigationLink {
+                    DataConsentPreferencesView(viewModel: DataConsentPreferencesViewModel())
                 } label: {
-                    SettingsRowView(title: "Veri İzni", icon: "lock.shield.fill", iconColor: .A_3_A_3_A_3)
+                    SettingsRowView(title: "Veri İzni", icon: "lock.shield.fill", iconColor: .AppPrimary)
                 }
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -154,27 +153,27 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("YARDIM & DESTEK")
                 .font(.caption)
-                .foregroundStyle(.A_3_A_3_A_3)
+                .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
                 Button {
-                    viewModel.showPremiumAlert = true
+                    navigationPath.append(AppNavigation.helpCenter)
                 } label: {
-                    SettingsRowView(title: "Yardım Merkezi", icon: "questionmark.circle.fill", iconColor: .A_3_A_3_A_3)
+                    SettingsRowView(title: "Yardım Merkezi", icon: "questionmark.circle.fill", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
                 
                 Button {
-                    viewModel.showPremiumAlert = true
+                    navigationPath.append(AppNavigation.sendFeedback)
                 } label: {
-                    SettingsRowView(title: "Geri Bildirim Gönder", icon: "paperplane.fill", iconColor: .A_3_A_3_A_3)
+                    SettingsRowView(title: "Geri Bildirim Gönder", icon: "paperplane.fill", iconColor: .AppPrimary)
                 }
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -183,18 +182,18 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("HAKKINDA")
                 .font(.caption)
-                .foregroundStyle(.A_3_A_3_A_3)
+                .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
-                Link(destination: URL(string: "https://www.yourapp.com/privacy")!) {
-                    SettingsRowView(title: "Gizlilik Politikası", icon: "shield.fill", iconColor: .A_3_A_3_A_3)
+                Link(destination: SupportInfo.privacyPolicyURL) {
+                    SettingsRowView(title: "Gizlilik Politikası", icon: "shield.fill", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
                 
-                Link(destination: URL(string: "https://www.yourapp.com/terms")!) {
-                    SettingsRowView(title: "Kullanım Koşulları", icon: "doc.text.fill", iconColor: .A_3_A_3_A_3)
+                Link(destination: SupportInfo.termsURL) {
+                    SettingsRowView(title: "Kullanım Koşulları", icon: "doc.text.fill", iconColor: .AppPrimary)
                 }
                 
                 Divider().padding(.leading)
@@ -202,46 +201,35 @@ struct SettingsView: View {
                 SettingsRowView(
                     title: "Versiyon",
                     icon: "info.circle.fill",
-                    iconColor: .A_3_A_3_A_3,
+                    iconColor: .AppPrimary,
                     version: appVersion()
                 )
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
-    /// Section with destructive actions pinned at the bottom.
-    private var dangerZoneSection: some View {
+    /// Section for advanced account actions.
+    private var advancedSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("HESAP İŞLEMLERİ")
+            Text("GELİŞMİŞ")
                 .font(.caption)
-                .foregroundStyle(.A_3_A_3_A_3)
+                .foregroundStyle(.TextSecondary)
                 .padding(.leading, 4)
             
             VStack(spacing: 0) {
                 Button {
-                    Task { await viewModel.signOut(dataManager: dataManager) }
+                    navigationPath.append(AppNavigation.advancedSettings)
                 } label: {
-                    SettingsRowView(title: "Çıkış Yap", icon: "rectangle.portrait.and.arrow.right", iconColor: .red)
-                        .foregroundColor(.red)
-                }
-                .buttonStyle(.plain)
-                
-                Divider().padding(.leading)
-                
-                Button(role: .destructive) {
-                    // TODO: Implement account deletion action
-                } label: {
-                    SettingsRowView(title: "Hesabı Sil", icon: "trash.fill", iconColor: .red)
-                        .foregroundColor(.red)
+                    SettingsRowView(title: "Gelişmiş Ayarlar", icon: "gearshape.2.fill", iconColor: .AppPrimary)
                 }
                 .buttonStyle(.plain)
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(.systemGray4), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
     }
     
@@ -269,7 +257,7 @@ struct SettingsRowView: View {
                 .foregroundStyle(iconColor)
             
             Text(title)
-                .foregroundStyle(._181818)
+                .foregroundStyle(.TextPrimary)
             
             Spacer()
             
@@ -280,10 +268,12 @@ struct SettingsRowView: View {
             } else {
                 Image(systemName: "chevron.right")
                     .font(.subheadline)
-                    .foregroundStyle(.EBA_72_B)
+                    .foregroundStyle(.AppPrimary)
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 
@@ -296,4 +286,3 @@ struct SettingsRowView: View {
         .environmentObject(DataManager())
     }
 }
-
