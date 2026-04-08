@@ -12,7 +12,7 @@ struct ProfileView: View {
         ZStack {
             Color.Background.ignoresSafeArea()
 
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
                     if dataManager.currentUser == nil && !dataManager.areProfileStatsLoaded {
                         ProgressView()
@@ -177,8 +177,7 @@ struct ProfileView: View {
                     .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
                 Spacer()
                 Button("Tümünü Gör") {
-                    // TODO: Navigate to user's recipes list screen
-                    // Example: viewModel.coordinator.navigate(to: .recipe)
+                    NotificationCenter.default.post(name: .appTabSelectionRequested, object: ContentTab.recipe)
                 }
                 .font(.footnote)
                 .tint(.AppPrimary)
@@ -186,33 +185,38 @@ struct ProfileView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(Array(dataManager.ownedRecipes.prefix(6))) { recipe in
-                        VStack(alignment: .leading, spacing: 6) {
-                            if let url = recipe.imagePublicURL() {
-                                AsyncImage(url: url) { image in
-                                    image.resizable().scaledToFill()
-                                } placeholder: {
-                                    Color.gray.opacity(0.15)
-                                }
-                                .frame(width: 140, height: 90)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            } else {
-                                Color.gray.opacity(0.15)
+                        Button {
+                            navigationPath.append(AppNavigation.recipeDetail(recipe))
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                if let url = recipe.imagePublicURL() {
+                                    AsyncImage(url: url) { image in
+                                        image.resizable().scaledToFill()
+                                    } placeholder: {
+                                        Color.gray.opacity(0.15)
+                                    }
                                     .frame(width: 140, height: 90)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                                } else {
+                                    Color.gray.opacity(0.15)
+                                        .frame(width: 140, height: 90)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+                                Text(recipe.name)
+                                    .font(.footnote)
+                                    .lineLimit(1)
+                                HStack(spacing: 6) {
+                                    Image(systemName: "heart.fill").font(.caption2)
+                                    Text("\(recipe.favoritedCount)").font(.caption2)
+                                    Spacer()
+                                    Image(systemName: "clock").font(.caption2)
+                                    Text("\(recipe.cookingTime) dk").font(.caption2)
+                                }
+                                .foregroundStyle(.secondary)
                             }
-                            Text(recipe.name)
-                                .font(.footnote)
-                                .lineLimit(1)
-                            HStack(spacing: 6) {
-                                Image(systemName: "heart.fill").font(.caption2)
-                                Text("\(recipe.favoritedCount)").font(.caption2)
-                                Spacer()
-                                Image(systemName: "clock").font(.caption2)
-                                Text("\(recipe.cookingTime) dk").font(.caption2)
-                            }
-                            .foregroundStyle(.secondary)
+                            .frame(width: 140)
                         }
-                        .frame(width: 140)
+                        .buttonStyle(.plain)
                     }
                     if dataManager.ownedRecipes.isEmpty {
                         Text("Henüz tarifin yok.")

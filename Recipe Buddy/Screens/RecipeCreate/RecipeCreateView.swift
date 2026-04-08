@@ -6,6 +6,8 @@ struct RecipeCreateView: View {
     
     var body: some View {
         ZStack {
+            Color.Background.ignoresSafeArea()
+
             VStack(spacing: 0) {
                 // Custom progress indicator for steps
                 ProgressHeader(selection: viewModel.selection)

@@ -5,22 +5,26 @@ struct FavoriteRecipesView: View {
     @Binding var navigationPath: NavigationPath
     
     var body: some View {
-        ScrollView {
+        ZStack {
             Color.Background.ignoresSafeArea()
-            LazyVStack {
-                if dataManager.favoritedRecipes.isEmpty {
-                    Text("Henüz favori tarifi eklemediniz.")
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 50)
-                } else {
-                    ForEach(dataManager.favoritedRecipes) { recipe in
-                        Button(action: {
-                            navigationPath.append(AppNavigation.recipeDetail(recipe))
-                        }) {
-                            SearchResultRow(recipe: recipe)
+
+            ScrollView(showsIndicators: false) {
+                LazyVStack {
+                    if dataManager.favoritedRecipes.isEmpty {
+                        Text("Henüz favori tarifi eklemediniz.")
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 50)
+                    } else {
+                        ForEach(dataManager.favoritedRecipes) { recipe in
+                            Button(action: {
+                                navigationPath.append(AppNavigation.recipeDetail(recipe))
+                            }) {
+                                SearchResultRow(recipe: recipe)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal)
+                            Divider().padding(.leading)
                         }
-                        .padding(.horizontal)
-                        Divider().padding(.leading)
                     }
                 }
             }

@@ -183,13 +183,22 @@ struct CategoryResultsView: View {
     @Binding var navigationPath: NavigationPath
 
     var body: some View {
-        ZStack {
+        Group {
             if isLoading {
-                ProgressView()
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .controlSize(.regular)
+                    Text("Tarifler yükleniyor...")
+                        .font(.footnote)
+                        .foregroundStyle(.TextSecondary)
+                }
+                .padding(.vertical, 24)
+                .frame(maxWidth: .infinity, minHeight: 220)
             } else if recipes.isEmpty {
                 Text("Bu kategoride tarif bulunamadı.")
                     .foregroundStyle(.secondary)
                     .padding()
+                    .frame(maxWidth: .infinity, minHeight: 220, alignment: .top)
             } else {
                 LazyVGrid(
                     columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)],
@@ -197,7 +206,6 @@ struct CategoryResultsView: View {
                 ) {
                     ForEach(recipes) { recipe in
                         Button(action: { navigationPath.append(AppNavigation.recipeDetail(recipe)) }) {
-                            // for use small
                             let cardWidth = (UIScreen.main.bounds.width / 2) - 24
                             ExploreRecipeCard(recipe: recipe, cardWidth: cardWidth)
                         }
@@ -206,6 +214,7 @@ struct CategoryResultsView: View {
                 .padding(.horizontal)
             }
         }
+        .frame(maxWidth: .infinity)
     }
 }
 

@@ -11,7 +11,7 @@ struct RecipesView: View {
             Color.Background.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     SearchBarView(searchText: $viewModel.searchText)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
