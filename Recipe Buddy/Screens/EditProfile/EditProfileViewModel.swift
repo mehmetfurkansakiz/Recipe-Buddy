@@ -4,7 +4,6 @@ import PhotosUI
 @MainActor
 class EditProfileViewModel: ObservableObject {
     @Published var isSaving = false
-    @Published var showSavedAlert = false
     @Published var errorMessage: String? = nil
 
     // Form Alanları
@@ -47,7 +46,7 @@ class EditProfileViewModel: ObservableObject {
         showBirthDate = user?.showBirthDate ?? false
         let loadedProfession = user?.profession ?? ""
         self.professionText = loadedProfession
-        self.isProfessionEnabled = !loadedProfession.isEmpty
+        self.isProfessionEnabled = user?.showProfession ?? !loadedProfession.isEmpty
         self.currentAvatarPath = user?.avatarUrl
         self.selectedImageData = nil
         self.wantsToRemoveAvatar = false
@@ -82,50 +81,54 @@ class EditProfileViewModel: ObservableObject {
         self.wantsToRemoveAvatar = true
     }
 
-    func save(dataManager: DataManager) async {
+    func save(dataManager: DataManager) async -> Bool {
         isSaving = true
         defer { isSaving = false }
 
-        do {
-            let newImageData = selectedImageData
-            let wantsRemoval = wantsToRemoveAvatar
-            let oldPath = currentAvatarPath
+        let newImageData = selectedImageData
+        let wantsRemoval = wantsToRemoveAvatar
+        let oldPath = currentAvatarPath
 
-            // NSFW check for avatar (if a new image is selected and not removing)
-            if let data = newImageData, let uiImage = UIImage(data: data), !wantsRemoval {
-                let decision = await NSFWModerationService.shared.check(image: uiImage)
-                if case .rejected = decision {
-                    print("❌ NSFW detected for avatar.")
-                    self.errorMessage = "Uygunsuz içerik tespit edildi. Lütfen farklı bir görsel seçin."
-                    return
-                }
+        // NSFW check for avatar (if a new image is selected and not removing)
+        if let data = newImageData, let uiImage = UIImage(data: data), !wantsRemoval {
+            let decision = await NSFWModerationService.shared.check(image: uiImage)
+            if case .rejected = decision {
+                print("❌ NSFW detected for avatar.")
+                self.errorMessage = "Uygunsuz içerik tespit edildi. Lütfen farklı bir görsel seçin."
+                return false
             }
-            
-            let professionToSave = isProfessionEnabled ? professionText.trimmingCharacters(in: .whitespacesAndNewlines) : nil
-
-            if wantsRemoval, let oldPath, !oldPath.isEmpty {
-                print("🗑️ Eski görsel siliniyor: \(oldPath)")
-                try? await ImageUploaderService.shared.deleteImage(for: oldPath)
-                self.currentAvatarPath = nil
-            }
-            else if newImageData != nil, let oldPath, !oldPath.isEmpty {
-                print("🗑️ Eski görsel (değişim) siliniyor: \(oldPath)")
-                try? await ImageUploaderService.shared.deleteImage(for: oldPath)
-            }
-
-            await dataManager.updateProfileWithAvatarControl(
-                fullName: fullName.trimmingCharacters(in: .whitespacesAndNewlines),
-                city: city.trimmingCharacters(in: .whitespacesAndNewlines),
-                showCity: showCity,
-                bio: bio.trimmingCharacters(in: .whitespacesAndNewlines),
-                birthDate: showBirthDate ? birthDate : nil,
-                showBirthDate: showBirthDate,
-                profession: professionToSave,
-                avatarImageData: newImageData,
-                removeAvatar: wantsRemoval
-            )
-            showSavedAlert = true
         }
+
+        let professionToSave = isProfessionEnabled ? professionText.trimmingCharacters(in: .whitespacesAndNewlines) : nil
+
+        if wantsRemoval, let oldPath, !oldPath.isEmpty {
+            print("🗑️ Eski görsel siliniyor: \(oldPath)")
+            try? await ImageUploaderService.shared.deleteImage(for: oldPath)
+            self.currentAvatarPath = nil
+        }
+        else if newImageData != nil, let oldPath, !oldPath.isEmpty {
+            print("🗑️ Eski görsel (değişim) siliniyor: \(oldPath)")
+            try? await ImageUploaderService.shared.deleteImage(for: oldPath)
+        }
+
+        let didSave = await dataManager.updateProfileWithAvatarControl(
+            fullName: fullName.trimmingCharacters(in: .whitespacesAndNewlines),
+            city: city.trimmingCharacters(in: .whitespacesAndNewlines),
+            showCity: showCity,
+            bio: bio.trimmingCharacters(in: .whitespacesAndNewlines),
+            birthDate: showBirthDate ? birthDate : nil,
+            showBirthDate: showBirthDate,
+            profession: professionToSave,
+            showProfession: isProfessionEnabled,
+            avatarImageData: newImageData,
+            removeAvatar: wantsRemoval
+        )
+        if didSave {
+            return true
+        }
+
+        self.errorMessage = "Profil güncellenemedi. Lütfen tekrar deneyin."
+        return false
     }
 
     // MARK: - Image Helpers

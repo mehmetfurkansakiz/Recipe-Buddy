@@ -5,16 +5,18 @@ struct ProfileView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @Binding var navigationPath: NavigationPath
     @EnvironmentObject var dataManager: DataManager
+    @StateObject private var editProfileViewModel = EditProfileViewModel()
     @State private var goToSettings = false
     
     var body: some View {
         ZStack {
-            EmptyView()
-            
+            Color.Background.ignoresSafeArea()
+
             ScrollView {
                 VStack(spacing: 32) {
-                    if dataManager.isLoading || !dataManager.areProfileStatsLoaded {
+                    if dataManager.currentUser == nil && !dataManager.areProfileStatsLoaded {
                         ProgressView()
+                            .frame(maxWidth: .infinity, minHeight: 300)
                     } else if let user = dataManager.currentUser {
                         profileHeader(user: user)
                         statsSection
@@ -38,6 +40,9 @@ struct ProfileView: View {
                 .padding()
             }
             .background(Color.Background)
+            .refreshable {
+                await dataManager.refreshProfileData()
+            }
             .navigationTitle("Profilim")
             .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
             .toolbar {
@@ -81,7 +86,7 @@ struct ProfileView: View {
             }
             
             NavigationLink {
-                EditProfileView(viewModel: EditProfileViewModel())
+                EditProfileView(viewModel: editProfileViewModel)
             } label: {
                 Text("Profili Düzenle")
                     .tint(.AppPrimary)
@@ -112,23 +117,26 @@ struct ProfileView: View {
     
     // MARK: - About / Bio
     private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let user = dataManager.currentUser
+        let bioText = user?.bio?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let hasProfession = (user?.showProfession ?? false) && !(user?.profession?.isEmpty ?? true)
+        let hasCity = (user?.showCity ?? false) && !(user?.city?.isEmpty ?? true)
+        let hasBirthDate = (user?.showBirthDate ?? false) && user?.birthDate != nil
+        let isAboutEmpty = bioText.isEmpty && !hasProfession && !hasCity && !hasBirthDate
+
+        return VStack(alignment: .leading, spacing: 8) {
             Text("HAKKIMDA")
                 .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
             
             VStack(alignment: .leading, spacing: 6) {
-                let user = dataManager.currentUser
-                Text(user?.fullName ?? "İsimsiz")
-                    .font(.headline)
-
-                if let bio = user?.bio, !bio.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text(bio)
+                if !bioText.isEmpty {
+                    Text(bioText)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
                 HStack(spacing: 12) {
-                    if let profession = user?.profession, !profession.isEmpty {
+                    if (user?.showProfession ?? false), let profession = user?.profession, !profession.isEmpty {
                         Label(profession, systemImage: "briefcase")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
@@ -145,12 +153,20 @@ struct ProfileView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+
+                if isAboutEmpty {
+                    Text("Henüz hakkımda bilgisi eklenmemiş.")
+                        .font(.subheadline)
+                        .foregroundStyle(.TextSecondary)
+                }
             }
             .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     // MARK: - Recent Recipes (Horizontal)
@@ -478,4 +494,3 @@ struct ProfileStatView: View {
             .environmentObject(DataManager())
     }
 }
-

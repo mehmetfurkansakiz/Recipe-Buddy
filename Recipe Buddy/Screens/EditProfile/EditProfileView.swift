@@ -11,6 +11,7 @@ struct EditProfileView: View {
     // Image Picker (with editing/cropping)
     @State private var showImagePicker = false
     @State private var showRemoveAvatarAlert = false
+    @State private var hasLoadedInitialData = false
 
     var body: some View {
         ZStack {
@@ -29,11 +30,10 @@ struct EditProfileView: View {
             }
             .navigationTitle("Profili Düzenle")
             .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
-            .onAppear { viewModel.loadInitial(from: dataManager.currentUser) }
-            .alert("Kaydedildi", isPresented: $viewModel.showSavedAlert) {
-                Button("Tamam") { dismiss() }
-            } message: {
-                Text("Profil bilgilerin güncellendi.")
+            .onAppear {
+                guard !hasLoadedInitialData, let user = dataManager.currentUser else { return }
+                viewModel.loadInitial(from: user)
+                hasLoadedInitialData = true
             }
             .alert("Fotoğrafı kaldır?", isPresented: $showRemoveAvatarAlert) {
                 Button("Kaldır", role: .destructive) {
@@ -208,18 +208,10 @@ struct EditProfileView: View {
                     }
 
                     GridRow {
-                        DatePicker(
-                            "Doğum Tarihi",
-                            selection: Binding(
-                                get: { viewModel.birthDate ?? Date() },
-                                set: { viewModel.birthDate = $0 }
-                            ),
-                            in: viewModel.earliestBirthDate...viewModel.latestBirthDate,
-                            displayedComponents: [.date]
-                        )
-                        .datePickerStyle(.compact)
-                        .labelsHidden()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        Text(birthDateDisplayText)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
                         Toggle("Yaşı göster", isOn: $viewModel.showBirthDate)
                             .tint(.AppPrimary)
@@ -245,6 +237,8 @@ struct EditProfileView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 TextEditor(text: $viewModel.bio)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
                     .frame(minHeight: 120)
                     .overlay(alignment: .topLeading) {
                         if viewModel.bio.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -261,11 +255,30 @@ struct EditProfileView: View {
         }
     }
 
+    private var birthDateDisplayText: String {
+        guard let birthDate = viewModel.birthDate else {
+            return "Doğum tarihi: Belirtilmemiş"
+        }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return "Doğum tarihi: \(formatter.string(from: birthDate))"
+    }
+
     private var saveSection: some View {
         VStack(spacing: 12) {
             AuthButton(
                 title: "Kaydet",
-                action: { Task { await viewModel.save(dataManager: dataManager) } },
+                action: {
+                    Task {
+                        let didSave = await viewModel.save(dataManager: dataManager)
+                        if didSave {
+                            dismiss()
+                        }
+                    }
+                },
                 isDisabled: viewModel.isSaving,
                 isLoading: viewModel.isSaving
             )

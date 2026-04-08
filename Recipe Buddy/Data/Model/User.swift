@@ -7,13 +7,14 @@ struct User: Codable, Identifiable, Hashable {
     let username: String?
     let avatarUrl: String?
     let profession: String?
+    let showProfession: Bool?
     let totalRatingPoints: Int?
     let totalRatingsReceived: Int?
-    let city: String? = nil
-    let showCity: Bool? = nil
-    let bio: String? = nil
-    let birthDate: Date? = nil
-    let showBirthDate: Bool? = nil
+    var city: String? = nil
+    var showCity: Bool? = nil
+    var bio: String? = nil
+    var birthDate: Date? = nil
+    var showBirthDate: Bool? = nil
     let emailNewsletter: Bool?
     let emailProductUpdates: Bool?
     let emailRecipeTips: Bool?
@@ -22,6 +23,7 @@ struct User: Codable, Identifiable, Hashable {
         case id, username, email, profession, city, bio
         case fullName = "full_name"
         case avatarUrl = "avatar_url"
+        case showProfession = "show_profession"
         case totalRatingPoints = "total_rating_points"
         case totalRatingsReceived = "total_ratings_received"
         case showCity = "show_city"
