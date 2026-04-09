@@ -10,6 +10,7 @@ class AppCoordinator: ObservableObject {
     enum AppView {
         case splash
         case auth
+        case ageGate
         case main
     }
     
@@ -26,6 +27,11 @@ class AppCoordinator: ObservableObject {
                     Task { await self.setupMainApp()}
                 })
                 .preferredColorScheme(selectedTheme.colorScheme)
+            )
+        case .ageGate:
+            return AnyView(
+                AgeGateView(coordinator: self)
+                    .preferredColorScheme(selectedTheme.colorScheme)
             )
         case .main:
             return AnyView(
@@ -92,10 +98,41 @@ class AppCoordinator: ObservableObject {
     private func setupMainApp() async {
         print("✅ Veriler yükleniyor...")
         await dataManager.loadInitialUserData()
+
+        if dataManager.currentUser?.birthDate == nil {
+            print("ℹ️ Yaş bilgisi eksik, age gate gösteriliyor.")
+            currentView = .ageGate
+            return
+        }
+
         await dataManager.loadHomePageData()
         TelemetryManager.configureFromConsent()
         print("✅ Veriler yüklendi, ana ekrana yönlendiriliyor.")
         currentView = .main
+    }
+
+    func completeAgeGate(withBirthDate birthDate: Date) async {
+        do {
+            let updatedUser = try await UserService.shared.setBirthDate(birthDate)
+            dataManager.currentUser = updatedUser
+            await dataManager.loadHomePageData()
+            TelemetryManager.configureFromConsent()
+            currentView = .main
+        } catch {
+            print("❌ Yaş bilgisi kaydedilemedi: \(error)")
+        }
+    }
+
+    // Backward compatibility for callers still passing age directly.
+    func completeAgeGate(withAge age: Int) async {
+        let normalizedAge = max(13, min(age, 120))
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        components.year = (components.year ?? 2000) - normalizedAge
+        components.hour = 12
+        components.minute = 0
+        components.second = 0
+        let birthDate = Calendar.current.date(from: components) ?? Date()
+        await completeAgeGate(withBirthDate: birthDate)
     }
     
     func showAuthenticationView() {

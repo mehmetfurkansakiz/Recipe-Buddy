@@ -84,6 +84,32 @@ class UserService {
             }
         }
 
+    func setBirthDate(_ birthDate: Date) async throws -> User {
+        guard let userId = try? await supabase.auth.session.user.id else {
+            throw URLError(.userAuthenticationRequired)
+        }
+
+        struct BirthDatePayload: Encodable {
+            let birth_date: Date
+        }
+
+        try await supabase
+            .from("users")
+            .update(BirthDatePayload(birth_date: birthDate))
+            .eq("id", value: userId)
+            .execute()
+
+        let updated: User = try await supabase
+            .from("users")
+            .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
+            .eq("id", value: userId)
+            .single()
+            .execute()
+            .value
+
+        return updated
+    }
+
     /// Updates the current user's profile with explicit control over avatar removal
     func updateUserProfileWithAvatarControl(
         fullName: String?,
