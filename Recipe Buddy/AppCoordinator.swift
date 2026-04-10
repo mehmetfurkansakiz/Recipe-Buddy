@@ -9,6 +9,7 @@ class AppCoordinator: ObservableObject {
     
     enum AppView {
         case splash
+        case onboarding
         case auth
         case ageGate
         case main
@@ -20,6 +21,13 @@ class AppCoordinator: ObservableObject {
             return AnyView(
                 SplashView(coordinator: self)
                     .preferredColorScheme(selectedTheme.colorScheme)
+            )
+        case .onboarding:
+            return AnyView(
+                OnboardingView {
+                    Task { await self.completeOnboarding() }
+                }
+                .preferredColorScheme(selectedTheme.colorScheme)
             )
         case .auth:
             return AnyView(
@@ -41,6 +49,8 @@ class AppCoordinator: ObservableObject {
         }
     }
     
+    private let onboardingCompletedKey = "onboarding_completed_v1"
+
     init() {
         let dm = DataManager()
         self.dataManager = dm
@@ -63,7 +73,7 @@ class AppCoordinator: ObservableObject {
         listenForAuthStateChanges()
         
         Task {
-            await checkAuthenticationStatus()
+            await routeInitialScreen()
         }
     }
     
@@ -76,6 +86,20 @@ class AppCoordinator: ObservableObject {
                 }
             }
         }
+    }
+
+    private func routeInitialScreen() async {
+        if !UserDefaults.standard.bool(forKey: onboardingCompletedKey) {
+            currentView = .onboarding
+            return
+        }
+
+        await checkAuthenticationStatus()
+    }
+
+    func completeOnboarding() async {
+        UserDefaults.standard.set(true, forKey: onboardingCompletedKey)
+        await checkAuthenticationStatus()
     }
     
     func checkAuthenticationStatus() async {
