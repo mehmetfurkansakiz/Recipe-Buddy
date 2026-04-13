@@ -93,19 +93,30 @@ class DataManager: ObservableObject {
         defer { isLoading = false }
         
         do {
+            enum HomePageLoadResult {
+                case categories([Category])
+                case sections([RecipeSection])
+            }
+
             var fetchedCategories: [Category] = []
             var fetchedSections: [RecipeSection] = []
-            
-            // Use a TaskGroup to safely manage concurrent data fetches
-            try await withThrowingTaskGroup(of: Void.self) { group in
+
+            try await withThrowingTaskGroup(of: HomePageLoadResult.self) { group in
                 group.addTask {
-                    fetchedCategories = try await self.recipeService.fetchAllCategories()
+                    .categories(try await self.recipeService.fetchAllCategories())
                 }
                 group.addTask {
-                    fetchedSections = try await self.recipeService.fetchHomeSections()
+                    .sections(try await self.recipeService.fetchHomeSections())
                 }
-                
-                try await group.waitForAll()
+
+                for try await result in group {
+                    switch result {
+                    case .categories(let categories):
+                        fetchedCategories = categories
+                    case .sections(let sections):
+                        fetchedSections = sections
+                    }
+                }
             }
             
             // Reset pagination state after successful loading

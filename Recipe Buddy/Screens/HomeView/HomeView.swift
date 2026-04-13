@@ -63,10 +63,14 @@ struct HomeView: View {
                 UserDefaults.standard.removeObject(forKey: "consent_prompt_after_signup")
                 showConsentSheet = true
             } else if UserDefaults.standard.bool(forKey: "consent_prompt_after_login") {
-                // If user just logged in (existing user) and hasn't decided yet
+                // If user just logged in (existing user)
                 UserDefaults.standard.removeObject(forKey: "consent_prompt_after_login")
                 if ConsentManager.shared.needsGeneralConsent() {
                     showConsentSheet = true
+                } else {
+                    Task {
+                        await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
+                    }
                 }
             } else if ConsentManager.shared.needsGeneralConsent() {
                 showConsentSheet = true
@@ -79,14 +83,16 @@ struct HomeView: View {
             }
             // Reconfigure telemetry according to latest consent
             TelemetryManager.configureFromConsent()
+
+            // Sync marketing preference when consent flow finishes.
+            Task {
+                await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
+            }
         }) {
             NavigationStack {
                 DataConsentPreferencesView(viewModel: DataConsentPreferencesViewModel())
             }
             .presentationDetents([.medium, .large])
-        }
-        .task {
-            await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
         }
     }
     

@@ -32,7 +32,7 @@ class AppCoordinator: ObservableObject {
         case .auth:
             return AnyView(
                 AuthenticationView(onAuthSuccess: {
-                    Task { await self.setupMainApp()}
+                    self.requestRouteEvaluation()
                 })
                 .preferredColorScheme(selectedTheme.colorScheme)
             )
@@ -50,6 +50,9 @@ class AppCoordinator: ObservableObject {
     }
     
     private let onboardingCompletedKey = "onboarding_completed_v1"
+    private var authStateListenerTask: Task<Void, Never>?
+    private var isRouteEvaluationRunning = false
+    private var pendingRouteEvaluation = false
 
     init() {
         let dm = DataManager()
@@ -71,44 +74,52 @@ class AppCoordinator: ObservableObject {
         AppCoordinator.configureNavigationBarAppearance()
         
         listenForAuthStateChanges()
-        
-        Task {
-            await routeInitialScreen()
-        }
+        requestRouteEvaluation()
+    }
+
+    deinit {
+        authStateListenerTask?.cancel()
     }
     
     private func listenForAuthStateChanges() {
-        Task {
+        authStateListenerTask = Task { [weak self] in
+            guard let self else { return }
             for await state in supabase.auth.authStateChanges {
                 if state.event == .signedIn, state.session != nil {
-                    print("✅ E-posta onayı veya giriş algılandı, ana uygulama kuruluyor...")
-                    await setupMainApp()
+                    print("✅ E-posta onayı veya giriş algılandı, route yeniden değerlendiriliyor...")
+                    await MainActor.run {
+                        self.requestRouteEvaluation()
+                    }
                 }
             }
         }
     }
 
-    private func routeInitialScreen() async {
+    private func requestRouteEvaluation() {
+        pendingRouteEvaluation = true
+        guard !isRouteEvaluationRunning else { return }
+
+        isRouteEvaluationRunning = true
+        Task { @MainActor in
+            defer { self.isRouteEvaluationRunning = false }
+
+            while self.pendingRouteEvaluation {
+                self.pendingRouteEvaluation = false
+                await self.evaluateRouteState()
+            }
+        }
+    }
+
+    private func evaluateRouteState() async {
         if !UserDefaults.standard.bool(forKey: onboardingCompletedKey) {
             currentView = .onboarding
             return
         }
 
-        await checkAuthenticationStatus()
-    }
-
-    func completeOnboarding() async {
-        UserDefaults.standard.set(true, forKey: onboardingCompletedKey)
-        await checkAuthenticationStatus()
-    }
-    
-    func checkAuthenticationStatus() async {
-        try? await Task.sleep(for: .seconds(1))
-        
         do {
             let session = try await supabase.auth.session
             if !session.isExpired {
-                await setupMainApp()
+                await setupMainFlow()
             } else {
                 showAuthenticationView()
             }
@@ -118,8 +129,13 @@ class AppCoordinator: ObservableObject {
             showAuthenticationView()
         }
     }
+
+    func completeOnboarding() async {
+        UserDefaults.standard.set(true, forKey: onboardingCompletedKey)
+        requestRouteEvaluation()
+    }
     
-    private func setupMainApp() async {
+    private func setupMainFlow() async {
         print("✅ Veriler yükleniyor...")
         await dataManager.loadInitialUserData()
 

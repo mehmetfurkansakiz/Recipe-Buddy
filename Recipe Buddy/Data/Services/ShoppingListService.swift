@@ -4,6 +4,47 @@ import Supabase
 @MainActor
 class ShoppingListService {
     static let shared = ShoppingListService()
+
+    private struct MergeShoppingListIngredientsParams: Encodable {
+        let listId: UUID
+        let ingredients: [MergeIngredientPayload]
+
+        enum CodingKeys: String, CodingKey {
+            case listId = "p_list_id"
+            case ingredients = "p_ingredients"
+        }
+    }
+
+    private struct MergeIngredientPayload: Encodable {
+        let name: String
+        let amount: Double
+        let unit: String
+        let ingredientId: UUID?
+
+        init(from ingredient: RecipeIngredientJoin) {
+            self.name = ingredient.name
+            self.amount = ingredient.amount
+            self.unit = ingredient.unit
+            self.ingredientId = ingredient.ingredientId
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case name, amount, unit
+            case ingredientId = "ingredient_id"
+        }
+    }
+
+    private struct IngredientMergeKey: Hashable {
+        let normalizedName: String
+        let unit: String
+        let ingredientId: UUID?
+
+        init(name: String, unit: String, ingredientId: UUID?) {
+            self.normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            self.unit = unit
+            self.ingredientId = ingredientId
+        }
+    }
     
     /// Fetches all of the current user's lists along with their item counts via an RPC.
     func fetchListsWithCounts() async throws -> [ShoppingList] {
@@ -114,35 +155,79 @@ class ShoppingListService {
     
     /// add ingredients to a shopping list
     func addIngredients(_ ingredients: [RecipeIngredientJoin], to list: ShoppingList) async throws {
-        for recipeIngredient in ingredients {
-            
-            var query = supabase.from("shopping_list_items")
-                .select("*")
-                .eq("list_id", value: list.id)
-                .eq("unit", value: recipeIngredient.unit)
-            
-            if let ingredientId = recipeIngredient.ingredientId {
-                query = query.eq("ingredient_id", value: ingredientId)
-            } else {
-                query = query.filter("ingredient_id", operator: "is", value: "null")
-                query = query.eq("name", value: recipeIngredient.name)
-            }
-            
-            let existingItems: [ShoppingListItem] = try await query.execute().value
+        guard !ingredients.isEmpty else { return }
 
-            if let existingItem = existingItems.first {
-                // if existing item found, update the amount
-                let newAmount = existingItem.amount + recipeIngredient.amount
-                try await supabase.from("shopping_list_items")
-                    .update(["amount": newAmount])
-                    .eq("id", value: existingItem.id)
-                    .execute()
+        let payload = ingredients.map { MergeIngredientPayload(from: $0) }
+
+        do {
+            try await supabase
+                .rpc(
+                    "merge_shopping_list_ingredients",
+                    params: MergeShoppingListIngredientsParams(
+                        listId: list.id,
+                        ingredients: payload
+                    )
+                )
+                .execute()
+            return
+        } catch {
+            // Fallback for environments where RPC is not deployed yet.
+            try await mergeIngredientsFallback(ingredients, to: list)
+        }
+    }
+
+    private func mergeIngredientsFallback(_ ingredients: [RecipeIngredientJoin], to list: ShoppingList) async throws {
+        let existingItems: [ShoppingListItem] = try await supabase
+            .from("shopping_list_items")
+            .select("*")
+            .eq("list_id", value: list.id)
+            .execute()
+            .value
+
+        var existingByKey: [IngredientMergeKey: ShoppingListItem] = [:]
+        for item in existingItems {
+            let key = IngredientMergeKey(name: item.name, unit: item.unit, ingredientId: item.ingredientId)
+            existingByKey[key] = item
+        }
+
+        var updatesById: [UUID: Double] = [:]
+        var inserts: [ShoppingListItemInsert] = []
+
+        for ingredient in ingredients {
+            let key = IngredientMergeKey(
+                name: ingredient.name,
+                unit: ingredient.unit,
+                ingredientId: ingredient.ingredientId
+            )
+
+            if let existing = existingByKey[key] {
+                updatesById[existing.id, default: existing.amount] += ingredient.amount
             } else {
-                // if does not exist, insert a new item
-                try await supabase.from("shopping_list_items")
-                    .insert(ShoppingListItemInsert(from: recipeIngredient, listId: list.id))
-                    .execute()
+                inserts.append(ShoppingListItemInsert(from: ingredient, listId: list.id))
             }
+        }
+
+        if !updatesById.isEmpty {
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                for (id, amount) in updatesById {
+                    group.addTask {
+                        try await supabase
+                            .from("shopping_list_items")
+                            .update(["amount": amount])
+                            .eq("id", value: id)
+                            .execute()
+                    }
+                }
+
+                try await group.waitForAll()
+            }
+        }
+
+        if !inserts.isEmpty {
+            try await supabase
+                .from("shopping_list_items")
+                .insert(inserts)
+                .execute()
         }
     }
     

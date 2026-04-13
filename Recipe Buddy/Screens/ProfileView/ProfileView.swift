@@ -45,6 +45,12 @@ struct ProfileView: View {
             }
             .navigationTitle("Profilim")
             .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .onAppear {
+                viewModel.updateCategoryDistribution(from: dataManager.ownedRecipes)
+            }
+            .onReceive(dataManager.$ownedRecipes) { recipes in
+                viewModel.updateCategoryDistribution(from: recipes)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -326,20 +332,10 @@ struct ProfileView: View {
     
     // MARK: - Categories Distribution
     private var categoryDistributionSection: some View {
-        // Basit bir etiket listesi: ownedRecipes içindeki kategorileri say ve en çoktan aza sırala
-        let pairs: [(Category, Int)] = {
-            var counts: [Category: Int] = [:]
-            for r in dataManager.ownedRecipes {
-                for c in r.categories.map({ $0.category }) {
-                    counts[c, default: 0] += 1
-                }
-            }
-            return counts.sorted { $0.value > $1.value }
-        }()
-        return VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("KATEGORİLERE GÖRE DAĞILIM")
                 .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
-            if pairs.isEmpty {
+            if viewModel.categoryDistribution.isEmpty {
                 Text("Henüz kategori verisi yok.")
                     .font(.footnote).foregroundStyle(.secondary)
                     .padding()
@@ -350,11 +346,11 @@ struct ProfileView: View {
             } else {
                 // chip-like tags (centered cluster)
                 TagWrapLayout(alignment: .center, spacing: 8, lineSpacing: 8) {
-                    ForEach(pairs, id: \.0.id) { pair in
+                    ForEach(viewModel.categoryDistribution) { item in
                         HStack(spacing: 6) {
-                            Text(pair.0.name)
+                            Text(item.category.name)
                                 .font(.footnote)
-                            Text("\(pair.1)")
+                            Text("\(item.count)")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
