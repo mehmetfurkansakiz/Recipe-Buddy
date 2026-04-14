@@ -21,19 +21,31 @@ struct RecipeBuddyApp: App {
                 .environmentObject(coordinator.dataManager)
                 .hideKeyboardOnTap()
                 .onOpenURL { url in
-                    print("➡️ onOpenURL tetiklendi: \(url)")
-                    if url.scheme == "com.mehmetfurkansakiz.Recipe-Buddy" && url.host == "auth-callback" {
-                        print("⏳ Auth callback URL alındı, Supabase durumunu kontrol etmesi tetikleniyor...")
-                        Task {
-                            do {
-                                _ = try await supabase.auth.refreshSession()
-                                print("✅ Oturum yenileme denemesi yapıldı. AuthState listener'ın durumu yakalaması bekleniyor.")
-                            } catch {
-                                print("ℹ️ Oturum yenilenirken bilgi (veya hata): \(error.localizedDescription)")
-                            }
+                    let expectedScheme = "com.mehmetfurkansakiz.Recipe-Buddy"
+                    let expectedHost = "auth-callback"
+
+                    guard url.scheme == expectedScheme, url.host == expectedHost else {
+                        #if DEBUG
+                        print("ℹ️ Ignored non-auth callback URL.")
+                        #endif
+                        return
+                    }
+
+                    #if DEBUG
+                    print("⏳ Received auth callback, refreshing Supabase session...")
+                    #endif
+
+                    Task {
+                        do {
+                            _ = try await supabase.auth.refreshSession()
+                            #if DEBUG
+                            print("✅ Session refresh attempted after auth callback.")
+                            #endif
+                        } catch {
+                            #if DEBUG
+                            print("⚠️ Session refresh failed after callback.")
+                            #endif
                         }
-                    } else {
-                        print("⚠️ Bilinmeyen URL alındı: \(url)")
                     }
                 }
         }

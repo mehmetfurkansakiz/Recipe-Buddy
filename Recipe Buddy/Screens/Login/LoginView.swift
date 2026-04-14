@@ -49,6 +49,33 @@ struct LoginView: View {
                     isDisabled: !viewModel.isSignInFormValid,
                     isLoading: viewModel.isLoading
                 )
+
+                VStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        Rectangle().fill(Color.SurfaceBorder).frame(height: 1)
+                        Text("veya")
+                            .font(.footnote)
+                            .foregroundStyle(.TextSecondary)
+                        Rectangle().fill(Color.SurfaceBorder).frame(height: 1)
+                    }
+
+                    SocialAuthButton(
+                        title: "Apple ile Devam Et",
+                        iconSystemName: "applelogo",
+                        style: .dark,
+                        action: { Task { await viewModel.signInWithApple() } },
+                        isDisabled: viewModel.isLoading,
+                        isLoading: viewModel.isLoading
+                    )
+
+                    SocialAuthButton(
+                        title: "Google ile Devam Et (Yakında)",
+                        iconSystemName: "globe",
+                        style: .light,
+                        action: {},
+                        isDisabled: true
+                    )
+                }
                 
                 Spacer()
                 Spacer()

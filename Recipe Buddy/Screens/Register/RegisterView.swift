@@ -4,6 +4,7 @@ struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel()
     var onRegisterSuccess: (String) -> Void
     var onNavigateToLogin: () -> Void
+    var onAuthSuccess: () -> Void
     
     var body: some View {
         ZStack {
@@ -42,6 +43,33 @@ struct RegisterView: View {
                         isLoading: viewModel.isLoading
                     )
                     .padding(.top)
+
+                    VStack(spacing: 10) {
+                        HStack(spacing: 8) {
+                            Rectangle().fill(Color.SurfaceBorder).frame(height: 1)
+                            Text("veya")
+                                .font(.footnote)
+                                .foregroundStyle(.TextSecondary)
+                            Rectangle().fill(Color.SurfaceBorder).frame(height: 1)
+                        }
+
+                        SocialAuthButton(
+                            title: "Apple ile Devam Et",
+                            iconSystemName: "applelogo",
+                            style: .dark,
+                            action: { Task { await viewModel.signInWithApple() } },
+                            isDisabled: viewModel.isLoading,
+                            isLoading: viewModel.isLoading
+                        )
+
+                        SocialAuthButton(
+                            title: "Google ile Devam Et (Yakında)",
+                            iconSystemName: "globe",
+                            style: .light,
+                            action: {},
+                            isDisabled: true
+                        )
+                    }
                     
                     Spacer()
                     
@@ -61,6 +89,13 @@ struct RegisterView: View {
                             DispatchQueue.main.async {
                                 UserDefaults.standard.set(true, forKey: "consent_prompt_after_signup")
                                 onRegisterSuccess(viewModel.email)
+                            }
+                        }
+                    }
+                    .onChange(of: viewModel.didAuthenticate) {
+                        if viewModel.didAuthenticate {
+                            DispatchQueue.main.async {
+                                onAuthSuccess()
                             }
                         }
                     }
@@ -87,6 +122,6 @@ struct RegisterView: View {
 }
 
 #Preview {
-    RegisterView(onRegisterSuccess: {_ in }, onNavigateToLogin: {})
+    RegisterView(onRegisterSuccess: {_ in }, onNavigateToLogin: {}, onAuthSuccess: {})
 }
 

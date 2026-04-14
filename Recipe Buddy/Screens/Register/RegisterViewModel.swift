@@ -70,4 +70,22 @@ class RegisterViewModel: ObservableObject {
             print("❌ Sign Up Error: \(error)")
         }
     }
+
+    @Published var didAuthenticate = false
+
+    func signInWithApple() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            let redirectURL = URL(string: "com.mehmetfurkansakiz.Recipe-Buddy://auth-callback")
+            _ = try await supabase.auth.signInWithOAuth(provider: .apple, redirectTo: redirectURL)
+            UserDefaults.standard.set(true, forKey: "consent_prompt_after_login")
+            didAuthenticate = true
+        } catch {
+            authError = AuthError.from(supabaseError: error)
+            print("❌ Apple Sign In Error: \(error)")
+        }
+    }
 }
