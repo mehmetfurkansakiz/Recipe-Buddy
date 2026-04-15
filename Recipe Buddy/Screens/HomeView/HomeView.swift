@@ -63,10 +63,14 @@ struct HomeView: View {
                 UserDefaults.standard.removeObject(forKey: "consent_prompt_after_signup")
                 showConsentSheet = true
             } else if UserDefaults.standard.bool(forKey: "consent_prompt_after_login") {
-                // If user just logged in (existing user) and hasn't decided yet
+                // If user just logged in (existing user)
                 UserDefaults.standard.removeObject(forKey: "consent_prompt_after_login")
                 if ConsentManager.shared.needsGeneralConsent() {
                     showConsentSheet = true
+                } else {
+                    Task {
+                        await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
+                    }
                 }
             } else if ConsentManager.shared.needsGeneralConsent() {
                 showConsentSheet = true
@@ -79,14 +83,16 @@ struct HomeView: View {
             }
             // Reconfigure telemetry according to latest consent
             TelemetryManager.configureFromConsent()
+
+            // Sync marketing preference when consent flow finishes.
+            Task {
+                await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
+            }
         }) {
             NavigationStack {
                 DataConsentPreferencesView(viewModel: DataConsentPreferencesViewModel())
             }
             .presentationDetents([.medium, .large])
-        }
-        .task {
-            await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
         }
     }
     
@@ -183,13 +189,22 @@ struct CategoryResultsView: View {
     @Binding var navigationPath: NavigationPath
 
     var body: some View {
-        ZStack {
+        Group {
             if isLoading {
-                ProgressView()
+                VStack(spacing: 12) {
+                    ProgressView()
+                        .controlSize(.regular)
+                    Text("Tarifler yükleniyor...")
+                        .font(.footnote)
+                        .foregroundStyle(.TextSecondary)
+                }
+                .padding(.vertical, 24)
+                .frame(maxWidth: .infinity, minHeight: 220)
             } else if recipes.isEmpty {
                 Text("Bu kategoride tarif bulunamadı.")
                     .foregroundStyle(.secondary)
                     .padding()
+                    .frame(maxWidth: .infinity, minHeight: 220, alignment: .top)
             } else {
                 LazyVGrid(
                     columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)],
@@ -197,7 +212,6 @@ struct CategoryResultsView: View {
                 ) {
                     ForEach(recipes) { recipe in
                         Button(action: { navigationPath.append(AppNavigation.recipeDetail(recipe)) }) {
-                            // for use small
                             let cardWidth = (UIScreen.main.bounds.width / 2) - 24
                             ExploreRecipeCard(recipe: recipe, cardWidth: cardWidth)
                         }
@@ -206,6 +220,7 @@ struct CategoryResultsView: View {
                 .padding(.horizontal)
             }
         }
+        .frame(maxWidth: .infinity)
     }
 }
 

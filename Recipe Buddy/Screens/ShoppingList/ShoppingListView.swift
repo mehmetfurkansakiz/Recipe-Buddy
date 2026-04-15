@@ -149,7 +149,6 @@ struct ShoppingListSectionView: View {
                     ShoppingItemRowView(item: item, index: index) {
                         onItemToggle(item)
                     }
-                    // TODO: itemlar için de basılı tutma ve düzenleme gibi özellikler
                 }
                 .padding(.horizontal, 8)
                 .padding(.bottom, 8)

@@ -39,4 +39,40 @@ class LoginViewModel: ObservableObject {
             print("❌ Sign In Error: \(error)")
         }
     }
+
+    func signInWithApple(idToken: String, nonce: String?) async {
+        isLoading = true
+        shouldNavigateToConfirmation = false
+        defer { isLoading = false }
+
+        do {
+            let credentials = OpenIDConnectCredentials(
+                provider: .apple,
+                idToken: idToken,
+                nonce: nonce
+            )
+            _ = try await supabase.auth.signInWithIdToken(credentials: credentials)
+            UserDefaults.standard.set(true, forKey: "consent_prompt_after_login")
+            didAuthenticate = true
+        } catch {
+            authError = AuthError.from(supabaseError: error)
+            print("❌ Apple Sign In Error: \(error)")
+        }
+    }
+
+    func signInWithGoogle() async {
+        isLoading = true
+        shouldNavigateToConfirmation = false
+        defer { isLoading = false }
+
+        do {
+            let redirectURL = URL(string: "com.mehmetfurkansakiz.Recipe-Buddy://auth-callback")
+            _ = try await supabase.auth.signInWithOAuth(provider: .google, redirectTo: redirectURL)
+            UserDefaults.standard.set(true, forKey: "consent_prompt_after_login")
+            didAuthenticate = true
+        } catch {
+            authError = AuthError.from(supabaseError: error)
+            print("❌ Google Sign In Error: \(error)")
+        }
+    }
 }

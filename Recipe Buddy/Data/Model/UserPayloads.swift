@@ -10,9 +10,10 @@ struct UserUpdatePayload: Codable {
     let show_birth_date: Bool?
     let avatar_url: String?
     let profession: String?
+    let show_profession: Bool?
 
     enum CodingKeys: String, CodingKey {
-        case full_name, city, show_city, bio, birth_date, show_birth_date, avatar_url, profession
+        case full_name, city, show_city, bio, birth_date, show_birth_date, avatar_url, profession, show_profession
     }
 }
 
@@ -25,13 +26,14 @@ struct UserUpdatePayloadWithNull: Codable {
     let full_name: String?
     let city: String?
     let show_city: Bool?
-    let bio: String?
+    let bio: String??
     let birth_date: Date?
     let show_birth_date: Bool?
     let avatar_url: String??
     let profession: String?
+    let show_profession: Bool?
 
     enum CodingKeys: String, CodingKey {
-        case full_name, city, show_city, bio, birth_date, show_birth_date, avatar_url, profession
+        case full_name, city, show_city, bio, birth_date, show_birth_date, avatar_url, profession, show_profession
     }
 }

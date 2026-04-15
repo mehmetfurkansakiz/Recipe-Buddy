@@ -42,12 +42,13 @@ struct AuthenticationView: View {
                         withAnimation(.easeInOut) {
                             currentAuthScreen = .emailConfirmation(email: email, isNewUser: true)
                         }
-                    } ,
+                    },
                     onNavigateToLogin: {
                         withAnimation(.easeInOut) {
                             currentAuthScreen = .login
                         }
-                    }
+                    },
+                    onAuthSuccess: onAuthSuccess
                 )
                 .transition(.move(edge: .trailing))
             }

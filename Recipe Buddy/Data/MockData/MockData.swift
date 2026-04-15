@@ -7,8 +7,8 @@ struct MockData {
     static let currentUserId = UUID()
     static let otherUserId = UUID()
     
-    static let currentUser = User(id: currentUserId, fullName: "Furkan Sakız", email: "furkansakiz@example.com", username: "furkansakiz", avatarUrl: nil, profession: "Aşçı", totalRatingPoints: Int(4.7), totalRatingsReceived: Int(21), emailNewsletter: false, emailProductUpdates: false, emailRecipeTips: false)
-    static let otherUser = User(id: otherUserId, fullName: "Ayşe Yılmaz", email: "ayseyilmaz@example.com", username: "ayseyilmaz", avatarUrl: nil, profession: nil, totalRatingPoints: Int(3.4), totalRatingsReceived: Int(320), emailNewsletter: false, emailProductUpdates: false, emailRecipeTips: false)
+    static let currentUser = User(id: currentUserId, fullName: "Furkan Sakız", email: "furkansakiz@example.com", username: "furkansakiz", avatarUrl: nil, profession: "Aşçı", showProfession: true, totalRatingPoints: Int(4.7), totalRatingsReceived: Int(21), emailNewsletter: false, emailProductUpdates: false, emailRecipeTips: false)
+    static let otherUser = User(id: otherUserId, fullName: "Ayşe Yılmaz", email: "ayseyilmaz@example.com", username: "ayseyilmaz", avatarUrl: nil, profession: nil, showProfession: false, totalRatingPoints: Int(3.4), totalRatingsReceived: Int(320), emailNewsletter: false, emailProductUpdates: false, emailRecipeTips: false)
 }
 
 

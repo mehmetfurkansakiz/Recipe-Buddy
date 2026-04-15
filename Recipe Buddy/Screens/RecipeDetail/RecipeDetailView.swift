@@ -14,7 +14,8 @@ struct RecipeDetailView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            
+            Color.Background.ignoresSafeArea()
+
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
                     recipeImageHeader

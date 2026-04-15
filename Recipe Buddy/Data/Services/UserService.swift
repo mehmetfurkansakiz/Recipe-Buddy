@@ -13,7 +13,10 @@ class UserService {
         
         do {
             let user: User = try await supabase
-                .rpc("get_my_profile")
+                .from("users")
+                .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
+                .eq("id", value: userId)
+                .single()
                 .execute()
                 .value
             
@@ -33,6 +36,7 @@ class UserService {
         birthDate: Date?,
         showBirthDate: Bool,
         profession: String?,
+        showProfession: Bool,
         avatarImageData: Data?
     ) async throws -> User {
         return try await updateUserProfileWithAvatarControl(
@@ -43,6 +47,7 @@ class UserService {
             birthDate: birthDate,
             showBirthDate: showBirthDate,
             profession: profession,
+            showProfession: showProfession,
             avatarImageData: avatarImageData,
             removeAvatar: false
         )
@@ -79,6 +84,32 @@ class UserService {
             }
         }
 
+    func setBirthDate(_ birthDate: Date) async throws -> User {
+        guard let userId = try? await supabase.auth.session.user.id else {
+            throw URLError(.userAuthenticationRequired)
+        }
+
+        struct BirthDatePayload: Encodable {
+            let birth_date: Date
+        }
+
+        try await supabase
+            .from("users")
+            .update(BirthDatePayload(birth_date: birthDate))
+            .eq("id", value: userId)
+            .execute()
+
+        let updated: User = try await supabase
+            .from("users")
+            .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
+            .eq("id", value: userId)
+            .single()
+            .execute()
+            .value
+
+        return updated
+    }
+
     /// Updates the current user's profile with explicit control over avatar removal
     func updateUserProfileWithAvatarControl(
         fullName: String?,
@@ -88,6 +119,7 @@ class UserService {
         birthDate: Date?,
         showBirthDate: Bool,
         profession: String?,
+        showProfession: Bool,
         avatarImageData: Data?,
         removeAvatar: Bool
     ) async throws -> User {
@@ -103,15 +135,18 @@ class UserService {
             avatarKey = .some(uploadedKey)
         }
 
+        let bioValue = bio?.nilIfBlank()
+
         let payload = UserUpdatePayloadWithNull(
             full_name: fullName?.nilIfBlank(),
             city: city?.nilIfBlank(),
             show_city: showCity,
-            bio: bio?.nilIfBlank(),
+            bio: .some(bioValue),
             birth_date: birthDate,
             show_birth_date: showBirthDate,
             avatar_url: avatarKey,
-            profession: profession?.nilIfBlank()
+            profession: profession?.nilIfBlank(),
+            show_profession: showProfession
         )
 
         try await supabase.from("users")
@@ -120,7 +155,7 @@ class UserService {
             .execute()
 
         let updated: User = try await supabase.from("users")
-            .select("id, email, full_name, username")
+            .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
             .eq("id", value: userId)
             .single()
             .execute()
@@ -135,4 +170,3 @@ extension String {
         return trimmed.isEmpty ? nil : trimmed
     }
 }
-

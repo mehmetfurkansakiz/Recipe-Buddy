@@ -73,6 +73,12 @@ struct MainTabView: View {
                 selectedTheme = option
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .appTabSelectionRequested)) { notification in
+            if let tab = notification.object as? ContentTab {
+                selectedTab = tab
+                navigationPath = NavigationPath()
+            }
+        }
     }
 }
 

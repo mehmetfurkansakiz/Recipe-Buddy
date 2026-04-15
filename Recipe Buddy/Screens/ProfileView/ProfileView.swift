@@ -5,16 +5,18 @@ struct ProfileView: View {
     @ObservedObject var viewModel: ProfileViewModel
     @Binding var navigationPath: NavigationPath
     @EnvironmentObject var dataManager: DataManager
+    @StateObject private var editProfileViewModel = EditProfileViewModel()
     @State private var goToSettings = false
     
     var body: some View {
         ZStack {
-            EmptyView()
-            
-            ScrollView {
+            Color.Background.ignoresSafeArea()
+
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
-                    if dataManager.isLoading || !dataManager.areProfileStatsLoaded {
+                    if dataManager.currentUser == nil && !dataManager.areProfileStatsLoaded {
                         ProgressView()
+                            .frame(maxWidth: .infinity, minHeight: 300)
                     } else if let user = dataManager.currentUser {
                         profileHeader(user: user)
                         statsSection
@@ -38,8 +40,17 @@ struct ProfileView: View {
                 .padding()
             }
             .background(Color.Background)
+            .refreshable {
+                await dataManager.refreshProfileData()
+            }
             .navigationTitle("Profilim")
             .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
+            .onAppear {
+                viewModel.updateCategoryDistribution(from: dataManager.ownedRecipes)
+            }
+            .onReceive(dataManager.$ownedRecipes) { recipes in
+                viewModel.updateCategoryDistribution(from: recipes)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -81,7 +92,7 @@ struct ProfileView: View {
             }
             
             NavigationLink {
-                EditProfileView(viewModel: EditProfileViewModel())
+                EditProfileView(viewModel: editProfileViewModel)
             } label: {
                 Text("Profili Düzenle")
                     .tint(.AppPrimary)
@@ -112,23 +123,26 @@ struct ProfileView: View {
     
     // MARK: - About / Bio
     private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let user = dataManager.currentUser
+        let bioText = user?.bio?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let hasProfession = (user?.showProfession ?? false) && !(user?.profession?.isEmpty ?? true)
+        let hasCity = (user?.showCity ?? false) && !(user?.city?.isEmpty ?? true)
+        let hasBirthDate = (user?.showBirthDate ?? false) && user?.birthDate != nil
+        let isAboutEmpty = bioText.isEmpty && !hasProfession && !hasCity && !hasBirthDate
+
+        return VStack(alignment: .leading, spacing: 8) {
             Text("HAKKIMDA")
                 .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
             
             VStack(alignment: .leading, spacing: 6) {
-                let user = dataManager.currentUser
-                Text(user?.fullName ?? "İsimsiz")
-                    .font(.headline)
-
-                if let bio = user?.bio, !bio.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    Text(bio)
+                if !bioText.isEmpty {
+                    Text(bioText)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
                 HStack(spacing: 12) {
-                    if let profession = user?.profession, !profession.isEmpty {
+                    if (user?.showProfession ?? false), let profession = user?.profession, !profession.isEmpty {
                         Label(profession, systemImage: "briefcase")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
@@ -145,12 +159,20 @@ struct ProfileView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+
+                if isAboutEmpty {
+                    Text("Henüz hakkımda bilgisi eklenmemiş.")
+                        .font(.subheadline)
+                        .foregroundStyle(.TextSecondary)
+                }
             }
             .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     // MARK: - Recent Recipes (Horizontal)
@@ -161,8 +183,7 @@ struct ProfileView: View {
                     .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
                 Spacer()
                 Button("Tümünü Gör") {
-                    // TODO: Navigate to user's recipes list screen
-                    // Example: viewModel.coordinator.navigate(to: .recipe)
+                    NotificationCenter.default.post(name: .appTabSelectionRequested, object: ContentTab.recipe)
                 }
                 .font(.footnote)
                 .tint(.AppPrimary)
@@ -170,33 +191,38 @@ struct ProfileView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(Array(dataManager.ownedRecipes.prefix(6))) { recipe in
-                        VStack(alignment: .leading, spacing: 6) {
-                            if let url = recipe.imagePublicURL() {
-                                AsyncImage(url: url) { image in
-                                    image.resizable().scaledToFill()
-                                } placeholder: {
-                                    Color.gray.opacity(0.15)
-                                }
-                                .frame(width: 140, height: 90)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                            } else {
-                                Color.gray.opacity(0.15)
+                        Button {
+                            navigationPath.append(AppNavigation.recipeDetail(recipe))
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                if let url = recipe.imagePublicURL() {
+                                    AsyncImage(url: url) { image in
+                                        image.resizable().scaledToFill()
+                                    } placeholder: {
+                                        Color.gray.opacity(0.15)
+                                    }
                                     .frame(width: 140, height: 90)
                                     .clipShape(RoundedRectangle(cornerRadius: 10))
+                                } else {
+                                    Color.gray.opacity(0.15)
+                                        .frame(width: 140, height: 90)
+                                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                                }
+                                Text(recipe.name)
+                                    .font(.footnote)
+                                    .lineLimit(1)
+                                HStack(spacing: 6) {
+                                    Image(systemName: "heart.fill").font(.caption2)
+                                    Text("\(recipe.favoritedCount)").font(.caption2)
+                                    Spacer()
+                                    Image(systemName: "clock").font(.caption2)
+                                    Text("\(recipe.cookingTime) dk").font(.caption2)
+                                }
+                                .foregroundStyle(.secondary)
                             }
-                            Text(recipe.name)
-                                .font(.footnote)
-                                .lineLimit(1)
-                            HStack(spacing: 6) {
-                                Image(systemName: "heart.fill").font(.caption2)
-                                Text("\(recipe.favoritedCount)").font(.caption2)
-                                Spacer()
-                                Image(systemName: "clock").font(.caption2)
-                                Text("\(recipe.cookingTime) dk").font(.caption2)
-                            }
-                            .foregroundStyle(.secondary)
+                            .frame(width: 140)
                         }
-                        .frame(width: 140)
+                        .buttonStyle(.plain)
                     }
                     if dataManager.ownedRecipes.isEmpty {
                         Text("Henüz tarifin yok.")
@@ -306,20 +332,10 @@ struct ProfileView: View {
     
     // MARK: - Categories Distribution
     private var categoryDistributionSection: some View {
-        // Basit bir etiket listesi: ownedRecipes içindeki kategorileri say ve en çoktan aza sırala
-        let pairs: [(Category, Int)] = {
-            var counts: [Category: Int] = [:]
-            for r in dataManager.ownedRecipes {
-                for c in r.categories.map({ $0.category }) {
-                    counts[c, default: 0] += 1
-                }
-            }
-            return counts.sorted { $0.value > $1.value }
-        }()
-        return VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("KATEGORİLERE GÖRE DAĞILIM")
                 .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
-            if pairs.isEmpty {
+            if viewModel.categoryDistribution.isEmpty {
                 Text("Henüz kategori verisi yok.")
                     .font(.footnote).foregroundStyle(.secondary)
                     .padding()
@@ -330,11 +346,11 @@ struct ProfileView: View {
             } else {
                 // chip-like tags (centered cluster)
                 TagWrapLayout(alignment: .center, spacing: 8, lineSpacing: 8) {
-                    ForEach(pairs, id: \.0.id) { pair in
+                    ForEach(viewModel.categoryDistribution) { item in
                         HStack(spacing: 6) {
-                            Text(pair.0.name)
+                            Text(item.category.name)
                                 .font(.footnote)
-                            Text("\(pair.1)")
+                            Text("\(item.count)")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
@@ -478,4 +494,3 @@ struct ProfileStatView: View {
             .environmentObject(DataManager())
     }
 }
-

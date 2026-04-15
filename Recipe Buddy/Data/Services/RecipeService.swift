@@ -260,22 +260,30 @@ class RecipeService {
         
         // update image if changed
         var imagePath = viewModel.recipeToEdit?.imageName ?? ""
-        if let newImageData = viewModel.selectedImageData,
-           let originalImageData = try? await URLSession.shared.data(from: viewModel.recipeToEdit!.imagePublicURL()!).0,
-           newImageData != originalImageData {
-            
-            if let uiImage = UIImage(data: newImageData) {
-                let decision = await NSFWModerationService.shared.check(image: uiImage)
-                if case .rejected = decision {
-                    throw NSError(domain: "Moderation", code: 403, userInfo: [NSLocalizedDescriptionKey: "Uygunsuz içerik tespit edildi (NSFW). Skor: "]) }
+        if let newImageData = viewModel.selectedImageData {
+            var shouldUploadNewImage = true
+
+            if let existingImageURL = viewModel.recipeToEdit?.imagePublicURL(),
+               let originalImageData = try? await URLSession.shared.data(from: existingImageURL).0 {
+                shouldUploadNewImage = newImageData != originalImageData
             }
-            
-            // delete old image from s3 storage
-            if !imagePath.isEmpty {
-                try await ImageUploaderService.shared.deleteImage(for: imagePath)
+
+            if shouldUploadNewImage {
+                if let uiImage = UIImage(data: newImageData) {
+                    let decision = await NSFWModerationService.shared.check(image: uiImage)
+                    if case .rejected = decision {
+                        throw NSError(domain: "Moderation", code: 403, userInfo: [NSLocalizedDescriptionKey: "Uygunsuz içerik tespit edildi (NSFW). Skor: "])
+                    }
+                }
+
+                // delete old image from s3 storage
+                if !imagePath.isEmpty {
+                    try await ImageUploaderService.shared.deleteImage(for: imagePath)
+                }
+
+                // upload new image
+                imagePath = try await ImageUploaderService.shared.uploadRecipeImage(imageData: newImageData)
             }
-            // upload new image
-            imagePath = try await ImageUploaderService.shared.uploadRecipeImage(imageData: newImageData)
         }
         
         // update other recipe details

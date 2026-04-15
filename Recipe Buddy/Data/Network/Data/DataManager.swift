@@ -65,7 +65,7 @@ class DataManager: ObservableObject {
             self.currentUser = user
             let loadedProfession = user?.profession ?? ""
             self.professionText = loadedProfession
-            self.isProfessionEnabled = !loadedProfession.isEmpty
+            self.isProfessionEnabled = user?.showProfession ?? !loadedProfession.isEmpty
             self.ownedRecipes = try await ownedTask
             self.favoritedRecipes = try await favoritesTask
             self.ownedRecipesTotalCount = try await ownedCountTask
@@ -93,19 +93,30 @@ class DataManager: ObservableObject {
         defer { isLoading = false }
         
         do {
+            enum HomePageLoadResult {
+                case categories([Category])
+                case sections([RecipeSection])
+            }
+
             var fetchedCategories: [Category] = []
             var fetchedSections: [RecipeSection] = []
-            
-            // Use a TaskGroup to safely manage concurrent data fetches
-            try await withThrowingTaskGroup(of: Void.self) { group in
+
+            try await withThrowingTaskGroup(of: HomePageLoadResult.self) { group in
                 group.addTask {
-                    fetchedCategories = try await self.recipeService.fetchAllCategories()
+                    .categories(try await self.recipeService.fetchAllCategories())
                 }
                 group.addTask {
-                    fetchedSections = try await self.recipeService.fetchHomeSections()
+                    .sections(try await self.recipeService.fetchHomeSections())
                 }
-                
-                try await group.waitForAll()
+
+                for try await result in group {
+                    switch result {
+                    case .categories(let categories):
+                        fetchedCategories = categories
+                    case .sections(let sections):
+                        fetchedSections = sections
+                    }
+                }
             }
             
             // Reset pagination state after successful loading
@@ -125,6 +136,44 @@ class DataManager: ObservableObject {
     /// Refreshes all data including user-specific and home page data
     func refreshAllData() async {
         await loadHomePageData(isRefresh: true)
+    }
+
+    /// Refreshes profile-related data when returning back to profile screen.
+    func refreshProfileData() async {
+        do {
+            async let userTask = userService.fetchCurrentUser()
+            async let ownedTask = recipeService.fetchOwnedRecipes(page: 0, limit: 10)
+            async let favoritesTask = recipeService.fetchFavoriteRecipes()
+            async let favoritesReceivedTask = recipeService.fetchTotalFavoritesReceivedCount()
+            async let ownedCountTask = recipeService.fetchOwnedRecipesCount()
+
+            let user = try await userTask
+            self.currentUser = user
+            let loadedProfession = user?.profession ?? ""
+            self.professionText = loadedProfession
+            self.isProfessionEnabled = user?.showProfession ?? !loadedProfession.isEmpty
+            self.ownedRecipes = try await ownedTask
+            self.favoritedRecipes = try await favoritesTask
+            self.ownedRecipesTotalCount = try await ownedCountTask
+            self.totalFavoritesReceived = try await favoritesReceivedTask
+
+            let points = user?.totalRatingPoints ?? 0
+            let received = user?.totalRatingsReceived ?? 0
+            self.averageRating = received > 0 ? Double(points) / Double(received) : 0.0
+            self.areProfileStatsLoaded = true
+
+            self.ownedRecipesPage = 1
+            self.canLoadMoreOwnedRecipes = true
+        } catch {
+            // Screen transitions/pull-to-refresh interruption can cancel in-flight requests.
+            if let urlError = error as? URLError, urlError.code == .cancelled {
+                return
+            }
+            if error is CancellationError {
+                return
+            }
+            print("❌ DataManager: Profil verileri yenilenirken hata: \(error)")
+        }
     }
     
     func fetchMoreNewestRecipes() async {
@@ -199,6 +248,7 @@ class DataManager: ObservableObject {
         birthDate: Date?,
         showBirthDate: Bool,
         profession: String?,
+        showProfession: Bool,
         avatarImageData: Data?
     ) async {
         isLoading = true
@@ -212,12 +262,13 @@ class DataManager: ObservableObject {
                 birthDate: birthDate,
                 showBirthDate: showBirthDate,
                 profession: profession,
+                showProfession: showProfession,
                 avatarImageData: avatarImageData
             )
             self.currentUser = updatedUser
             let loadedProfession = updatedUser.profession ?? ""
             self.professionText = loadedProfession
-            self.isProfessionEnabled = !loadedProfession.isEmpty
+            self.isProfessionEnabled = updatedUser.showProfession ?? !loadedProfession.isEmpty
             print("✅ DataManager: Profil güncellendi.")
         } catch {
             print("❌ DataManager: Profil güncellenirken hata: \(error)")
@@ -232,9 +283,10 @@ class DataManager: ObservableObject {
         birthDate: Date?,
         showBirthDate: Bool,
         profession: String?,
+        showProfession: Bool,
         avatarImageData: Data?,
         removeAvatar: Bool
-    ) async {
+    ) async -> Bool {
         isLoading = true
         defer { isLoading = false }
         do {
@@ -246,16 +298,19 @@ class DataManager: ObservableObject {
                 birthDate: birthDate,
                 showBirthDate: showBirthDate,
                 profession: profession,
+                showProfession: showProfession,
                 avatarImageData: avatarImageData,
                 removeAvatar: removeAvatar
             )
             self.currentUser = updatedUser
             let loadedProfession = updatedUser.profession ?? ""
             self.professionText = loadedProfession
-            self.isProfessionEnabled = !loadedProfession.isEmpty
+            self.isProfessionEnabled = updatedUser.showProfession ?? !loadedProfession.isEmpty
             print("✅ DataManager: Profil güncellendi (avatar control).")
+            return true
         } catch {
             print("❌ DataManager: Profil güncellenirken hata (avatar control): \(error)")
+            return false
         }
     }
     
