@@ -1,13 +1,20 @@
 import SwiftUI
 
 struct SocialAuthButton: View {
+    enum Icon {
+        case sfSymbol(String)
+        case google
+    }
+
     enum Style {
         case dark
         case light
+        case google
 
         var background: Color {
             switch self {
             case .dark: return .black
+            case .google: return .white
             case .light: return Color.Surface
             }
         }
@@ -15,6 +22,7 @@ struct SocialAuthButton: View {
         var foreground: Color {
             switch self {
             case .dark: return .white
+            case .google: return Color(red: 60 / 255, green: 64 / 255, blue: 67 / 255)
             case .light: return .TextPrimary
             }
         }
@@ -22,13 +30,14 @@ struct SocialAuthButton: View {
         var border: Color {
             switch self {
             case .dark: return .black.opacity(0.2)
+            case .google: return Color(red: 218 / 255, green: 220 / 255, blue: 224 / 255)
             case .light: return .SurfaceBorder
             }
         }
     }
 
     let title: String
-    let iconSystemName: String
+    let icon: Icon
     let style: Style
     let action: () -> Void
     var isDisabled: Bool = false
@@ -37,18 +46,20 @@ struct SocialAuthButton: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 10) {
+                if style == .google {
+                    Spacer(minLength: 0)
+                }
+
                 if isLoading {
                     ProgressView()
                         .progressViewStyle(
                             CircularProgressViewStyle(
-                                tint: style == .dark ? .white : .TextPrimary
+                                tint: style == .dark ? .white : style.foreground
                             )
                         )
                         .frame(width: 18, height: 18)
                 } else {
-                    Image(systemName: iconSystemName)
-                        .font(.headline)
-                        .frame(width: 18)
+                    iconView
                 }
 
                 Text(title)
@@ -69,5 +80,21 @@ struct SocialAuthButton: View {
         }
         .disabled(isDisabled || isLoading)
         .opacity((isDisabled || isLoading) ? 0.7 : 1)
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        switch icon {
+        case .sfSymbol(let systemName):
+            Image(systemName: systemName)
+                .font(.headline)
+                .frame(width: 18)
+        case .google:
+            Image("google.icon")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .frame(width: 18, height: 18)
+        }
     }
 }

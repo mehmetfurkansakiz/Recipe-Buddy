@@ -19,7 +19,6 @@ struct RecipeBuddyApp: App {
         WindowGroup {
             coordinator.rootView
                 .environmentObject(coordinator.dataManager)
-                .hideKeyboardOnTap()
                 .onOpenURL { url in
                     let expectedScheme = "com.mehmetfurkansakiz.Recipe-Buddy"
                     let expectedHost = "auth-callback"
@@ -51,4 +50,3 @@ struct RecipeBuddyApp: App {
         }
     }
 }
-

@@ -25,6 +25,10 @@ enum AuthError: LocalizedError, Identifiable {
         case .unknown(let error):
             // For debug
             print("Bilinmeyen Hata: \(error.localizedDescription)")
+            let message = error.localizedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !message.isEmpty, message != "The operation couldn’t be completed." {
+                return message
+            }
             return "Beklenmedik bir hata oluştu. Lütfen daha sonra tekrar deneyin."
         }
     }
