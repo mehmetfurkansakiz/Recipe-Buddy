@@ -14,6 +14,18 @@ struct RegisterView: View {
             Color.Background
                 .ignoresSafeArea()
                 .onTapGesture { endEditing() }
+
+            GeometryReader { proxy in
+                Image("cupcake.welcome")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width * 2, height: proxy.size.height * 0.65)
+                    .clipped()
+                    .blur(radius: 12.0)
+                    .position(x: proxy.size.width / 2, y: (proxy.size.height * 0.75) / 2)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea(edges: .top)
             
             ScrollView {
                 VStack(spacing: 20) {
@@ -24,14 +36,14 @@ struct RegisterView: View {
                             .foregroundStyle(.TextPrimary)
                         Text("Yeni bir hesap oluşturarak tariflerini kaydet")
                             .font(.subheadline)
-                            .foregroundStyle(.TextSecondary)
+                            .foregroundStyle(.F_2_F_2_F_7)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
                     .padding(.bottom, 20)
                     
                     // registration form
-                    VStack(spacing: 16) {
+                    VStack(spacing: 12) {
                         AuthTextField(placeholder: "Tam Adınız", text: $viewModel.fullName, contentType: .name)
                         AuthTextField(placeholder: "Kullanıcı Adı", text: $viewModel.username, contentType: .username)
                         AuthTextField(placeholder: "E-posta Adresi", text: $viewModel.email, contentType: .emailAddress)

@@ -13,24 +13,33 @@ struct LoginView: View {
     var body: some View {
         ZStack {
             Color.Background.ignoresSafeArea().onTapGesture { endEditing() }
+
+            GeometryReader { proxy in
+                Image("cupcake.welcome")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width * 2, height: proxy.size.height * 0.65)
+                    .clipped()
+                    .blur(radius: 12.0)
+                    .position(x: proxy.size.width / 2, y: (proxy.size.height * 0.75) / 2)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea(edges: .top)
             
-            VStack(spacing: 20) {
-                
-                VStack {
-                    Image("welcome.chef")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 240)
+            VStack(spacing: 16) {
+                Spacer(minLength: 0)
+
+                VStack(spacing: 6) {
                     Text("Tekrar Hoş Geldin!")
                         .font(.largeTitle).fontWeight(.bold)
                         .foregroundStyle(.TextPrimary)
                     Text("Kaldığın yerden devam et")
                         .font(.subheadline)
-                        .foregroundStyle(.TextSecondary)
+                        .foregroundStyle(.F_2_F_2_F_7)
                 }
                 
                 // Login form
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     AuthTextField(placeholder: "E-posta Adresi", text: $viewModel.email, contentType: .emailAddress)
                         .keyboardType(.emailAddress)
                     AuthTextField(placeholder: "Şifre", text: $viewModel.password, isSecure: true, contentType: .password)
@@ -110,8 +119,6 @@ struct LoginView: View {
                     .opacity(viewModel.isLoading ? 0.7 : 1)
                 }
                 
-                Spacer()
-                
                 // Navigate to register
                 Button(action: {
                     onNavigateToRegister()
@@ -128,7 +135,6 @@ struct LoginView: View {
                     .padding(.vertical, 6)
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, 28)
                 .onChange(of: viewModel.didAuthenticate) {
                     if viewModel.didAuthenticate {
                         DispatchQueue.main.async {
@@ -144,6 +150,7 @@ struct LoginView: View {
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.bottom, 28)
             .alert(item: $viewModel.authError) { error in
                 Alert(
                     title: Text("Hata"),
