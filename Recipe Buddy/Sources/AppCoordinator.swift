@@ -109,6 +109,10 @@ class AppCoordinator: ObservableObject {
             }
         }
     }
+    
+    func retryRouteEvaluation() {
+        requestRouteEvaluation()
+    }
 
     private func evaluateRouteState() async {
         if !UserDefaults.standard.bool(forKey: onboardingCompletedKey) {
@@ -204,4 +208,3 @@ class AppCoordinator: ObservableObject {
         UINavigationBar.appearance().compactAppearance = appearance
     }
 }
-

@@ -3,6 +3,7 @@ import SwiftUI
 struct SplashView: View {
     let coordinator: AppCoordinator
     @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var isPulsing = false
     
     var body: some View {
@@ -55,10 +56,21 @@ struct SplashView: View {
                         .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 24)
+                
+                NetworkStatusBanner(
+                    isConnected: networkMonitor.isConnected,
+                    onRetry: { coordinator.retryRouteEvaluation() }
+                )
             }
+            .padding(.horizontal, 24)
         }
         .onAppear {
             isPulsing = true
+        }
+        .onChange(of: networkMonitor.isConnected) { _, isConnected in
+            if isConnected, coordinator.currentView == .splash {
+                coordinator.retryRouteEvaluation()
+            }
         }
     }
 }

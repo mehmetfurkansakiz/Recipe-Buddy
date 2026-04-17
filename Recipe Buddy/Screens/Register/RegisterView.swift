@@ -4,6 +4,7 @@ import CryptoKit
 
 struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel()
+    @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var currentNonce: String?
     var onRegisterSuccess: (String) -> Void
     var onNavigateToLogin: () -> Void
@@ -41,6 +42,8 @@ struct RegisterView: View {
                     }
                     .padding(.top, 40)
                     .padding(.bottom, 20)
+                    
+                    NetworkStatusBanner(isConnected: networkMonitor.isConnected)
                     
                     // registration form
                     VStack(spacing: 12) {

@@ -4,6 +4,7 @@ import CryptoKit
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
+    @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var currentNonce: String?
     var onAuthSuccess: () -> Void
     var onNavigateToRegister: () -> Void
@@ -37,6 +38,8 @@ struct LoginView: View {
                         .font(.subheadline)
                         .foregroundStyle(.F_2_F_2_F_7)
                 }
+                
+                NetworkStatusBanner(isConnected: networkMonitor.isConnected)
                 
                 // Login form
                 VStack(spacing: 12) {
