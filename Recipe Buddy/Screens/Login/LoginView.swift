@@ -6,6 +6,7 @@ struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var currentNonce: String?
+    @AppStorage("has_seen_login_welcome_copy") private var hasSeenLoginWelcomeCopy = false
     var onAuthSuccess: () -> Void
     var onNavigateToRegister: () -> Void
     var onNavigateToForgotPassword: () -> Void
@@ -31,10 +32,10 @@ struct LoginView: View {
                 Spacer(minLength: 0)
 
                 VStack(spacing: 6) {
-                    Text("Tekrar Hoş Geldin!")
+                    Text(welcomeTitle)
                         .font(.largeTitle).fontWeight(.bold)
                         .foregroundStyle(.TextPrimary)
-                    Text("Kaldığın yerden devam et")
+                    Text(welcomeSubtitle)
                         .font(.subheadline)
                         .foregroundStyle(.F_2_F_2_F_7)
                 }
@@ -154,6 +155,9 @@ struct LoginView: View {
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 28)
+            .onAppear {
+                hasSeenLoginWelcomeCopy = true
+            }
             .alert(item: $viewModel.authError) { error in
                 Alert(
                     title: Text("Hata"),
@@ -166,6 +170,14 @@ struct LoginView: View {
 }
 
 private extension LoginView {
+    var welcomeTitle: String {
+        hasSeenLoginWelcomeCopy ? "Tekrar Hoş Geldin!" : "Hoş Geldin!"
+    }
+    
+    var welcomeSubtitle: String {
+        hasSeenLoginWelcomeCopy ? "Kaldığın yerden devam et" : "Tatlı tarif yolculuğuna başlayalım"
+    }
+    
     var localizedGoogleButtonTitle: String {
         (Locale.preferredLanguages.first?.lowercased().hasPrefix("tr") ?? false)
             ? "Google ile Devam Et"

@@ -50,6 +50,8 @@ class AppCoordinator: ObservableObject {
     }
     
     private let onboardingCompletedKey = "onboarding_completed_v1"
+    private let minimumSplashDuration: TimeInterval = 4.0
+    private let splashStartDate = Date()
     private var authStateListenerTask: Task<Void, Never>?
     private var isRouteEvaluationRunning = false
     private var pendingRouteEvaluation = false
@@ -113,8 +115,21 @@ class AppCoordinator: ObservableObject {
     func retryRouteEvaluation() {
         requestRouteEvaluation()
     }
+    
+    private func ensureMinimumSplashDuration() async {
+        let elapsed = Date().timeIntervalSince(splashStartDate)
+        let remaining = minimumSplashDuration - elapsed
+        guard remaining > 0 else { return }
+        
+        let nanoseconds = UInt64(remaining * 1_000_000_000)
+        try? await Task.sleep(nanoseconds: nanoseconds)
+    }
 
     private func evaluateRouteState() async {
+        if currentView == .splash {
+            await ensureMinimumSplashDuration()
+        }
+        
         if !UserDefaults.standard.bool(forKey: onboardingCompletedKey) {
             currentView = .onboarding
             return
