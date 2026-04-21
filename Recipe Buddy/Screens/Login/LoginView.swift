@@ -7,6 +7,7 @@ struct LoginView: View {
     @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var currentNonce: String?
     @AppStorage("has_seen_login_welcome_copy") private var hasSeenLoginWelcomeCopy = false
+    @Environment(\.colorScheme) private var colorScheme
     var onAuthSuccess: () -> Void
     var onNavigateToRegister: () -> Void
     var onNavigateToForgotPassword: () -> Void
@@ -14,7 +15,9 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            Color.Background.ignoresSafeArea().onTapGesture { endEditing() }
+            authBackground
+                .ignoresSafeArea()
+                .onTapGesture { endEditing() }
 
             GeometryReader { proxy in
                 Image("cupcake.welcome")
@@ -23,6 +26,7 @@ struct LoginView: View {
                     .frame(width: proxy.size.width * 2, height: proxy.size.height * 0.65)
                     .clipped()
                     .blur(radius: 12.0)
+                    .opacity(colorScheme == .dark ? 1.0 : 0.82)
                     .position(x: proxy.size.width / 2, y: (proxy.size.height * 0.75) / 2)
                     .allowsHitTesting(false)
             }
@@ -34,10 +38,29 @@ struct LoginView: View {
                 VStack(spacing: 6) {
                     Text(welcomeTitle)
                         .font(.largeTitle).fontWeight(.bold)
-                        .foregroundStyle(.TextPrimary)
+                        .foregroundStyle(colorScheme == .dark ? .TextPrimary : Color(red: 0.20, green: 0.12, blue: 0.06))
                     Text(welcomeSubtitle)
                         .font(.subheadline)
-                        .foregroundStyle(.F_2_F_2_F_7)
+                        .foregroundStyle(colorScheme == .dark ? .F_2_F_2_F_7 : Color(red: 0.42, green: 0.30, blue: 0.18))
+                }
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(
+                            colorScheme == .dark
+                                ? Color.black.opacity(0.34)
+                                : Color.white.opacity(0.42)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(
+                                    colorScheme == .dark
+                                        ? Color.white.opacity(0.20)
+                                        : Color.white.opacity(0.55),
+                                    lineWidth: 1
+                                )
+                        )
                 }
                 
                 NetworkStatusBanner(isConnected: networkMonitor.isConnected)
@@ -170,6 +193,32 @@ struct LoginView: View {
 }
 
 private extension LoginView {
+    var authBackground: some View {
+        Group {
+            if colorScheme == .dark {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.09, green: 0.09, blue: 0.11),
+                        Color(red: 0.11, green: 0.10, blue: 0.09),
+                        Color(red: 0.08, green: 0.07, blue: 0.06)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            } else {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.99, green: 0.97, blue: 0.94),
+                        Color(red: 0.97, green: 0.93, blue: 0.88),
+                        Color(red: 0.95, green: 0.90, blue: 0.84)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        }
+    }
+
     var welcomeTitle: String {
         hasSeenLoginWelcomeCopy ? "Tekrar Hoş Geldin!" : "Hoş Geldin!"
     }
