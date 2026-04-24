@@ -326,7 +326,7 @@
 		0F232E012DAF2492002F758D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Recipe Buddy";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Recipe-Buddy";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Recipe Buddy/Sources/Recipe Buddy.entitlements";
 				CODE_SIGN_STYLE = Automatic;
@@ -363,7 +363,7 @@
 		0F232E022DAF2492002F758D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Recipe Buddy";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Recipe-Buddy";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Recipe Buddy/Sources/Recipe Buddy.entitlements";
 				CODE_SIGN_STYLE = Automatic;
