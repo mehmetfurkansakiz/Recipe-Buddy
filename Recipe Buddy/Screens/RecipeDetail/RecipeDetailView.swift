@@ -33,6 +33,7 @@ struct RecipeDetailView: View {
                     .padding()
                 }
             }
+            .coordinateSpace(name: "recipeDetailScroll")
         }
         .ignoresSafeArea(edges: .top)
         .inlineColoredNavigationBar(
@@ -44,6 +45,31 @@ struct RecipeDetailView: View {
             transparentBackground: true
         )
         .modifier(LegacyBackButtonHider())
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if #available(iOS 26, *) {
+                    EmptyView()
+                } else {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 48, height: 48)
+                            .background(
+                                Circle()
+                                    .fill(.black.opacity(0.96))
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(.white.opacity(0.18), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
         .task {
             await viewModel.loadData()
         }
@@ -57,6 +83,10 @@ struct RecipeDetailView: View {
     // MARK: - View Components
     private var recipeImageHeader: some View {
         GeometryReader { geo in
+            let minY = geo.frame(in: .named("recipeDetailScroll")).minY
+            let headerHeight: CGFloat = 300
+            let stretchHeight = minY > 0 ? headerHeight + minY : headerHeight
+
             ZStack(alignment: .topLeading) {
                 LazyImage(url: viewModel.recipe.imagePublicURL()) { state in
                     if let image = state.image {
@@ -71,26 +101,9 @@ struct RecipeDetailView: View {
                     }
                 }
                 .transition(.opacity.animation(.default))
-                .frame(width: geo.size.width, height: max(geo.size.height, geo.frame(in: .global).minY > 0 ? geo.size.height + geo.frame(in: .global).minY : geo.size.height))
+                .frame(width: geo.size.width, height: stretchHeight)
                 .clipped()
-                .offset(y: geo.frame(in: .global).minY > 0 ? -geo.frame(in: .global).minY : 0)
-                
-                if #unavailable(iOS 26) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        ZStack(alignment: .center) {
-                            Circle()
-                                .fill(Color.black.opacity(0.5))
-                                .frame(width: 48, height: 48)
-                            Image(systemName: "chevron.left")
-                                .font(.title2)
-                                .foregroundStyle(.white)
-                        }
-                    }
-                    .padding(.leading, 16)
-                    .padding(.top, 48)
-                }
+                .offset(y: minY > 0 ? -minY : 0)
             }
         }
         .frame(minHeight: 300)
@@ -98,53 +111,13 @@ struct RecipeDetailView: View {
     
     private var recipeInfoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                Text(viewModel.recipe.name)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.TextPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                if viewModel.isOwnedByCurrentUser {
-                    Button(action: {
-                        navigationPath.append(AppNavigation.recipeEdit(viewModel.recipe))
-                    }) {
-                        Image("pencil.icon")
-                            .resizable()
-                            .foregroundStyle(.TextSecondary)
-                            .frame(width: 24, height: 24)
-                    }
-                } else if viewModel.isAuthenticated {
-                    Button(action: {
-                        viewModel.showRatingSheet = true
-                    }) {
-                        Image(viewModel.userCurrentRating != nil ? "star.fill.icon" : "star.icon")
-                            .resizable()
-                            .foregroundStyle(viewModel.userCurrentRating != nil ? Color.AppPrimary : Color.TextSecondary)
-                            .frame(width: 24, height: 24)
-                    }
-                    .contextMenu {
-                        if viewModel.userCurrentRating != nil {
-                            Button(role: .destructive) {
-                                Task { await viewModel.removeRating() }
-                            } label: {
-                                Label("Puanı Kaldır", systemImage: "trash")
-                            }
-                        }
-                    }
-                }
-                
-                if viewModel.isAuthenticated {
-                    Button(action: {
-                        Task { await viewModel.toggleFavorite() }
-                    }) {
-                        Image(systemName: viewModel.isFavorite ? "heart.fill" : "heart")
-                            .resizable()
-                            .foregroundStyle(viewModel.isFavorite ? .Danger : .TextSecondary)
-                            .frame(width: 24, height: 24)
-                    }
-                }
-            }
+            Text(viewModel.recipe.name)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(.TextPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
             
             Text(viewModel.recipe.description)
                 .font(.subheadline)
@@ -152,30 +125,46 @@ struct RecipeDetailView: View {
             
             if let author = viewModel.recipe.user {
                 HStack(spacing: 8) {
-                    if let url = author.avatarPublicURL() {
-                        LazyImage(url: url) { state in
-                            if let image = state.image {
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                            } else {
-                                Color.gray.opacity(0.2)
+                    HStack(spacing: 8) {
+                        if let url = author.avatarPublicURL() {
+                            LazyImage(url: url) { state in
+                                if let image = state.image {
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                } else {
+                                    Color.gray.opacity(0.2)
+                                }
                             }
-                        }
-                        .frame(width: 24, height: 24)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 0.5))
-                    } else {
-                        Image(systemName: "person.circle.fill")
-                            .resizable()
-                            .scaledToFit()
                             .frame(width: 24, height: 24)
-                            .foregroundStyle(Color.TextSecondary.opacity(0.8))
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 0.5))
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24, height: 24)
+                                .foregroundStyle(Color.TextSecondary.opacity(0.8))
+                        }
+                        Text(author.fullName ?? author.username ?? "İsimsiz")
+                            .font(.subheadline)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
                     }
-                    Text(author.fullName ?? author.username ?? "İsimsiz")
-                        .font(.subheadline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                    if viewModel.isOwnedByCurrentUser || viewModel.isAuthenticated {
+                        topActionsRow
+                    }
                 }
                 .foregroundStyle(.TextSecondary)
+                .padding(.top, 4)
+                .padding(.bottom, 8)
+            } else if viewModel.isOwnedByCurrentUser || viewModel.isAuthenticated {
+                HStack {
+                    Spacer()
+                    topActionsRow
+                }
                 .padding(.top, 4)
                 .padding(.bottom, 8)
             }
@@ -220,26 +209,37 @@ struct RecipeDetailView: View {
                 .foregroundStyle(.TextPrimary)
             
             ForEach(viewModel.recipe.ingredients) { recipeIngredient in
-                HStack {
-                    Image("circle.fill.icon")
-                        .resizable()
-                        .foregroundStyle(Color.AppPrimary)
-                        .frame(width: 12, height: 12)
-                    
-                    Text("\(recipeIngredient.formattedAmount) \(recipeIngredient.unit) \(recipeIngredient.name)")
-                                .foregroundStyle(.TextPrimary)
-                    
-                    Spacer()
-                    
-                    Button(action: {
+                Button(action: {
                         viewModel.toggleIngredientSelection(recipeIngredient)
                     }) {
-                        Image(viewModel.isIngredientSelected(recipeIngredient) ? "checkbox.check.icon" : "checkbox.unchecked.icon")
-                            .resizable()
-                            .foregroundStyle(viewModel.isIngredientSelected(recipeIngredient) ? .Success : .TextSecondary)
-                            .frame(width: 18, height: 18)
+                        HStack(spacing: 10) {
+                            Image("circle.fill.icon")
+                                .resizable()
+                                .foregroundStyle(Color.AppPrimary)
+                                .frame(width: 10, height: 10)
+                            
+                            Text("\(recipeIngredient.formattedAmount) \(recipeIngredient.unit) \(recipeIngredient.name)")
+                                .foregroundStyle(.TextPrimary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            let isSelected = viewModel.isIngredientSelected(recipeIngredient)
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(isSelected ? Color.Success.opacity(0.16) : Color.Surface)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(isSelected ? Color.Success : Color.SurfaceBorder, lineWidth: 1.2)
+                                    )
+                                    .frame(width: 24, height: 24)
+                                
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundStyle(isSelected ? Color.Success : Color.clear)
+                            }
+                        }
+                        .contentShape(Rectangle())
                     }
-                }
+                .buttonStyle(.plain)
                 .padding(.vertical, 4)
             }
             
@@ -280,25 +280,35 @@ struct RecipeDetailView: View {
         Button(action: {
             viewModel.addSelectedIngredientsToShoppingList()
         }) {
-            VStack {
-                HStack(spacing: 8) {
-                    Image("cart.icon")
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                        .foregroundStyle(.white)
-                    
-                    Text("Seçili Malzemeleri Alışveriş Listesine Ekle")
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
+            HStack(spacing: 8) {
+                Image("cart.icon")
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                    .foregroundStyle(.AppPrimary)
+                
+                Text("Seçilileri Listeye Ekle")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.9)
+                
+                Spacer(minLength: 8)
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.TextSecondary)
             }
             .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.AppPrimary)
-            .foregroundStyle(.white)
-            .cornerRadius(8)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color.Surface)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.SurfaceBorder, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
+        .buttonStyle(.plain)
         .disabled(viewModel.selectedIngredients.isEmpty)
         .opacity(viewModel.selectedIngredients.isEmpty ? 0.6 : 1)
         .sheet(isPresented: $viewModel.showListSelector) {
@@ -385,6 +395,85 @@ struct RecipeDetailView: View {
             .presentationDetents([.height(200)])
         }
     }
+
+    private var topActionsRow: some View {
+        HStack(spacing: 10) {
+            if viewModel.isOwnedByCurrentUser {
+                Button(action: {
+                    navigationPath.append(AppNavigation.recipeEdit(viewModel.recipe))
+                }) {
+                    actionLabel(
+                        title: "Düzenle",
+                        color: .TextSecondary
+                    ) {
+                        Image("pencil.icon")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                    }
+                }
+            } else if viewModel.isAuthenticated {
+                Button(action: {
+                    viewModel.showRatingSheet = true
+                }) {
+                    actionLabel(
+                        title: "Puanla",
+                        color: viewModel.userCurrentRating != nil ? .AppPrimary : .TextSecondary
+                    ) {
+                        Image(viewModel.userCurrentRating != nil ? "star.fill.icon" : "star.icon")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                    }
+                }
+                .contextMenu {
+                    if viewModel.userCurrentRating != nil {
+                        Button(role: .destructive) {
+                            Task { await viewModel.removeRating() }
+                        } label: {
+                            Label("Puanı Kaldır", systemImage: "trash")
+                        }
+                    }
+                }
+            }
+
+            if viewModel.isAuthenticated {
+                Button(action: {
+                    Task { await viewModel.toggleFavorite() }
+                }) {
+                    actionLabel(
+                        title: "Favori",
+                        color: viewModel.isFavorite ? .Danger : .TextSecondary
+                    ) {
+                        Image(systemName: viewModel.isFavorite ? "heart.fill" : "heart")
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                }
+            }
+        }
+    }
+
+    private func actionLabel<Content: View>(
+        title: String,
+        color: Color,
+        @ViewBuilder icon: () -> Content
+    ) -> some View {
+        HStack(spacing: 6) {
+            icon()
+            Text(title)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .foregroundStyle(color)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(Color.Surface)
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.SurfaceBorder, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
 }
 
 private struct LegacyBackButtonHider: ViewModifier {
@@ -392,7 +481,7 @@ private struct LegacyBackButtonHider: ViewModifier {
         if #available(iOS 26, *) {
             content
         } else {
-            content.navigationBarBackButtonHidden()
+            content.navigationBarBackButtonHidden(true)
         }
     }
 }
@@ -406,4 +495,3 @@ private struct LegacyBackButtonHider: ViewModifier {
         RecipeDetailView(viewModel: viewModel, navigationPath: .constant(NavigationPath()))
     }
 }
-
