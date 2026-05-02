@@ -75,6 +75,7 @@ class AppCoordinator: ObservableObject {
         
         AppCoordinator.configureNavigationBarAppearance()
         
+        observeAPNsTokenUpdates()
         listenForAuthStateChanges()
         requestRouteEvaluation()
     }
@@ -157,6 +158,7 @@ class AppCoordinator: ObservableObject {
     private func setupMainFlow() async {
         print("✅ Veriler yükleniyor...")
         await dataManager.loadInitialUserData()
+        await DeviceTokenService.shared.syncStoredTokenIfPossible()
 
         if dataManager.currentUser?.birthDate == nil {
             print("ℹ️ Yaş bilgisi eksik, age gate gösteriliyor.")
@@ -168,6 +170,19 @@ class AppCoordinator: ObservableObject {
         TelemetryManager.configureFromConsent()
         print("✅ Veriler yüklendi, ana ekrana yönlendiriliyor.")
         currentView = .main
+    }
+
+    private func observeAPNsTokenUpdates() {
+        NotificationCenter.default.addObserver(
+            forName: .apnsDeviceTokenUpdated,
+            object: nil,
+            queue: .main
+        ) { notification in
+            guard let token = notification.object as? String, !token.isEmpty else { return }
+            Task { @MainActor in
+                try? await DeviceTokenService.shared.upsertCurrentDeviceToken(token: token)
+            }
+        }
     }
 
     func completeAgeGate(withBirthDate birthDate: Date) async {

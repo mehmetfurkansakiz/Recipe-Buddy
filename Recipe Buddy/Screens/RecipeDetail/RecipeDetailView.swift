@@ -56,7 +56,7 @@ struct RecipeDetailView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(.white)
-                            .frame(width: 48, height: 48)
+                            .frame(width: 36, height: 36)
                             .background(
                                 Circle()
                                     .fill(.black.opacity(0.96))

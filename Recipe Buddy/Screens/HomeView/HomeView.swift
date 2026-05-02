@@ -58,22 +58,19 @@ struct HomeView: View {
             }
         }
         .onAppear {
-            // If user just registered, force showing consent sheet once
-            if UserDefaults.standard.bool(forKey: "consent_prompt_after_signup") {
-                UserDefaults.standard.removeObject(forKey: "consent_prompt_after_signup")
+            // Cleanup legacy trigger flags from previous flow.
+            UserDefaults.standard.removeObject(forKey: "consent_prompt_after_signup")
+            UserDefaults.standard.removeObject(forKey: "consent_prompt_after_login")
+
+            // Show consent prompt only once, even if user dismisses without deciding.
+            if ConsentManager.shared.shouldShowConsentPromptOnce() {
+                ConsentManager.shared.markConsentPromptSeen()
                 showConsentSheet = true
-            } else if UserDefaults.standard.bool(forKey: "consent_prompt_after_login") {
-                // If user just logged in (existing user)
-                UserDefaults.standard.removeObject(forKey: "consent_prompt_after_login")
-                if ConsentManager.shared.needsGeneralConsent() {
-                    showConsentSheet = true
-                } else {
-                    Task {
-                        await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
-                    }
+            } else {
+                Task {
+                    await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
+                    await NotificationPermissionManager.shared.requestIfEligible()
                 }
-            } else if ConsentManager.shared.needsGeneralConsent() {
-                showConsentSheet = true
             }
         }
         .sheet(isPresented: $showConsentSheet, onDismiss: {
@@ -87,6 +84,7 @@ struct HomeView: View {
             // Sync marketing preference when consent flow finishes.
             Task {
                 await ConsentManager.shared.syncMarketingPreferenceWithNotifications()
+                await NotificationPermissionManager.shared.requestIfEligible()
             }
         }) {
             NavigationStack {

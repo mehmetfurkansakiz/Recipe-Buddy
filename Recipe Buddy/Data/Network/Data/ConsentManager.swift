@@ -15,6 +15,7 @@ final class ConsentManager {
     private let kPersonalization = "consent_personalization"
     private let kMarketing = "consent_marketing"
     private let kLastUpdated = "consent_last_updated"
+    private let kConsentPromptSeen = "consent_prompt_seen_once"
 
     // MARK: - Read State
     func hasUserDecided() -> Bool {
@@ -27,6 +28,20 @@ final class ConsentManager {
     func marketingAllowed() -> Bool { defaults.bool(forKey: kMarketing) }
 
     func needsGeneralConsent() -> Bool { !hasUserDecided() }
+
+    // MARK: - Prompt Flow
+    func hasSeenConsentPrompt() -> Bool {
+        defaults.bool(forKey: kConsentPromptSeen)
+    }
+
+    func markConsentPromptSeen() {
+        defaults.set(true, forKey: kConsentPromptSeen)
+    }
+
+    /// First-run prompt visibility: show only once regardless of user decision.
+    func shouldShowConsentPromptOnce() -> Bool {
+        !hasSeenConsentPrompt()
+    }
 
     // MARK: - ATT (Tracking) for Ads/Personalization
     func requestTrackingAuthorizationIfNeeded() {

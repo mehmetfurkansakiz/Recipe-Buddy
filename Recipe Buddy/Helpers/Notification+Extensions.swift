@@ -11,4 +11,6 @@ extension Notification.Name {
     static let favoriteStatusChanged = Notification.Name("favoriteStatusChangedNotification")
     /// Notification posted when app should switch tab bar selection.
     static let appTabSelectionRequested = Notification.Name("appTabSelectionRequestedNotification")
+    /// Notification posted when APNs device token is updated.
+    static let apnsDeviceTokenUpdated = Notification.Name("apnsDeviceTokenUpdatedNotification")
 }

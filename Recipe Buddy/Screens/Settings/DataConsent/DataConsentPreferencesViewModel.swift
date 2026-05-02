@@ -45,6 +45,7 @@ class DataConsentPreferencesViewModel: ObservableObject {
         let now = Date()
         defaults.set(now, forKey: lastUpdatedKey)
         lastUpdated = now
+        ConsentManager.shared.markConsentPromptSeen()
 
         isSaving = false
     }
