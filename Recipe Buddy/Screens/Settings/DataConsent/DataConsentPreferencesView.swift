@@ -50,7 +50,7 @@ struct DataConsentPreferencesView: View {
                             icon: "megaphone.fill",
                             title: "Pazarlama",
                             subtitle: "Kampanyalar ve tekliflerle ilgili bildirimler",
-                            onChange: { _ in viewModel.savePreferences() }
+                            onChange: { newValue in viewModel.handleMarketingConsentChanged(newValue) }
                         )
                         
                         Divider().padding(.leading, 56)

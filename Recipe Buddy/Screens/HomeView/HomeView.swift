@@ -58,6 +58,10 @@ struct HomeView: View {
             }
         }
         .onAppear {
+            Task {
+                await NotificationPermissionManager.shared.requestSystemPromptOnceIfNeeded()
+            }
+
             // Cleanup legacy trigger flags from previous flow.
             UserDefaults.standard.removeObject(forKey: "consent_prompt_after_signup")
             UserDefaults.standard.removeObject(forKey: "consent_prompt_after_login")

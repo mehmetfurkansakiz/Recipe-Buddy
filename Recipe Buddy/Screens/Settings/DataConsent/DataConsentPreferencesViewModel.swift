@@ -66,6 +66,14 @@ class DataConsentPreferencesViewModel: ObservableObject {
         savePreferences()
     }
 
+    func handleMarketingConsentChanged(_ isEnabled: Bool) {
+        savePreferences()
+        guard isEnabled else { return }
+        Task {
+            await NotificationPermissionManager.shared.requestSystemPromptForUserIntentIfNeeded()
+        }
+    }
+
     var formattedLastUpdated: String? {
         guard let lastUpdated = lastUpdated else { return nil }
         let formatter = DateFormatter()
