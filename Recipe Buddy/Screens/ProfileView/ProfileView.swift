@@ -188,54 +188,55 @@ struct ProfileView: View {
                 .font(.footnote)
                 .tint(.AppPrimary)
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(Array(dataManager.ownedRecipes.prefix(6))) { recipe in
-                        Button {
-                            navigationPath.append(AppNavigation.recipeDetail(recipe))
-                        } label: {
-                            VStack(alignment: .leading, spacing: 6) {
-                                if let url = recipe.imagePublicURL() {
-                                    AsyncImage(url: url) { image in
-                                        image.resizable().scaledToFill()
-                                    } placeholder: {
-                                        Color.gray.opacity(0.15)
-                                    }
-                                    .frame(width: 140, height: 90)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                                } else {
-                                    Color.gray.opacity(0.15)
+            if dataManager.ownedRecipes.isEmpty {
+                Text("Henüz tarifin yok.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.thinMaterial.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(Array(dataManager.ownedRecipes.prefix(6))) { recipe in
+                            Button {
+                                navigationPath.append(AppNavigation.recipeDetail(recipe))
+                            } label: {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    if let url = recipe.imagePublicURL() {
+                                        AsyncImage(url: url) { image in
+                                            image.resizable().scaledToFill()
+                                        } placeholder: {
+                                            Color.gray.opacity(0.15)
+                                        }
                                         .frame(width: 140, height: 90)
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    } else {
+                                        Color.gray.opacity(0.15)
+                                            .frame(width: 140, height: 90)
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    }
+                                    Text(recipe.name)
+                                        .font(.footnote)
+                                        .lineLimit(1)
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "heart.fill").font(.caption2)
+                                        Text("\(recipe.favoritedCount)").font(.caption2)
+                                        Spacer()
+                                        Image(systemName: "clock").font(.caption2)
+                                        Text("\(recipe.cookingTime) dk").font(.caption2)
+                                    }
+                                    .foregroundStyle(.secondary)
                                 }
-                                Text(recipe.name)
-                                    .font(.footnote)
-                                    .lineLimit(1)
-                                HStack(spacing: 6) {
-                                    Image(systemName: "heart.fill").font(.caption2)
-                                    Text("\(recipe.favoritedCount)").font(.caption2)
-                                    Spacer()
-                                    Image(systemName: "clock").font(.caption2)
-                                    Text("\(recipe.cookingTime) dk").font(.caption2)
-                                }
-                                .foregroundStyle(.secondary)
+                                .frame(width: 140)
                             }
-                            .frame(width: 140)
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
-                    if dataManager.ownedRecipes.isEmpty {
-                        Text("Henüz tarifin yok.")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(.thinMaterial.opacity(0.3))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
-                    }
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
             }
         }
     }

@@ -84,9 +84,9 @@ struct EmailConfirmationView: View {
                 
             }
             .padding(24)
-            .alert("Başarıyla Gönderildi", isPresented: $viewModel.didSendEmail, actions: {
-                Button("Tamam") { }
-            }, message: { Text("Onay kodu tekrar gönderildi. Lütfen gelen kutunu ve spam klasörünü kontrol et.")})
+            .alert("Bilgilendirme", isPresented: .constant(viewModel.noticeMessage != nil), actions: {
+                Button("Tamam") { viewModel.noticeMessage = nil }
+            }, message: { Text(viewModel.noticeMessage ?? "") })
             .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil), actions: {
                 Button("Tamam") { viewModel.errorMessage = nil }
             }, message: {Text(viewModel.errorMessage ?? "") })
