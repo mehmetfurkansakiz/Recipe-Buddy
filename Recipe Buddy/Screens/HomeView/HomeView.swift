@@ -38,6 +38,7 @@ struct HomeView: View {
                         if !viewModel.searchText.isEmpty {
                             SearchResultsView(
                                 recipes: viewModel.searchResults,
+                                users: viewModel.userSearchResults,
                                 navigationPath: $navigationPath
                             )
                         } else if viewModel.selectedCategory != nil {
@@ -170,16 +171,50 @@ struct HeaderView: View {
 
 struct SearchResultsView: View {
     let recipes: [Recipe]
+    let users: [User]
     @Binding var navigationPath: NavigationPath
 
     var body: some View {
-        VStack {
-            ForEach(recipes) { recipe in
-                Button(action: { navigationPath.append(AppNavigation.recipeDetail(recipe)) }) {
-                    SearchResultRow(recipe: recipe)
+        VStack(alignment: .leading, spacing: 0) {
+            if !users.isEmpty {
+                Text("Profiller")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+                    .padding(.top, 4)
+
+                ForEach(users) { user in
+                    Button(action: { navigationPath.append(AppNavigation.userProfile(user)) }) {
+                        UserSearchResultRow(user: user)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
+                    Divider().padding(.horizontal)
                 }
-                .padding(.horizontal)
-                Divider().padding(.horizontal)
+            }
+
+            if !recipes.isEmpty {
+                Text("Tarifler")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+                    .padding(.top, users.isEmpty ? 4 : 12)
+
+                ForEach(recipes) { recipe in
+                    Button(action: { navigationPath.append(AppNavigation.recipeDetail(recipe)) }) {
+                        SearchResultRow(recipe: recipe)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
+                    Divider().padding(.horizontal)
+                }
+            }
+
+            if users.isEmpty && recipes.isEmpty {
+                Text("Arama sonucu bulunamadı.")
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+                    .padding(.top, 24)
             }
         }
     }
@@ -223,6 +258,45 @@ struct CategoryResultsView: View {
             }
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+struct UserSearchResultRow: View {
+    let user: User
+
+    var body: some View {
+        HStack(spacing: 12) {
+            LazyImage(url: user.avatarPublicURL()) { state in
+                if let image = state.image {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(.TextSecondary.opacity(0.5))
+                }
+            }
+            .frame(width: 44, height: 44)
+            .clipShape(Circle())
+            .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 0.5))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(user.fullName ?? user.username ?? "İsimsiz")
+                    .font(.headline)
+                    .foregroundStyle(.TextPrimary)
+
+                if let username = user.username, !username.isEmpty {
+                    Text("@\(username)")
+                        .font(.caption)
+                        .foregroundStyle(.TextSecondary)
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 8)
     }
 }
 

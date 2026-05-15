@@ -83,6 +83,17 @@ class RecipeService {
         }
     }
     
+    func fetchPublicRecipes(userId: UUID, limit: Int = 20) async throws -> [Recipe] {
+        try await supabase.from("recipes")
+            .select(Recipe.selectQuery)
+            .eq("user_id", value: userId)
+            .eq("is_public", value: true)
+            .order("created_at", ascending: false)
+            .limit(limit)
+            .execute()
+            .value
+    }
+
     /// Fetches recipes created by the current user.
     func fetchOwnedRecipes(page: Int, limit: Int) async throws -> [Recipe] {
         guard let userId = try? await supabase.auth.session.user.id else { return [] }

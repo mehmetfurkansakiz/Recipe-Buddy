@@ -5,6 +5,7 @@ enum AppNavigation: Hashable {
     case recipeCreate
     case recipeEdit(Recipe)
     case profile
+    case userProfile(User)
     case editProfile
     case favoriteRecipes
     case settings

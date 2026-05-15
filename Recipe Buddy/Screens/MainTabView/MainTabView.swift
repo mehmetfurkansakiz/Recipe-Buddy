@@ -42,6 +42,8 @@ struct MainTabView: View {
                     RecipeCreateView(viewModel: RecipeCreateViewModel(recipeToEdit: recipe))
                 case .profile:
                     ProfileView(viewModel: ProfileViewModel(coordinator: coordinator), navigationPath: $navigationPath)
+                case .userProfile(let user):
+                    PublicProfileView(user: user, navigationPath: $navigationPath)
                 case .editProfile:
                     EditProfileView(viewModel: EditProfileViewModel())
                 case .favoriteRecipes:

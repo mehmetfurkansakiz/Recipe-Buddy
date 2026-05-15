@@ -125,33 +125,38 @@ struct RecipeDetailView: View {
             
             if let author = viewModel.recipe.user {
                 HStack(spacing: 8) {
-                    HStack(spacing: 8) {
-                        if let url = author.avatarPublicURL() {
-                            LazyImage(url: url) { state in
-                                if let image = state.image {
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                } else {
-                                    Color.gray.opacity(0.2)
+                    Button {
+                        navigationPath.append(AppNavigation.userProfile(author))
+                    } label: {
+                        HStack(spacing: 8) {
+                            if let url = author.avatarPublicURL() {
+                                LazyImage(url: url) { state in
+                                    if let image = state.image {
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                    } else {
+                                        Color.gray.opacity(0.2)
+                                    }
                                 }
-                            }
-                            .frame(width: 24, height: 24)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 0.5))
-                        } else {
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .scaledToFit()
                                 .frame(width: 24, height: 24)
-                                .foregroundStyle(Color.TextSecondary.opacity(0.8))
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.SurfaceBorder, lineWidth: 0.5))
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundStyle(Color.TextSecondary.opacity(0.8))
+                            }
+                            Text(author.fullName ?? author.username ?? "İsimsiz")
+                                .font(.subheadline)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
                         }
-                        Text(author.fullName ?? author.username ?? "İsimsiz")
-                            .font(.subheadline)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .buttonStyle(.plain)
 
                     if viewModel.isOwnedByCurrentUser || viewModel.isAuthenticated {
                         topActionsRow

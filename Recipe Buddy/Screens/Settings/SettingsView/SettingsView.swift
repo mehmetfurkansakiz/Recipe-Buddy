@@ -66,14 +66,6 @@ struct SettingsView: View {
                 Divider().padding(.leading)
                 
                 Button {
-                    navigationPath.append(AppNavigation.changePassword)
-                } label: {
-                    SettingsRowView(title: "Parolayı Değiştir", icon: "key.fill", iconColor: .AppPrimary)
-                }
-                
-                Divider().padding(.leading)
-                
-                Button {
                     navigationPath.append(AppNavigation.emailPreferences)
                 } label: {
                     SettingsRowView(title: "E-posta Tercihleri", icon: "envelope.fill", iconColor: .AppPrimary)

@@ -135,6 +135,12 @@ extension View {
                     appearance.backButtonAppearance.normal.titleTextAttributes = buttonAttributes
                     appearance.backButtonAppearance.highlighted.titleTextAttributes = buttonAttributes
 
+                    // glass/transparent nav bar'da geri oku tint'i düşebildiği için
+                    // back indicator image'i doğrudan istediğimiz renkle veriyoruz.
+                    let backIndicator = UIImage(systemName: "chevron.backward")?
+                        .withTintColor(tint, renderingMode: .alwaysOriginal)
+                    appearance.setBackIndicatorImage(backIndicator, transitionMaskImage: backIndicator)
+
                     // genel tintColor
                     nav.navigationBar.tintColor = tint
                     

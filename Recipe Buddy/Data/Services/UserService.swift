@@ -4,6 +4,8 @@ import Supabase
 @MainActor
 class UserService {
     static let shared = UserService()
+
+    private let userSelectColumns = "id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips"
     
     /// Fetches the complete profile for the currently logged-in user.
     func fetchCurrentUser() async throws -> User? {
@@ -14,7 +16,7 @@ class UserService {
         do {
             let user: User = try await supabase
                 .from("users")
-                .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
+                .select(userSelectColumns)
                 .eq("id", value: userId)
                 .single()
                 .execute()
@@ -27,6 +29,30 @@ class UserService {
         }
     }
     
+    func fetchPublicUser(userId: UUID) async throws -> User {
+        try await supabase
+            .from("users")
+            .select(userSelectColumns)
+            .eq("id", value: userId)
+            .single()
+            .execute()
+            .value
+    }
+
+    func searchPublicUsers(query: String, limit: Int = 8) async throws -> [User] {
+        let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !term.isEmpty else { return [] }
+
+        return try await supabase
+            .from("users")
+            .select(userSelectColumns)
+            .or("full_name.ilike.%\(term)%,username.ilike.%\(term)%")
+            .order("full_name", ascending: true)
+            .limit(limit)
+            .execute()
+            .value
+    }
+
     /// Backward-compatible update without explicit remove flag
     func updateUserProfile(
         fullName: String?,
@@ -101,7 +127,7 @@ class UserService {
 
         let updated: User = try await supabase
             .from("users")
-            .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
+            .select(userSelectColumns)
             .eq("id", value: userId)
             .single()
             .execute()
@@ -155,7 +181,7 @@ class UserService {
             .execute()
 
         let updated: User = try await supabase.from("users")
-            .select("id, email, full_name, username, avatar_url, profession, show_profession, total_rating_points, total_ratings_received, city, show_city, bio, birth_date, show_birth_date, email_newsletter, email_product_updates, email_recipe_tips")
+            .select(userSelectColumns)
             .eq("id", value: userId)
             .single()
             .execute()
