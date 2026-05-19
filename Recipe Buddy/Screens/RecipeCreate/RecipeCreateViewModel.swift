@@ -34,6 +34,7 @@ class RecipeCreateViewModel: ObservableObject {
     @Published var showingIngredientSelector = false
     @Published var showDeleteConfirmAlert = false
     @Published var ingredientAlertMessage: String?
+    @Published var ingredientInlineStatus: String?
     
     // Service 
     private let recipeService = RecipeService.shared
@@ -76,6 +77,10 @@ class RecipeCreateViewModel: ObservableObject {
     }
     
     let servingsOptions = Array(1...20)
+    let ingredientAmountOptions: [String] = ["0.1", "0.25", "0.33", "0.5", "0.66", "0.75", "1", "1.25", "1.5", "1.75", "2", "2.5", "3", "3.5", "4", "4.5", "5", "6", "7", "8", "9", "10", "12", "15", "20"]
+    let ingredientUnitOptions: [String] = ["adet", "çay kaşığı", "tatlı kaşığı", "yemek kaşığı", "su bardağı", "çay bardağı", "gram", "kg", "ml", "litre", "demet", "dilim", "paket", "tutam"]
+    private(set) var lastUsedIngredientUnit: String = "adet"
+    private(set) var lastUsedIngredientAmount: String = "1"
     var timeOptions: [Int] {
         var values = Set<Int>()
         func addRange(from: Int, to: Int, step: Int) {
@@ -221,23 +226,81 @@ class RecipeCreateViewModel: ObservableObject {
         }
     }
     
+    func defaultAmount(for unit: String) -> String {
+        let normalized = unit.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if normalized == "gram" || normalized == "ml" { return "100" }
+        if normalized == "kg" || normalized == "litre" { return "1" }
+        if normalized.contains("kaşığı") { return "1" }
+        if normalized.contains("bardağı") { return "1" }
+        return "1"
+    }
+
+    func groupedIngredientUnits() -> [(String, [String])] {
+        [
+            ("Hacim", ["ml", "litre", "çay bardağı", "su bardağı"]),
+            ("Ağırlık", ["gram", "kg"]),
+            ("Ölçü", ["çay kaşığı", "tatlı kaşığı", "yemek kaşığı"]),
+            ("Parça", ["adet", "demet", "dilim", "paket", "tutam"])
+        ]
+    }
+
+    func sanitizeAmount(_ raw: String) -> String {
+        var value = raw.replacingOccurrences(of: ",", with: ".")
+        value = value.filter { $0.isNumber || $0 == "." }
+        let dotCount = value.filter { $0 == "." }.count
+        if dotCount > 1 {
+            var result = ""
+            var dotSeen = false
+            for c in value {
+                if c == "." {
+                    if dotSeen { continue }
+                    dotSeen = true
+                }
+                result.append(c)
+            }
+            value = result
+        }
+        return value
+    }
+
     /// Selects an ingredient, checking for duplicates before adding. Also handles custom ingredients.
     func selectIngredient(_ ingredient: Ingredient, isCustom: Bool = false) {
-        if !isCustom && recipeIngredients.contains(where: { $0.ingredient.id == ingredient.id }) {
-            ingredientAlertMessage = "'\(ingredient.name)' zaten ekli. Miktarını veya birimini değiştirmek için listedeki malzemenin üzerine dokunabilirsiniz."
-        } else {
-            let newItem = RecipeIngredientInput(ingredient: ingredient)
-            recipeIngredients.append(newItem)
-            ingredientToEditDetails = newItem
+        if !isCustom, let existing = recipeIngredients.first(where: { $0.ingredient.id == ingredient.id }) {
+            ingredientToEditDetails = existing
+            ingredientInlineStatus = "\(ingredient.name) zaten ekli, düzenleme satırı açıldı."
+            return
         }
+
+        let unit = lastUsedIngredientUnit
+        let amount = lastUsedIngredientAmount.isEmpty ? defaultAmount(for: unit) : lastUsedIngredientAmount
+        let newItem = RecipeIngredientInput(ingredient: ingredient, amount: amount, unit: unit)
+        recipeIngredients.append(newItem)
+        ingredientToEditDetails = newItem
     }
 
     func addOrUpdateIngredient(_ ingredientInput: RecipeIngredientInput) {
-        if let index = recipeIngredients.firstIndex(where: { $0.ingredient.id == ingredientInput.ingredient.id }) {
-            recipeIngredients[index] = ingredientInput
+        var normalized = ingredientInput
+        normalized.amount = sanitizeAmount(normalized.amount)
+
+        if let number = Double(normalized.amount), number > 0 {
+            // valid
         } else {
-            recipeIngredients.append(ingredientInput)
+            normalized.amount = defaultAmount(for: normalized.unit)
         }
+
+        if normalized.unit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            normalized.unit = ingredientUnitOptions.first ?? "adet"
+        }
+
+        if let index = recipeIngredients.firstIndex(where: { $0.ingredient.id == normalized.ingredient.id }) {
+            recipeIngredients[index] = normalized
+        } else {
+            recipeIngredients.append(normalized)
+        }
+
+        lastUsedIngredientUnit = normalized.unit
+        lastUsedIngredientAmount = normalized.amount
+        ingredientInlineStatus = "Kaydedildi"
     }
     
     func removeIngredient(with id: UUID) {

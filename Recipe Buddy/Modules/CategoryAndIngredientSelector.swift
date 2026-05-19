@@ -66,21 +66,21 @@ struct IngredientSelectorView: View {
             Color.Background.opacity(0.4)
                 .ignoresSafeArea()
             NavigationStack {
-                VStack {
-                    List {
+                List {
+                    Section("Bir malzeme seç") {
                         if viewModel.isCustomAddButtonShown {
-                             Button(action: {
-                                 let trimmedName = viewModel.ingredientSearchText.trimmingCharacters(in: .whitespaces)
-                                 let customIngredient = Ingredient(id: UUID(), name: trimmedName)
-                                 
-                                 viewModel.selectIngredient(customIngredient, isCustom: true)
-                                 dismiss()
-                             }) {
-                                 Label("\"\(viewModel.ingredientSearchText)\" olarak özel malzeme ekle", systemImage: "plus.circle.fill")
-                                     .foregroundStyle(.AppPrimary)
-                             }
-                         }
-                        
+                            Button(action: {
+                                let trimmedName = viewModel.ingredientSearchText.trimmingCharacters(in: .whitespaces)
+                                let customIngredient = Ingredient(id: UUID(), name: trimmedName)
+
+                                viewModel.selectIngredient(customIngredient, isCustom: true)
+                                dismiss()
+                            }) {
+                                Label("\"\(viewModel.ingredientSearchText)\" olarak özel malzeme ekle", systemImage: "plus.circle.fill")
+                                    .foregroundStyle(.AppPrimary)
+                            }
+                        }
+
                         ForEach(viewModel.filteredIngredients) { ingredient in
                             Button(action: {
                                 viewModel.selectIngredient(ingredient)
@@ -91,15 +91,21 @@ struct IngredientSelectorView: View {
                             }
                         }
                     }
-                    .searchable(text: $viewModel.ingredientSearchText, prompt: "Malzeme ara veya yeni ekle...")
                 }
+                .listStyle(.plain)
+                .searchable(text: $viewModel.ingredientSearchText, prompt: "Malzeme ara veya yeni ekle...")
                 .navigationTitle("Malzeme Seç")
-                .navigationBarItems(trailing: Button(action: {
-                    dismiss()
-                }) {
-                    Text("Bitti")
-                        .foregroundStyle(.AppPrimary)
-                })
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("Bitti")
+                                .foregroundStyle(.AppPrimary)
+                        }
+                    }
+                }
             }
         }
     }
