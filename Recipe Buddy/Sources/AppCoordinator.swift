@@ -55,6 +55,7 @@ class AppCoordinator: ObservableObject {
     private var authStateListenerTask: Task<Void, Never>?
     private var isRouteEvaluationRunning = false
     private var pendingRouteEvaluation = false
+    private var isPasswordRecoveryFlowActive = false
 
     init() {
         let dm = DataManager()
@@ -76,6 +77,7 @@ class AppCoordinator: ObservableObject {
         AppCoordinator.configureNavigationBarAppearance()
         
         observeAPNsTokenUpdates()
+        observePasswordRecoveryFlowState()
         listenForAuthStateChanges()
         requestRouteEvaluation()
     }
@@ -89,6 +91,10 @@ class AppCoordinator: ObservableObject {
             guard let self else { return }
             for await state in supabase.auth.authStateChanges {
                 if state.event == .signedIn, state.session != nil {
+                    if self.isPasswordRecoveryFlowActive {
+                        print("ℹ️ signedIn event ignored during password recovery flow.")
+                        continue
+                    }
                     print("✅ E-posta onayı veya giriş algılandı, route yeniden değerlendiriliyor...")
                     await MainActor.run {
                         self.requestRouteEvaluation()
@@ -181,6 +187,19 @@ class AppCoordinator: ObservableObject {
             guard let token = notification.object as? String, !token.isEmpty else { return }
             Task { @MainActor in
                 try? await DeviceTokenService.shared.upsertCurrentDeviceToken(token: token)
+            }
+        }
+    }
+
+    private func observePasswordRecoveryFlowState() {
+        NotificationCenter.default.addObserver(
+            forName: .passwordRecoveryFlowStateChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self, let isActive = notification.object as? Bool else { return }
+            Task { @MainActor in
+                self.isPasswordRecoveryFlowActive = isActive
             }
         }
     }

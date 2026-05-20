@@ -13,4 +13,6 @@ extension Notification.Name {
     static let appTabSelectionRequested = Notification.Name("appTabSelectionRequestedNotification")
     /// Notification posted when APNs device token is updated.
     static let apnsDeviceTokenUpdated = Notification.Name("apnsDeviceTokenUpdatedNotification")
+    /// Notification posted to indicate whether password recovery flow is active.
+    static let passwordRecoveryFlowStateChanged = Notification.Name("passwordRecoveryFlowStateChangedNotification")
 }
