@@ -5,8 +5,6 @@ struct ListEditView: View {
     var onSave: () -> Void
     var onCancel: () -> Void
     
-    @FocusState private var isTextFieldFocused: Bool
-
     var body: some View {
         VStack(spacing: 0) {
             headerView
@@ -25,6 +23,25 @@ struct ListEditView: View {
                 .padding()
         }
         .background(Color.Background.ignoresSafeArea())
+        .sheet(isPresented: $viewModel.showingIngredientSelector) {
+            ShoppingListIngredientSelectorView(viewModel: viewModel)
+        }
+        .overlay(alignment: .top) {
+            if let status = viewModel.ingredientInlineStatus {
+                Text(status)
+                    .font(.caption)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.thinMaterial)
+                    .clipShape(Capsule())
+                    .padding(.top, 56)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+                            viewModel.ingredientInlineStatus = nil
+                        }
+                    }
+            }
+        }
     }
     
     /// The header view with title and close button.
@@ -59,12 +76,18 @@ struct ListEditView: View {
             Text("MALZEMELER")
                 .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
             
-            // Container for the list and the add button
             VStack(spacing: 12) {
                 if viewModel.itemsForEditingList.isEmpty {
-                    Text("Henüz malzeme eklenmedi.")
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, minHeight: 60)
+                    VStack(spacing: 8) {
+                        Image(systemName: "basket")
+                            .font(.title2)
+                            .foregroundStyle(.TextSecondary)
+
+                        Text("Henüz malzeme eklenmedi.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                        .frame(maxWidth: .infinity, minHeight: 96)
                         .background(.thinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
@@ -77,23 +100,25 @@ struct ListEditView: View {
                         }
                     }
                 }
-                
-                // Input for adding a new item
-                HStack {
-                    TextField("Yeni Malzeme Ekle", text: $viewModel.newItemName)
-                        .focused($isTextFieldFocused)
-                        .textFieldStyle(CustomTextFieldStyle())
-                    
-                    Button("Ekle") {
-                        withAnimation {
-                            viewModel.addItemToEditor()
-                        }
+
+                Button(action: {
+                    viewModel.showingIngredientSelector = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundStyle(.AppPrimary)
+
+                        Text("Malzeme Seç veya Yeni Ekle")
+                            .fontWeight(.semibold)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.TextSecondary)
                     }
-                    .disabled(viewModel.newItemName.trimmingCharacters(in: .whitespaces).isEmpty)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.AppPrimary)
-                    .padding(.horizontal)
                 }
+                .buttonStyle(CustomPickerStyle())
             }
         }
     }

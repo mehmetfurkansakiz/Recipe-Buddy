@@ -1,7 +1,4 @@
 import Foundation
-#if canImport(AppTrackingTransparency)
-import AppTrackingTransparency
-#endif
 
 final class ConsentManager {
     static let shared = ConsentManager()
@@ -41,20 +38,6 @@ final class ConsentManager {
     /// First-run prompt visibility: show only once regardless of user decision.
     func shouldShowConsentPromptOnce() -> Bool {
         !hasSeenConsentPrompt()
-    }
-
-    // MARK: - ATT (Tracking) for Ads/Personalization
-    func requestTrackingAuthorizationIfNeeded() {
-        #if canImport(AppTrackingTransparency)
-        if #available(iOS 14.5, *) {
-            let status = ATTrackingManager.trackingAuthorizationStatus
-            if status == .notDetermined {
-                ATTrackingManager.requestTrackingAuthorization { _ in
-                    // You may handle callbacks here if needed
-                }
-            }
-        }
-        #endif
     }
 
     // MARK: - Sync with Notification Preferences (Marketing)

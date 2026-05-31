@@ -110,3 +110,65 @@ struct IngredientSelectorView: View {
         }
     }
 }
+
+struct ShoppingListIngredientSelectorView: View {
+    @ObservedObject var viewModel: ShoppingListViewModel
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        ZStack {
+            Color.Background.opacity(0.4)
+                .ignoresSafeArea()
+
+            NavigationStack {
+                List {
+                    Section("Bir malzeme seç") {
+                        if viewModel.isCustomAddButtonShown {
+                            Button(action: {
+                                let trimmedName = viewModel.ingredientSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                                viewModel.addCustomItemToEditor(named: trimmedName)
+                                dismiss()
+                            }) {
+                                Label("\"\(viewModel.ingredientSearchText)\" olarak özel malzeme ekle", systemImage: "plus.circle.fill")
+                                    .foregroundStyle(.AppPrimary)
+                            }
+                        }
+
+                        ForEach(viewModel.filteredIngredients) { ingredient in
+                            Button(action: {
+                                viewModel.selectIngredientForEditor(ingredient)
+                                dismiss()
+                            }) {
+                                HStack {
+                                    Text(ingredient.name)
+                                        .foregroundStyle(.TextPrimary)
+
+                                    Spacer()
+
+                                    if viewModel.itemsForEditingList.contains(where: { $0.originalIngredientId == ingredient.id || $0.name.caseInsensitiveCompare(ingredient.name) == .orderedSame }) {
+                                        Image("checkbox.check.icon")
+                                            .foregroundStyle(.TextSecondary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .listStyle(.plain)
+                .searchable(text: $viewModel.ingredientSearchText, prompt: "Malzeme ara veya yeni ekle...")
+                .navigationTitle("Malzeme Seç")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("Bitti")
+                                .foregroundStyle(.AppPrimary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

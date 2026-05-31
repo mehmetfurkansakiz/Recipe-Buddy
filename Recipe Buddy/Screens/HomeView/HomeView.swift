@@ -79,10 +79,6 @@ struct HomeView: View {
             }
         }
         .sheet(isPresented: $showConsentSheet, onDismiss: {
-            // After consent completed, if personalization is allowed, consider requesting tracking authorization for ads
-            if ConsentManager.shared.personalizationAllowed() {
-                ConsentManager.shared.requestTrackingAuthorizationIfNeeded()
-            }
             // Reconfigure telemetry according to latest consent
             TelemetryManager.configureFromConsent()
 
