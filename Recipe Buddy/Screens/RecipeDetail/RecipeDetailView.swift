@@ -31,6 +31,8 @@ struct RecipeDetailView: View {
                         Spacer(minLength: 64)
                     }
                     .padding()
+                    .frame(maxWidth: 430, alignment: .leading)
+                    .frame(maxWidth: .infinity)
                 }
             }
             .coordinateSpace(name: "recipeDetailScroll")
@@ -112,7 +114,7 @@ struct RecipeDetailView: View {
     private var recipeInfoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(viewModel.recipe.name)
-                .font(.title2)
+                .font(.title3)
                 .fontWeight(.bold)
                 .foregroundStyle(.TextPrimary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -209,7 +211,7 @@ struct RecipeDetailView: View {
     private var ingredientsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Malzemeler")
-                .font(.title2)
+                .font(.title3)
                 .fontWeight(.bold)
                 .foregroundStyle(.TextPrimary)
             
@@ -224,6 +226,7 @@ struct RecipeDetailView: View {
                                 .frame(width: 10, height: 10)
                             
                             Text("\(recipeIngredient.formattedAmount) \(recipeIngredient.unit) \(recipeIngredient.name)")
+                                .font(.subheadline)
                                 .foregroundStyle(.TextPrimary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
@@ -263,7 +266,7 @@ struct RecipeDetailView: View {
     private var preparationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Hazırlanışı")
-                .font(.title2)
+                .font(.title3)
                 .fontWeight(.bold)
                 .foregroundStyle(.TextPrimary)
             

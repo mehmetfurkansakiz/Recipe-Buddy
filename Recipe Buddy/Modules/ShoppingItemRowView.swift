@@ -13,19 +13,19 @@ struct ShoppingItemRowView: View {
                 .opacity(0.8)
             
             Text(item.name)
-                .font(.headline)
+                .font(.subheadline.weight(.semibold))
                 .strikethrough(item.isChecked, color: .secondary)
             
             Spacer()
             
             Text("\(item.formattedAmount) \(item.unit)")
-                .font(.subheadline)
+                .font(.caption)
                 .foregroundStyle(.secondary)
                 .strikethrough(item.isChecked, color: .secondary)
             
             Button(action: onToggle) {
                 Image(systemName: item.isChecked ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
+                    .font(.title3)
                     .foregroundStyle(item.isChecked ? .green : .secondary)
             }
             .buttonStyle(.plain)

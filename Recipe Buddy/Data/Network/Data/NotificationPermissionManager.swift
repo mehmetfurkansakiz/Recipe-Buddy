@@ -29,7 +29,7 @@ final class NotificationPermissionManager {
 
     private func shouldRequestFromSystem(consentManager: ConsentManager) -> Bool {
         guard consentManager.hasUserDecided() else { return false }
-        return consentManager.marketingAllowed() || consentManager.personalizationAllowed()
+        return consentManager.marketingAllowed()
     }
 
     private func authorizationStatus() async -> UNAuthorizationStatus {

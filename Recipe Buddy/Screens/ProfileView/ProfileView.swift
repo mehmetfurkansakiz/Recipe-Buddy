@@ -10,34 +10,42 @@ struct ProfileView: View {
         ZStack {
             Color.Background.ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                if dataManager.currentUser == nil && !dataManager.areProfileStatsLoaded {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 300)
-                        .padding()
-                } else if let user = dataManager.currentUser {
-                    ProfileContentView(
-                        mode: .currentUser,
-                        user: user,
-                        recipes: dataManager.ownedRecipes,
-                        totalFavoritesReceived: dataManager.totalFavoritesReceived,
-                        averageRating: dataManager.averageRating,
-                        categoryDistribution: viewModel.categoryDistribution,
-                        navigationPath: $navigationPath,
-                        onEditProfile: { navigationPath.append(AppNavigation.editProfile) },
-                        onSeeAllRecipes: {
-                            NotificationCenter.default.post(name: .appTabSelectionRequested, object: ContentTab.recipe)
-                        },
-                        forceHidePersonalDetails: false
-                    )
-                } else {
-                    Text("Kullanıcı bilgileri yüklenemedi.")
-                        .padding()
+            GeometryReader { geometry in
+                let contentWidth = min(geometry.size.width, 430)
+
+                ScrollView(showsIndicators: false) {
+                    Group {
+                        if dataManager.currentUser == nil && !dataManager.areProfileStatsLoaded {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, minHeight: 300)
+                                .padding()
+                        } else if let user = dataManager.currentUser {
+                            ProfileContentView(
+                                mode: .currentUser,
+                                user: user,
+                                recipes: dataManager.ownedRecipes,
+                                totalFavoritesReceived: dataManager.totalFavoritesReceived,
+                                averageRating: dataManager.averageRating,
+                                categoryDistribution: viewModel.categoryDistribution,
+                                navigationPath: $navigationPath,
+                                onEditProfile: { navigationPath.append(AppNavigation.editProfile) },
+                                onSeeAllRecipes: {
+                                    NotificationCenter.default.post(name: .appTabSelectionRequested, object: ContentTab.recipe)
+                                },
+                                forceHidePersonalDetails: false
+                            )
+                        } else {
+                            Text("Kullanıcı bilgileri yüklenemedi.")
+                                .padding()
+                        }
+                    }
+                    .frame(width: contentWidth)
+                    .frame(maxWidth: .infinity)
                 }
-            }
-            .background(Color.Background)
-            .refreshable {
-                await dataManager.refreshProfileData()
+                .background(Color.Background)
+                .refreshable {
+                    await dataManager.refreshProfileData()
+                }
             }
             .navigationTitle("Profilim")
             .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
@@ -164,7 +172,7 @@ struct ProfileStatView: View {
     var body: some View {
         VStack {
             Text(value)
-                .font(.title)
+                .font(.title2)
                 .fontWeight(.bold)
             Text(title)
                 .font(.caption)

@@ -7,48 +7,57 @@ struct ShoppingListView: View {
     @EnvironmentObject var dataManager: DataManager
     
     var body: some View {
-        ZStack {
-            Color.Background.ignoresSafeArea()
-            
-            if viewModel.isLoading {
-                ProgressView()
-            } else if viewModel.shoppingLists.isEmpty {
-                EmptyShoppingListView()
-            } else {
-                listContent
-            }
-            
-            // Floating Action Button (FAB)
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        viewModel.presentListEditSheetForCreate()
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.AppPrimary)
-                                .frame(width: 56, height: 56)
-                                .shadow(color: .black.opacity(0.4), radius: 8, y: 4)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                )
-                            
-                            Image("plus.icon")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .foregroundStyle(Color.white)
-                        }
+        GeometryReader { geometry in
+            let contentWidth = min(geometry.size.width, 430)
+
+            ZStack {
+                Color.Background.ignoresSafeArea()
+
+                Group {
+                    if viewModel.isLoading {
+                        ProgressView()
+                    } else if viewModel.shoppingLists.isEmpty {
+                        EmptyShoppingListView()
+                    } else {
+                        listContent
                     }
-                    .accessibilityLabel("Liste Oluştur")
-                    .padding(.trailing, 16)
-                    .padding(.bottom, 16)
                 }
+                .frame(width: contentWidth)
+                .frame(maxWidth: .infinity)
+
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            viewModel.presentListEditSheetForCreate()
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.AppPrimary)
+                                    .frame(width: 52, height: 52)
+                                    .shadow(color: .black.opacity(0.35), radius: 8, y: 4)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+
+                                Image("plus.icon")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 22, height: 22)
+                                    .foregroundStyle(Color.white)
+                            }
+                        }
+                        .accessibilityLabel("Liste Oluştur")
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 16)
+                    }
+                }
+                .frame(width: contentWidth)
+                .frame(maxWidth: .infinity)
+                .ignoresSafeArea(.keyboard, edges: .bottom)
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         // Navigation title and appearance with helper modifier
         .navigationTitle("Alışveriş Listelerim")
@@ -166,11 +175,12 @@ struct ShoppingListSectionView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(list.name)
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundStyle(areAllItemsChecked ? .TextSecondary : .TextPrimary)
                     .strikethrough(areAllItemsChecked, color: .TextSecondary)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 
                 Circle()
                     .frame(width: 4, height: 4)
@@ -178,7 +188,7 @@ struct ShoppingListSectionView: View {
                     .opacity(0.5)
                 
                 Text("\(list.itemCount) adet")
-                    .font(.callout)
+                    .font(.subheadline)
                     .foregroundStyle(.TextSecondary)
                     .lineLimit(1)
                 
@@ -195,7 +205,7 @@ struct ShoppingListSectionView: View {
             
             if !list.formattedDate.isEmpty {
                 Text(list.formattedDate)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundStyle(.TextSecondary)
             }
         }

@@ -275,7 +275,7 @@ class ShoppingListViewModel: ObservableObject {
         // Convert the fetched items into our new editable format
         let editableItems = itemsByListID[list.id]?.map {
             EditableShoppingItem(
-                id: $0.id, // Use the real item ID for tracking
+                id: $0.id,
                 name: $0.name,
                 amount: $0.formattedAmount,
                 unit: $0.unit,
