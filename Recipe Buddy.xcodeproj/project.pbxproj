@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F2025862E55345800EDC16A /* AWSSDKIdentity in Frameworks */ = {isa = PBXBuildFile; productRef = 0F2025852E55345800EDC16A /* AWSSDKIdentity */; };
-		0FBF6B1B2E52AF700014EB7C /* AWSClientRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 0FBF6B1A2E52AF700014EB7C /* AWSClientRuntime */; };
-		0FBF6B1D2E52AF700014EB7C /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = 0FBF6B1C2E52AF700014EB7C /* AWSS3 */; };
 		0FCA0A1E2DF255EC0088358B /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 0FCA0A1D2DF255EC0088358B /* Storage */; };
 		0FE591712DED0EBD005EF0D8 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 0FE591702DED0EBD005EF0D8 /* Auth */; };
 		0FE591732DED0EBD005EF0D8 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 0FE591722DED0EBD005EF0D8 /* PostgREST */; };
@@ -43,9 +40,6 @@
 				0FE778412E4FE8C000536A17 /* NukeUI in Frameworks */,
 				0FE591762DED11D8005EF0D8 /* Supabase in Frameworks */,
 				0FFF7FDD2F46A3D900043814 /* FirebaseCrashlytics in Frameworks */,
-				0FBF6B1B2E52AF700014EB7C /* AWSClientRuntime in Frameworks */,
-				0FBF6B1D2E52AF700014EB7C /* AWSS3 in Frameworks */,
-				0F2025862E55345800EDC16A /* AWSSDKIdentity in Frameworks */,
 				0FFF7FDB2F46A3D900043814 /* FirebaseAnalytics in Frameworks */,
 				0FE7783F2E4FE8C000536A17 /* Nuke in Frameworks */,
 			);
@@ -105,9 +99,6 @@
 				0FCA0A1D2DF255EC0088358B /* Storage */,
 				0FE7783E2E4FE8C000536A17 /* Nuke */,
 				0FE778402E4FE8C000536A17 /* NukeUI */,
-				0FBF6B1A2E52AF700014EB7C /* AWSClientRuntime */,
-				0FBF6B1C2E52AF700014EB7C /* AWSS3 */,
-				0F2025852E55345800EDC16A /* AWSSDKIdentity */,
 				0FFF7FDA2F46A3D900043814 /* FirebaseAnalytics */,
 				0FFF7FDC2F46A3D900043814 /* FirebaseCrashlytics */,
 			);
@@ -142,7 +133,6 @@
 			packageReferences = (
 				0FE5916F2DED0EBD005EF0D8 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				0FE7783D2E4FE8C000536A17 /* XCRemoteSwiftPackageReference "Nuke" */,
-				0FBF6B192E52AF700014EB7C /* XCRemoteSwiftPackageReference "aws-sdk-swift" */,
 				0FFF7FD92F46A3D900043814 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -330,7 +320,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Recipe Buddy/Sources/Recipe Buddy.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = T56JGFA2A3;
 				ENABLE_PREVIEWS = YES;
@@ -368,7 +358,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Recipe Buddy/Sources/Recipe Buddy.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = T56JGFA2A3;
 				ENABLE_PREVIEWS = YES;
@@ -422,14 +412,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0FBF6B192E52AF700014EB7C /* XCRemoteSwiftPackageReference "aws-sdk-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/aws-amplify/aws-sdk-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.22;
-			};
-		};
 		0FE5916F2DED0EBD005EF0D8 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/supabase/supabase-swift";
@@ -457,21 +439,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0F2025852E55345800EDC16A /* AWSSDKIdentity */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0FBF6B192E52AF700014EB7C /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
-			productName = AWSSDKIdentity;
-		};
-		0FBF6B1A2E52AF700014EB7C /* AWSClientRuntime */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0FBF6B192E52AF700014EB7C /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
-			productName = AWSClientRuntime;
-		};
-		0FBF6B1C2E52AF700014EB7C /* AWSS3 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0FBF6B192E52AF700014EB7C /* XCRemoteSwiftPackageReference "aws-sdk-swift" */;
-			productName = AWSS3;
-		};
 		0FCA0A1D2DF255EC0088358B /* Storage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0FE5916F2DED0EBD005EF0D8 /* XCRemoteSwiftPackageReference "supabase-swift" */;

@@ -6,10 +6,13 @@ struct RecipeDetailView: View {
     @Environment(\.dismiss) private var dismiss: DismissAction
     @Binding var navigationPath: NavigationPath
     @EnvironmentObject var dataManager: DataManager
+    @State private var showAuthenticationPrompt = false
+    let onAuthRequired: () -> Void
     
-    init(viewModel: RecipeDetailViewModel, navigationPath: Binding<NavigationPath>) {
+    init(viewModel: RecipeDetailViewModel, navigationPath: Binding<NavigationPath>, onAuthRequired: @escaping () -> Void = {}) {
         _viewModel = StateObject(wrappedValue: viewModel)
         _navigationPath = navigationPath
+        self.onAuthRequired = onAuthRequired
     }
     
     var body: some View {
@@ -79,6 +82,14 @@ struct RecipeDetailView: View {
             if viewModel.shouldDismiss {
                 dismiss()
             }
+        }
+        .alert("Liste oluşturmak için giriş yap", isPresented: $showAuthenticationPrompt) {
+            Button("İptal", role: .cancel) { }
+            Button("Giriş Yap") {
+                onAuthRequired()
+            }
+        } message: {
+            Text("Malzemeleri seçip tarifi incelemeye devam edebilirsin. Seçili malzemeleri alışveriş listesine eklemek için kayıt olman veya giriş yapman gerekir.")
         }
     }
     
@@ -286,6 +297,10 @@ struct RecipeDetailView: View {
     
     private var addToShoppingListButton: some View {
         Button(action: {
+            guard viewModel.isAuthenticated else {
+                showAuthenticationPrompt = true
+                return
+            }
             viewModel.addSelectedIngredientsToShoppingList()
         }) {
             HStack(spacing: 8) {

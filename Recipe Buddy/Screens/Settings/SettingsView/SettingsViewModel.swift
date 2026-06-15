@@ -19,8 +19,7 @@ class SettingsViewModel: ObservableObject {
         
         do {
             try await supabase.auth.signOut()
-            dataManager.clearUserData()
-            coordinator.showAuthenticationView()
+            await coordinator.showGuestMainView()
         } catch {
             print("❌ Error signing out from profile: \(error.localizedDescription)")
             isSigningOut = false

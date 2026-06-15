@@ -36,7 +36,11 @@ struct MainTabView: View {
             .navigationDestination(for: AppNavigation.self) { destination in
                 switch destination {
                 case .recipeDetail(let recipe):
-                    RecipeDetailView(viewModel: RecipeDetailViewModel(recipe: recipe), navigationPath: $navigationPath)
+                    RecipeDetailView(
+                        viewModel: RecipeDetailViewModel(recipe: recipe),
+                        navigationPath: $navigationPath,
+                        onAuthRequired: { coordinator.showAuthenticationView() }
+                    )
                 case .recipeCreate:
                     RecipeCreateView(viewModel: RecipeCreateViewModel())
                 case .recipeEdit(let recipe):
@@ -82,6 +86,10 @@ struct MainTabView: View {
                 navigationPath = NavigationPath()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .guestHomeRequested)) { _ in
+            selectedTab = .home
+            navigationPath = NavigationPath()
+        }
     }
 }
 
@@ -89,17 +97,89 @@ struct TabContent: View {
     let selectedTab: ContentTab
     @Binding var navigationPath: NavigationPath
     let coordinator: AppCoordinator
+    @EnvironmentObject var dataManager: DataManager
     
     var body: some View {
         switch selectedTab {
         case .home:
             HomeView(viewModel: HomeViewModel(), navigationPath: $navigationPath)
         case .recipe:
-            RecipesView(viewModel: RecipesViewModel(), navigationPath: $navigationPath)
+            if dataManager.currentUser == nil {
+                GuestAccessView(
+                    title: "Tariflerini yönet",
+                    message: "Tarif oluşturmak, favorilerini görmek ve kendi tariflerini düzenlemek için giriş yap.",
+                    buttonTitle: "Giriş Yap",
+                    action: { coordinator.showAuthenticationView() }
+                )
+            } else {
+                RecipesView(viewModel: RecipesViewModel(), navigationPath: $navigationPath)
+            }
         case .shoppingList:
-            ShoppingListView(viewModel: ShoppingListViewModel(), navigationPath: $navigationPath)
+            if dataManager.currentUser == nil {
+                GuestAccessView(
+                    title: "Alışveriş listelerini kullan",
+                    message: "Malzemeleri kaydetmek ve listelerini cihazların arasında yönetmek için giriş yap.",
+                    buttonTitle: "Giriş Yap",
+                    action: { coordinator.showAuthenticationView() }
+                )
+            } else {
+                ShoppingListView(viewModel: ShoppingListViewModel(), navigationPath: $navigationPath)
+            }
         case .settings:
-            ProfileView(viewModel: ProfileViewModel(coordinator: coordinator), navigationPath: $navigationPath)
+            if dataManager.currentUser == nil {
+                GuestAccessView(
+                    title: "Profilini aç",
+                    message: "Profilini düzenlemek, ayarlarını yönetmek ve hesap özelliklerini kullanmak için giriş yap.",
+                    buttonTitle: "Giriş Yap",
+                    action: { coordinator.showAuthenticationView() }
+                )
+            } else {
+                ProfileView(viewModel: ProfileViewModel(coordinator: coordinator), navigationPath: $navigationPath)
+            }
+        }
+    }
+}
+
+struct GuestAccessView: View {
+    let title: String
+    let message: String
+    let buttonTitle: String
+    let action: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.Background.ignoresSafeArea()
+
+            VStack(spacing: 18) {
+                Image(systemName: "person.crop.circle.badge.plus")
+                    .font(.system(size: 46, weight: .semibold))
+                    .foregroundStyle(Color.AppPrimary)
+
+                Text(title)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.TextPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.TextSecondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+
+                Button(action: action) {
+                    Text(buttonTitle)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.AppPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .padding(.top, 4)
+            }
+            .padding(24)
+            .frame(maxWidth: 360)
         }
     }
 }

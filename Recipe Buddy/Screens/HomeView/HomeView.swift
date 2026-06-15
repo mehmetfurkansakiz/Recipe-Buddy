@@ -14,7 +14,7 @@ struct HomeView: View {
                 Color.Background.ignoresSafeArea()
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 16) {
-                        let usernameToShow = dataManager.currentUser?.fullName ?? dataManager.currentUser?.username ?? ""
+                        let usernameToShow = dataManager.currentUser?.fullName ?? dataManager.currentUser?.username ?? "Misafir"
                         HeaderView(searchText: $viewModel.searchText, username: usernameToShow)
                             .padding(.horizontal)
 

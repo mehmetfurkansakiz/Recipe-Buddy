@@ -147,12 +147,11 @@ class AppCoordinator: ObservableObject {
             if !session.isExpired {
                 await setupMainFlow()
             } else {
-                showAuthenticationView()
+                await setupGuestFlow()
             }
         } catch {
-            // User is not authenticated, show authentication view
-            print("❌ Kullanıcı giriş yapmamış, kimlik doğrulama ekranına yönlendiriliyor.")
-            showAuthenticationView()
+            print("ℹ️ Kullanıcı giriş yapmamış, misafir akışı açılıyor.")
+            await setupGuestFlow()
         }
     }
 
@@ -176,6 +175,14 @@ class AppCoordinator: ObservableObject {
         TelemetryManager.configureFromConsent()
         print("✅ Veriler yüklendi, ana ekrana yönlendiriliyor.")
         currentView = .main
+    }
+
+    private func setupGuestFlow() async {
+        dataManager.clearUserData()
+        currentView = .main
+        NotificationCenter.default.post(name: .guestHomeRequested, object: nil)
+        await dataManager.loadHomePageData()
+        TelemetryManager.configureFromConsent()
     }
 
     private func observeAPNsTokenUpdates() {
@@ -231,6 +238,10 @@ class AppCoordinator: ObservableObject {
     func showAuthenticationView() {
         dataManager.clearUserData()
         currentView = .auth
+    }
+
+    func showGuestMainView() async {
+        await setupGuestFlow()
     }
     
     @MainActor
