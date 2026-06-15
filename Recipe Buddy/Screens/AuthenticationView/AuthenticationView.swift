@@ -3,6 +3,10 @@ import SwiftUI
 struct AuthenticationView: View {
     @State private var currentAuthScreen: AuthScreen = .login
     
+    private var authSwitchAnimation: Animation {
+        .easeInOut(duration: 0.3)
+    }
+    
     var onAuthSuccess: () -> Void
     
     enum AuthScreen: Equatable {
@@ -18,7 +22,7 @@ struct AuthenticationView: View {
                 LoginView(
                     onAuthSuccess: onAuthSuccess,
                     onNavigateToRegister: {
-                        withAnimation(.easeInOut) {
+                        withAnimation(authSwitchAnimation) {
                             currentAuthScreen = .register
                         }
                     },
@@ -33,7 +37,8 @@ struct AuthenticationView: View {
                         }
                     }
                 )
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
+                .transition(.opacity)
+                .zIndex(currentAuthScreen == .login ? 1 : 0)
             }
 
             if currentAuthScreen == .register {
@@ -44,13 +49,14 @@ struct AuthenticationView: View {
                         }
                     },
                     onNavigateToLogin: {
-                        withAnimation(.easeInOut) {
+                        withAnimation(authSwitchAnimation) {
                             currentAuthScreen = .login
                         }
                     },
                     onAuthSuccess: onAuthSuccess
                 )
-                .transition(.move(edge: .trailing))
+                .transition(.opacity)
+                .zIndex(currentAuthScreen == .register ? 1 : 0)
             }
             
             if currentAuthScreen == .forgotPassword {
@@ -75,6 +81,7 @@ struct AuthenticationView: View {
                 .transition(.move(edge: .trailing))
             }
         }
+        .animation(authSwitchAnimation, value: currentAuthScreen)
     }
 }
 

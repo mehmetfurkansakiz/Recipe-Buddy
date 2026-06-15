@@ -50,9 +50,12 @@ class AppCoordinator: ObservableObject {
     }
     
     private let onboardingCompletedKey = "onboarding_completed_v1"
+    private let minimumSplashDuration: TimeInterval = 4.0
+    private let splashStartDate = Date()
     private var authStateListenerTask: Task<Void, Never>?
     private var isRouteEvaluationRunning = false
     private var pendingRouteEvaluation = false
+    private var isPasswordRecoveryFlowActive = false
 
     init() {
         let dm = DataManager()
@@ -73,6 +76,8 @@ class AppCoordinator: ObservableObject {
         
         AppCoordinator.configureNavigationBarAppearance()
         
+        observeAPNsTokenUpdates()
+        observePasswordRecoveryFlowState()
         listenForAuthStateChanges()
         requestRouteEvaluation()
     }
@@ -86,6 +91,10 @@ class AppCoordinator: ObservableObject {
             guard let self else { return }
             for await state in supabase.auth.authStateChanges {
                 if state.event == .signedIn, state.session != nil {
+                    if self.isPasswordRecoveryFlowActive {
+                        print("ℹ️ signedIn event ignored during password recovery flow.")
+                        continue
+                    }
                     print("✅ E-posta onayı veya giriş algılandı, route yeniden değerlendiriliyor...")
                     await MainActor.run {
                         self.requestRouteEvaluation()
@@ -109,8 +118,25 @@ class AppCoordinator: ObservableObject {
             }
         }
     }
+    
+    func retryRouteEvaluation() {
+        requestRouteEvaluation()
+    }
+    
+    private func ensureMinimumSplashDuration() async {
+        let elapsed = Date().timeIntervalSince(splashStartDate)
+        let remaining = minimumSplashDuration - elapsed
+        guard remaining > 0 else { return }
+        
+        let nanoseconds = UInt64(remaining * 1_000_000_000)
+        try? await Task.sleep(nanoseconds: nanoseconds)
+    }
 
     private func evaluateRouteState() async {
+        if currentView == .splash {
+            await ensureMinimumSplashDuration()
+        }
+        
         if !UserDefaults.standard.bool(forKey: onboardingCompletedKey) {
             currentView = .onboarding
             return
@@ -121,12 +147,11 @@ class AppCoordinator: ObservableObject {
             if !session.isExpired {
                 await setupMainFlow()
             } else {
-                showAuthenticationView()
+                await setupGuestFlow()
             }
         } catch {
-            // User is not authenticated, show authentication view
-            print("❌ Kullanıcı giriş yapmamış, kimlik doğrulama ekranına yönlendiriliyor.")
-            showAuthenticationView()
+            print("ℹ️ Kullanıcı giriş yapmamış, misafir akışı açılıyor.")
+            await setupGuestFlow()
         }
     }
 
@@ -138,6 +163,7 @@ class AppCoordinator: ObservableObject {
     private func setupMainFlow() async {
         print("✅ Veriler yükleniyor...")
         await dataManager.loadInitialUserData()
+        await DeviceTokenService.shared.syncStoredTokenIfPossible()
 
         if dataManager.currentUser?.birthDate == nil {
             print("ℹ️ Yaş bilgisi eksik, age gate gösteriliyor.")
@@ -149,6 +175,40 @@ class AppCoordinator: ObservableObject {
         TelemetryManager.configureFromConsent()
         print("✅ Veriler yüklendi, ana ekrana yönlendiriliyor.")
         currentView = .main
+    }
+
+    private func setupGuestFlow() async {
+        dataManager.clearUserData()
+        currentView = .main
+        NotificationCenter.default.post(name: .guestHomeRequested, object: nil)
+        await dataManager.loadHomePageData()
+        TelemetryManager.configureFromConsent()
+    }
+
+    private func observeAPNsTokenUpdates() {
+        NotificationCenter.default.addObserver(
+            forName: .apnsDeviceTokenUpdated,
+            object: nil,
+            queue: .main
+        ) { notification in
+            guard let token = notification.object as? String, !token.isEmpty else { return }
+            Task { @MainActor in
+                try? await DeviceTokenService.shared.upsertCurrentDeviceToken(token: token)
+            }
+        }
+    }
+
+    private func observePasswordRecoveryFlowState() {
+        NotificationCenter.default.addObserver(
+            forName: .passwordRecoveryFlowStateChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self, let isActive = notification.object as? Bool else { return }
+            Task { @MainActor in
+                self.isPasswordRecoveryFlowActive = isActive
+            }
+        }
     }
 
     func completeAgeGate(withBirthDate birthDate: Date) async {
@@ -179,6 +239,10 @@ class AppCoordinator: ObservableObject {
         dataManager.clearUserData()
         currentView = .auth
     }
+
+    func showGuestMainView() async {
+        await setupGuestFlow()
+    }
     
     @MainActor
     private static func configureNavigationBarAppearance() {
@@ -204,4 +268,3 @@ class AppCoordinator: ObservableObject {
         UINavigationBar.appearance().compactAppearance = appearance
     }
 }
-

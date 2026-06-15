@@ -20,12 +20,6 @@ enum Secrets {
     static let supabaseURL = URL(string: getValue(forKey: "SupabaseURL"))!
     static let supabaseKey = getValue(forKey: "SupabaseKey")
     
-    // --- AWS Keys ---
-    static let awsAccessKeyID = getValue(forKey: "AWSAccessKeyID")
-    static let awsSecretAccessKey = getValue(forKey: "AWSSecretAccessKey")
-    static let s3BucketName = getValue(forKey: "S3BucketName")
-    static let s3Region = getValue(forKey: "S3Region")
-    
     // --- CloudFront Key ---
     static let cloudfrontDomain = getValue(forKey: "CloudFrontDomain")
 }

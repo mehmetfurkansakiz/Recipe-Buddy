@@ -4,16 +4,31 @@ import CryptoKit
 
 struct RegisterView: View {
     @StateObject private var viewModel = RegisterViewModel()
+    @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var currentNonce: String?
+    @Environment(\.colorScheme) private var colorScheme
     var onRegisterSuccess: (String) -> Void
     var onNavigateToLogin: () -> Void
     var onAuthSuccess: () -> Void
     
     var body: some View {
         ZStack {
-            Color.Background
+            authBackground
                 .ignoresSafeArea()
                 .onTapGesture { endEditing() }
+
+            GeometryReader { proxy in
+                Image("cupcake.welcome")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width * 2, height: proxy.size.height * 0.65)
+                    .clipped()
+                    .blur(radius: 12.0)
+                    .opacity(colorScheme == .dark ? 1.0 : 0.82)
+                    .position(x: proxy.size.width / 2, y: (proxy.size.height * 0.75) / 2)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea(edges: .top)
             
             ScrollView {
                 VStack(spacing: 20) {
@@ -21,17 +36,38 @@ struct RegisterView: View {
                         Text("Aramıza Katıl")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .foregroundStyle(.TextPrimary)
+                            .foregroundStyle(colorScheme == .dark ? .TextPrimary : Color(red: 0.20, green: 0.12, blue: 0.06))
                         Text("Yeni bir hesap oluşturarak tariflerini kaydet")
                             .font(.subheadline)
-                            .foregroundStyle(.TextSecondary)
+                            .foregroundStyle(colorScheme == .dark ? .F_2_F_2_F_7 : Color(red: 0.42, green: 0.30, blue: 0.18))
                             .multilineTextAlignment(.center)
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    .background {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(
+                                colorScheme == .dark
+                                    ? Color.black.opacity(0.34)
+                                    : Color.white.opacity(0.42)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(
+                                        colorScheme == .dark
+                                            ? Color.white.opacity(0.20)
+                                            : Color.white.opacity(0.55),
+                                        lineWidth: 1
+                                    )
+                            )
                     }
                     .padding(.top, 40)
                     .padding(.bottom, 20)
                     
+                    NetworkStatusBanner(isConnected: networkMonitor.isConnected)
+                    
                     // registration form
-                    VStack(spacing: 16) {
+                    VStack(spacing: 12) {
                         AuthTextField(placeholder: "Tam Adınız", text: $viewModel.fullName, contentType: .name)
                         AuthTextField(placeholder: "Kullanıcı Adı", text: $viewModel.username, contentType: .username)
                         AuthTextField(placeholder: "E-posta Adresi", text: $viewModel.email, contentType: .emailAddress)
@@ -160,6 +196,32 @@ struct RegisterView: View {
 }
 
 private extension RegisterView {
+    var authBackground: some View {
+        Group {
+            if colorScheme == .dark {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.09, green: 0.09, blue: 0.11),
+                        Color(red: 0.11, green: 0.10, blue: 0.09),
+                        Color(red: 0.08, green: 0.07, blue: 0.06)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            } else {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.99, green: 0.97, blue: 0.94),
+                        Color(red: 0.97, green: 0.93, blue: 0.88),
+                        Color(red: 0.95, green: 0.90, blue: 0.84)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        }
+    }
+
     var localizedGoogleButtonTitle: String {
         (Locale.preferredLanguages.first?.lowercased().hasPrefix("tr") ?? false)
             ? "Google ile Devam Et"

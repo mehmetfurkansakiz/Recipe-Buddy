@@ -14,9 +14,14 @@ class ShoppingListViewModel: ObservableObject {
     @Published var listNameForSheet = ""
     @Published var itemsForEditingList: [EditableShoppingItem] = []
     @Published var newItemName = ""
+    @Published var allAvailableIngredients: [Ingredient] = []
+    @Published var ingredientSearchText = ""
+    @Published var showingIngredientSelector = false
+    @Published var ingredientInlineStatus: String?
     
     /// A reference to the data service layer.
     private let service = ShoppingListService.shared
+    private let recipeService = RecipeService.shared
     
     func hasCheckedItems(in listId: UUID) -> Bool {
         itemsByListID[listId]?.contains { $0.isChecked } ?? false
@@ -24,17 +29,40 @@ class ShoppingListViewModel: ObservableObject {
     
     // MARK: - Initialization
     
-    init() {}
+    init() {
+        Task {
+            await fetchAvailableIngredientsIfNeeded()
+        }
+    }
     
     // init for preview
     init(forPreview: Bool) {
         if forPreview {
             self.shoppingLists = ShoppingList.mockLists
+            self.allAvailableIngredients = Ingredient.mockData
             for list in self.shoppingLists {
                 self.itemsByListID[list.id] = ShoppingListItem.mocks(for: list)
             }
             self.expandedListID = self.shoppingLists.first?.id
             self.isLoading = false
+        }
+    }
+
+    var filteredIngredients: [Ingredient] {
+        let trimmedSearch = ingredientSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedSearch.isEmpty else { return allAvailableIngredients }
+
+        return allAvailableIngredients.filter {
+            $0.name.localizedCaseInsensitiveContains(trimmedSearch)
+        }
+    }
+
+    var isCustomAddButtonShown: Bool {
+        let trimmedSearch = ingredientSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedSearch.isEmpty else { return false }
+
+        return !allAvailableIngredients.contains {
+            $0.name.caseInsensitiveCompare(trimmedSearch) == .orderedSame
         }
     }
     
@@ -225,7 +253,14 @@ class ShoppingListViewModel: ObservableObject {
         listToEdit = nil
         listNameForSheet = ""
         itemsForEditingList = []
+        newItemName = ""
+        ingredientSearchText = ""
+        ingredientInlineStatus = nil
         isShowingEditSheet = true
+
+        Task {
+            await fetchAvailableIngredientsIfNeeded()
+        }
     }
     
     // This function needs to be updated
@@ -240,7 +275,7 @@ class ShoppingListViewModel: ObservableObject {
         // Convert the fetched items into our new editable format
         let editableItems = itemsByListID[list.id]?.map {
             EditableShoppingItem(
-                id: $0.id, // Use the real item ID for tracking
+                id: $0.id,
                 name: $0.name,
                 amount: $0.formattedAmount,
                 unit: $0.unit,
@@ -250,16 +285,30 @@ class ShoppingListViewModel: ObservableObject {
         
         self.itemsForEditingList = editableItems
         self.newItemName = ""
+        self.ingredientSearchText = ""
+        self.ingredientInlineStatus = nil
         self.isShowingEditSheet = true
+
+        await fetchAvailableIngredientsIfNeeded()
     }
     
     func addItemToEditor() {
-        let trimmedName = newItemName.trimmingCharacters(in: .whitespaces)
+        addCustomItemToEditor(named: newItemName)
+    }
+
+    func addCustomItemToEditor(named name: String) {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return }
-        
-        // Add as a custom item with no originalIngredientId
+
+        if let existingIndex = itemsForEditingList.firstIndex(where: { $0.name.caseInsensitiveCompare(trimmedName) == .orderedSame }) {
+            ingredientInlineStatus = "\(itemsForEditingList[existingIndex].name) zaten listede."
+            newItemName = ""
+            ingredientSearchText = ""
+            return
+        }
+
         let newItem = EditableShoppingItem(
-            id: UUID(), // A temporary ID for the UI
+            id: UUID(),
             name: trimmedName,
             amount: "1",
             unit: "adet",
@@ -268,6 +317,34 @@ class ShoppingListViewModel: ObservableObject {
         
         itemsForEditingList.append(newItem)
         newItemName = ""
+        ingredientSearchText = ""
+        ingredientInlineStatus = "\(trimmedName) eklendi."
+    }
+
+    func selectIngredientForEditor(_ ingredient: Ingredient) {
+        if let existingIndex = itemsForEditingList.firstIndex(where: {
+            if let originalIngredientId = $0.originalIngredientId {
+                return originalIngredientId == ingredient.id
+            }
+
+            return $0.name.caseInsensitiveCompare(ingredient.name) == .orderedSame
+        }) {
+            ingredientInlineStatus = "\(itemsForEditingList[existingIndex].name) zaten listede."
+            ingredientSearchText = ""
+            return
+        }
+
+        let newItem = EditableShoppingItem(
+            id: UUID(),
+            name: ingredient.name,
+            amount: "1",
+            unit: "adet",
+            originalIngredientId: ingredient.id
+        )
+
+        itemsForEditingList.append(newItem)
+        ingredientSearchText = ""
+        ingredientInlineStatus = "\(ingredient.name) eklendi."
     }
     
     func removeItemFromEditor(at offsets: IndexSet) {
@@ -336,6 +413,16 @@ class ShoppingListViewModel: ObservableObject {
     /// Finds which list an item belongs to locally.
     private func findListID(for item: ShoppingListItem) -> UUID? {
         return itemsByListID.first(where: { $0.value.contains(where: { $0.id == item.id }) })?.key
+    }
+
+    private func fetchAvailableIngredientsIfNeeded() async {
+        guard allAvailableIngredients.isEmpty else { return }
+
+        do {
+            allAvailableIngredients = try await recipeService.fetchAllIngredients()
+        } catch {
+            print("❌ Error fetching ingredients for shopping list editor: \(error.localizedDescription)")
+        }
     }
 }
 

@@ -4,7 +4,10 @@ import CryptoKit
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
+    @StateObject private var networkMonitor = NetworkStatusMonitor()
     @State private var currentNonce: String?
+    @AppStorage("has_seen_login_welcome_copy") private var hasSeenLoginWelcomeCopy = false
+    @Environment(\.colorScheme) private var colorScheme
     var onAuthSuccess: () -> Void
     var onNavigateToRegister: () -> Void
     var onNavigateToForgotPassword: () -> Void
@@ -12,25 +15,58 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            Color.Background.ignoresSafeArea().onTapGesture { endEditing() }
+            authBackground
+                .ignoresSafeArea()
+                .onTapGesture { endEditing() }
+
+            GeometryReader { proxy in
+                Image("cupcake.welcome")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: proxy.size.width * 2, height: proxy.size.height * 0.65)
+                    .clipped()
+                    .blur(radius: 12.0)
+                    .opacity(colorScheme == .dark ? 1.0 : 0.82)
+                    .position(x: proxy.size.width / 2, y: (proxy.size.height * 0.75) / 2)
+                    .allowsHitTesting(false)
+            }
+            .ignoresSafeArea(edges: .top)
             
-            VStack(spacing: 20) {
-                
-                VStack {
-                    Image("welcome.chef")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height: 240)
-                    Text("Tekrar Hoş Geldin!")
+            VStack(spacing: 16) {
+                Spacer(minLength: 0)
+
+                VStack(spacing: 6) {
+                    Text(welcomeTitle)
                         .font(.largeTitle).fontWeight(.bold)
-                        .foregroundStyle(.TextPrimary)
-                    Text("Kaldığın yerden devam et")
+                        .foregroundStyle(colorScheme == .dark ? .TextPrimary : Color(red: 0.20, green: 0.12, blue: 0.06))
+                    Text(welcomeSubtitle)
                         .font(.subheadline)
-                        .foregroundStyle(.TextSecondary)
+                        .foregroundStyle(colorScheme == .dark ? .F_2_F_2_F_7 : Color(red: 0.42, green: 0.30, blue: 0.18))
+                }
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(
+                            colorScheme == .dark
+                                ? Color.black.opacity(0.34)
+                                : Color.white.opacity(0.42)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .stroke(
+                                    colorScheme == .dark
+                                        ? Color.white.opacity(0.20)
+                                        : Color.white.opacity(0.55),
+                                    lineWidth: 1
+                                )
+                        )
                 }
                 
+                NetworkStatusBanner(isConnected: networkMonitor.isConnected)
+                
                 // Login form
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     AuthTextField(placeholder: "E-posta Adresi", text: $viewModel.email, contentType: .emailAddress)
                         .keyboardType(.emailAddress)
                     AuthTextField(placeholder: "Şifre", text: $viewModel.password, isSecure: true, contentType: .password)
@@ -110,8 +146,6 @@ struct LoginView: View {
                     .opacity(viewModel.isLoading ? 0.7 : 1)
                 }
                 
-                Spacer()
-                
                 // Navigate to register
                 Button(action: {
                     onNavigateToRegister()
@@ -128,7 +162,6 @@ struct LoginView: View {
                     .padding(.vertical, 6)
                 }
                 .buttonStyle(.plain)
-                .padding(.bottom, 28)
                 .onChange(of: viewModel.didAuthenticate) {
                     if viewModel.didAuthenticate {
                         DispatchQueue.main.async {
@@ -144,6 +177,10 @@ struct LoginView: View {
                 }
             }
             .padding(.horizontal, 24)
+            .padding(.bottom, 28)
+            .onAppear {
+                hasSeenLoginWelcomeCopy = true
+            }
             .alert(item: $viewModel.authError) { error in
                 Alert(
                     title: Text("Hata"),
@@ -156,6 +193,40 @@ struct LoginView: View {
 }
 
 private extension LoginView {
+    var authBackground: some View {
+        Group {
+            if colorScheme == .dark {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.09, green: 0.09, blue: 0.11),
+                        Color(red: 0.11, green: 0.10, blue: 0.09),
+                        Color(red: 0.08, green: 0.07, blue: 0.06)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            } else {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.99, green: 0.97, blue: 0.94),
+                        Color(red: 0.97, green: 0.93, blue: 0.88),
+                        Color(red: 0.95, green: 0.90, blue: 0.84)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        }
+    }
+
+    var welcomeTitle: String {
+        hasSeenLoginWelcomeCopy ? "Tekrar Hoş Geldin!" : "Hoş Geldin!"
+    }
+    
+    var welcomeSubtitle: String {
+        hasSeenLoginWelcomeCopy ? "Kaldığın yerden devam et" : "Tatlı tarif yolculuğuna başlayalım"
+    }
+    
     var localizedGoogleButtonTitle: String {
         (Locale.preferredLanguages.first?.lowercased().hasPrefix("tr") ?? false)
             ? "Google ile Devam Et"

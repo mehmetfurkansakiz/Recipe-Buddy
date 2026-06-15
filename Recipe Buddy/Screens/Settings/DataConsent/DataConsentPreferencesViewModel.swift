@@ -45,6 +45,7 @@ class DataConsentPreferencesViewModel: ObservableObject {
         let now = Date()
         defaults.set(now, forKey: lastUpdatedKey)
         lastUpdated = now
+        ConsentManager.shared.markConsentPromptSeen()
 
         isSaving = false
     }
@@ -63,6 +64,14 @@ class DataConsentPreferencesViewModel: ObservableObject {
         personalizationConsent = false
         marketingConsent = false
         savePreferences()
+    }
+
+    func handleMarketingConsentChanged(_ isEnabled: Bool) {
+        savePreferences()
+        guard isEnabled else { return }
+        Task {
+            await NotificationPermissionManager.shared.requestSystemPromptForUserIntentIfNeeded()
+        }
     }
 
     var formattedLastUpdated: String? {

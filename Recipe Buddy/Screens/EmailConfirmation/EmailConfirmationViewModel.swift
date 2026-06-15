@@ -7,16 +7,16 @@ class EmailConfirmationViewModel: ObservableObject {
     @Published var email: String
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var didSendEmail = false
+    @Published var noticeMessage: String?
 
     @Published var otpCode: [String]
     let codeLength = 6
 
     // Timer properties
-    @Published var timeRemaining: Int = 60
+    @Published var timeRemaining: Int = 180
     @Published var isTimerActive = false
     private var timer: AnyCancellable?
-    let countdownDuration = 60
+    let countdownDuration = 180
 
     private var lastOTPSentKey: String { "lastOTPSentTimestamp_\(email)" }
 
@@ -60,7 +60,7 @@ class EmailConfirmationViewModel: ObservableObject {
         // Short-circuit network calls in SwiftUI previews and simulate success
         if isRunningInPreview {
             DispatchQueue.main.async {
-                self.didSendEmail = true
+                self.noticeMessage = "Onay kodu gönderildi. Lütfen gelen kutunu ve spam klasörünü kontrol et."
             }
             return
         }
@@ -69,24 +69,44 @@ class EmailConfirmationViewModel: ObservableObject {
 
         isLoading = true
         errorMessage = nil
-        didSendEmail = false
+        noticeMessage = nil
         defer { isLoading = false }
 
         do {
             // For signup email verification, request a SIGNUP-type OTP (6-digit code)
             try await supabase.auth.resend(email: email, type: .signup)
 
-            self.didSendEmail = true
-            // Persist last sent timestamp for cooldown logic
-            UserDefaults.standard.set(Date(), forKey: lastOTPSentKey)
-            // Optional: clear previous input so user starts fresh with the new code
-            self.otpCode = Array(repeating: "", count: self.codeLength)
-
-            startTimer(from: countdownDuration)
+            handleOTPSentSuccessfully(isResend: isResend)
         } catch {
+            let description = error.localizedDescription.lowercased()
+
+            // Supabase can return security/cooldown style messages even when the flow is healthy.
+            // Treat these as a successful send path from UX perspective and keep cooldown active.
+            if description.contains("security") ||
+                description.contains("you can only request this after") ||
+                description.contains("too many requests") ||
+                description.contains("rate limit") {
+                noticeMessage = "Onay kodu e-posta adresine gönderildi. Lütfen gelen kutunu ve spam klasörünü kontrol et."
+                startCooldownAfterOTPSend()
+                return
+            }
+
             self.errorMessage = "Onay kodu gönderilemedi: \(error.localizedDescription)"
             print("❌ Send OTP Error: \(error)")
         }
+    }
+
+    private func handleOTPSentSuccessfully(isResend: Bool) {
+        noticeMessage = isResend
+            ? "Onay kodu tekrar gönderildi. Lütfen gelen kutunu ve spam klasörünü kontrol et."
+            : "Onay kodu gönderildi. Lütfen gelen kutunu ve spam klasörünü kontrol et."
+        startCooldownAfterOTPSend()
+    }
+
+    private func startCooldownAfterOTPSend() {
+        UserDefaults.standard.set(Date(), forKey: lastOTPSentKey)
+        self.otpCode = Array(repeating: "", count: self.codeLength)
+        startTimer(from: countdownDuration)
     }
 
     func verifyOTP() async {

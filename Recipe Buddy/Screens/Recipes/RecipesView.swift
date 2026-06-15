@@ -7,58 +7,64 @@ struct RecipesView: View {
     @EnvironmentObject var dataManager: DataManager
     
     var body: some View {
-        ZStack {
-            Color.Background.ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                ScrollView(showsIndicators: false) {
-                    SearchBarView(searchText: $viewModel.searchText)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                    
-                    // Content Area (loading, search results, or main content)
-                    if dataManager.isLoading && dataManager.ownedRecipes.isEmpty {
-                        ProgressView().padding(.top, 50)
-                    } else {
-                        let searchResults = viewModel.searchResults(from: dataManager)
-                        if !viewModel.searchText.isEmpty {
-                            searchResultsContent(for: searchResults)
+        GeometryReader { geometry in
+            let contentWidth = min(geometry.size.width, 430)
+
+            ZStack {
+                Color.Background.ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    ScrollView(showsIndicators: false) {
+                        SearchBarView(searchText: $viewModel.searchText)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+
+                        if dataManager.isLoading && dataManager.ownedRecipes.isEmpty {
+                            ProgressView().padding(.top, 50)
                         } else {
-                            mainContent
+                            let searchResults = viewModel.searchResults(from: dataManager)
+                            if !viewModel.searchText.isEmpty {
+                                searchResultsContent(for: searchResults)
+                            } else {
+                                mainContent
+                            }
                         }
                     }
+                    .frame(width: contentWidth)
+                    .frame(maxWidth: .infinity)
                 }
-            }
-            
-            // Floating Action Button (FAB)
-            VStack {
-                Spacer()
-                HStack {
+
+                VStack {
                     Spacer()
-                    Button(action: {
-                        navigationPath.append(AppNavigation.recipeCreate)
-                    }) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.AppPrimary)
-                                .frame(width: 56, height: 56)
-                                .shadow(color: .black.opacity(0.4), radius: 8, y: 4)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                )
-                            
-                            Image("plus.icon")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 24, height: 24)
-                                .foregroundStyle(Color.white)
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            navigationPath.append(AppNavigation.recipeCreate)
+                        }) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.AppPrimary)
+                                    .frame(width: 56, height: 56)
+                                    .shadow(color: .black.opacity(0.4), radius: 8, y: 4)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    )
+
+                                Image("plus.icon")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundStyle(Color.white)
+                            }
                         }
+                        .accessibilityLabel("Tarif Oluştur")
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 16)
                     }
-                    .accessibilityLabel("Tarif Oluştur")
-                    .padding(.trailing, 16)
-                    .padding(.bottom, 16)
                 }
+                .frame(width: contentWidth)
+                .frame(maxWidth: .infinity)
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
         }
@@ -116,36 +122,48 @@ struct RecipesView: View {
     private var myRecipesGrid: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Oluşturduğum Tarifler")
-                .font(.title2).bold()
+                .font(.title3).bold()
                 .padding(.horizontal)
                 .foregroundStyle(.AppPrimary)
             
-            LazyVGrid(
-                columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
-            ) {
-                ForEach(dataManager.ownedRecipes) { recipe in
-                    Button(action: { navigationPath.append(AppNavigation.recipeDetail(recipe))}) {
-                        let cardWidth = (UIScreen.main.bounds.width / 2) - 24
-                        ExploreRecipeCard(recipe: recipe, cardWidth: cardWidth, showAuthor: false)
-                    }
-                    .onAppear {
-                        // Infinite scroll: Load more when reaching the end
-                        if recipe.id == dataManager.ownedRecipes.last?.id {
-                            Task {
-                                await dataManager.fetchMoreOwnedRecipes()
+            GeometryReader { geometry in
+                let cardWidth = max(132, (geometry.size.width - 48) / 2)
+
+                LazyVGrid(
+                    columns: [
+                        GridItem(.fixed(cardWidth), spacing: 16),
+                        GridItem(.fixed(cardWidth), spacing: 16)
+                    ],
+                    spacing: 16
+                ) {
+                    ForEach(dataManager.ownedRecipes) { recipe in
+                        Button(action: { navigationPath.append(AppNavigation.recipeDetail(recipe))}) {
+                            ExploreRecipeCard(recipe: recipe, cardWidth: cardWidth, showAuthor: false)
+                        }
+                        .onAppear {
+                            if recipe.id == dataManager.ownedRecipes.last?.id {
+                                Task {
+                                    await dataManager.fetchMoreOwnedRecipes()
+                                }
                             }
                         }
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            .frame(height: ownedRecipesGridHeight)
         }
+    }
+
+    private var ownedRecipesGridHeight: CGFloat {
+        let rows = max(1, Int(ceil(Double(dataManager.ownedRecipes.count) / 2.0)))
+        return CGFloat(rows) * 236 + CGFloat(max(0, rows - 1)) * 16
     }
     
     private var favoritesSectionLink: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Favori Tariflerim")
-                .font(.title2).bold()
+                .font(.title3).bold()
                 .padding(.horizontal)
                 .foregroundStyle(.AppPrimary)
             
@@ -229,4 +247,3 @@ struct RecipesView: View {
             .environmentObject(dataManager)
     }
 }
-

@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>NSUserTrackingUsageDescription</key>
-    <string>Daha iyi kişiselleştirme ve reklam ölçümü sunabilmek için cihaz tanımlayıcın kullanılabilir.</string>
     <key>PrivacyPolicyURL</key>
     <string>https://recipebuddy.com.tr/gizlilik-politikasi</string>
     <key>SupportEmail</key>

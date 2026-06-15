@@ -41,6 +41,15 @@ struct AdvancedSettingsView: View {
 
             VStack(spacing: 0) {
                 Button {
+                    navigationPath.append(AppNavigation.changePassword)
+                } label: {
+                    SettingsRowView(title: "Parolayı Değiştir", icon: "key.fill", iconColor: .AppPrimary)
+                }
+                .buttonStyle(.plain)
+
+                Divider().padding(.leading)
+
+                Button {
                     Task { await viewModel.signOut(dataManager: dataManager) }
                 } label: {
                     SettingsRowView(title: "Çıkış Yap", icon: "rectangle.portrait.and.arrow.right", iconColor: .red)

@@ -5,6 +5,7 @@ import FirebaseCore
 
 @main
 struct RecipeBuddyApp: App {
+    @UIApplicationDelegateAdaptor(PushNotificationAppDelegate.self) private var appDelegate
     @StateObject private var coordinator = AppCoordinator()
     init() {
         #if canImport(FirebaseCore)
@@ -46,6 +47,9 @@ struct RecipeBuddyApp: App {
                             #endif
                         }
                     }
+                }
+                .task {
+                    await NotificationPermissionManager.shared.registerForRemoteNotificationsIfAuthorized()
                 }
         }
     }

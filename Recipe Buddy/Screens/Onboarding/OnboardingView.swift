@@ -150,65 +150,69 @@ struct OnboardingView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+        .safeAreaInset(edge: .bottom) {
+            controls
+                .padding(.top, 10)
+                .padding(.bottom, 12)
+                .background(Color(red: 0.98, green: 0.95, blue: 0.95).opacity(0.96))
+        }
+    }
 
-            VStack {
-                Spacer()
-
-                HStack(spacing: 8) {
-                    ForEach(0..<pages.count, id: \.self) { idx in
-                        Capsule()
-                            .fill(idx == pageIndex ? Color.AppPrimary : Color.AppPrimary.opacity(0.25))
-                            .frame(width: idx == pageIndex ? 24 : 8, height: 8)
-                    }
+    private var controls: some View {
+        VStack(spacing: 14) {
+            HStack(spacing: 8) {
+                ForEach(0..<pages.count, id: \.self) { idx in
+                    Capsule()
+                        .fill(idx == pageIndex ? Color.AppPrimary : Color.AppPrimary.opacity(0.25))
+                        .frame(width: idx == pageIndex ? 24 : 8, height: 8)
                 }
+            }
 
-                HStack(spacing: 12) {
-                    if pageIndex > 0 {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                pageIndex -= 1
-                            }
-                        } label: {
-                            Text("Geri")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color.AppPrimary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 18)
-                                .background(Color.white.opacity(0.9))
-                                .clipShape(Capsule())
-                        }
-                    }
-
+            HStack(spacing: 12) {
+                if pageIndex > 0 {
                     Button {
-                        if pageIndex == pages.count - 1 {
-                            onFinish()
-                        } else {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                pageIndex += 1
-                            }
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            pageIndex -= 1
                         }
                     } label: {
-                        Text(pageIndex == pages.count - 1 ? "Başla" : "İleri")
+                        Text("Geri")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.AppPrimary)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                            .background(
-                                LinearGradient(
-                                    colors: [Color.AppPrimary.opacity(0.95), Color.AppPrimary.opacity(0.78)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
+                            .padding(.vertical, 16)
+                            .background(Color.white.opacity(0.9))
                             .clipShape(Capsule())
                     }
                 }
-                .padding(.horizontal, 26)
-                .padding(.top, 24)
-                .padding(.bottom, 26)
+
+                Button {
+                    if pageIndex == pages.count - 1 {
+                        onFinish()
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            pageIndex += 1
+                        }
+                    }
+                } label: {
+                    Text(pageIndex == pages.count - 1 ? "Başla" : "İleri")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.AppPrimary.opacity(0.95), Color.AppPrimary.opacity(0.78)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                }
             }
+            .padding(.horizontal, 26)
         }
     }
 }
@@ -219,46 +223,56 @@ private struct OnboardingPageView: View {
     var body: some View {
         GeometryReader { geo in
             let canvas = min(geo.size.width * 0.95, 380)
-            let adaptiveTitleSize = min(page.titleSize - 4, geo.size.width * 0.112)
+            let visualHeight = min(page.visualHeight, max(280, geo.size.height * 0.48))
+            let adaptiveTitleSize = min(page.titleSize - 14, geo.size.width * 0.09)
             let adaptiveSubtitleSize = min(16.0, geo.size.width * 0.043)
+            let topPadding = min(22, max(10, geo.size.height * 0.025))
+            let bubbleScale = min(0.88, max(0.76, geo.size.height / 900))
 
-            VStack(spacing: 0) {
-                ZStack {
-                    Image(page.backgroundAsset)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: canvas * page.backgroundWidthRatio)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    ZStack {
+                        Image(page.backgroundAsset)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: canvas * page.backgroundWidthRatio)
 
-                    ForEach(Array(page.bubbles.enumerated()), id: \.offset) { _, bubble in
-                        BubbleCard(spec: bubble)
-                            .frame(width: bubble.width, height: bubble.height)
-                            .offset(x: canvas * bubble.offsetXRatio, y: bubble.offsetY)
-                            .rotationEffect(.degrees(bubble.rotation))
+                        ForEach(Array(page.bubbles.enumerated()), id: \.offset) { _, bubble in
+                            BubbleCard(spec: bubble)
+                                .frame(width: bubble.width, height: bubble.height)
+                                .scaleEffect(bubbleScale)
+                                .offset(
+                                    x: canvas * bubble.offsetXRatio * bubbleScale,
+                                    y: bubble.offsetY * bubbleScale
+                                )
+                                .rotationEffect(.degrees(bubble.rotation))
+                        }
                     }
+                    .frame(height: visualHeight)
+                    .clipped()
+                    .padding(.top, topPadding)
+
+                    Text(page.title)
+                        .font(.system(size: adaptiveTitleSize, weight: .heavy, design: .rounded))
+                        .minimumScaleFactor(0.65)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(red: 0.34, green: 0.14, blue: 0.16))
+                        .padding(.horizontal, 18)
+                        .padding(.top, 18)
+
+                    Text(page.subtitle)
+                        .font(.system(size: adaptiveSubtitleSize, weight: .semibold))
+                        .foregroundStyle(Color(red: 0.45, green: 0.32, blue: 0.33))
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 30)
+                        .padding(.top, 8)
+                        .padding(.bottom, 24)
                 }
-                .frame(height: page.visualHeight)
-                .padding(.top, 26)
-
-                Text(page.title)
-                    .font(.system(size: adaptiveTitleSize, weight: .heavy, design: .rounded))
-                    .minimumScaleFactor(0.72)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color(red: 0.34, green: 0.14, blue: 0.16))
-                    .padding(.horizontal, 18)
-                    .padding(.top, 8)
-
-                Text(page.subtitle)
-                    .font(.system(size: adaptiveSubtitleSize, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.45, green: 0.32, blue: 0.33))
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 30)
-                    .padding(.top, 10)
-
-                Spacer(minLength: 110)
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

@@ -1,11 +1,21 @@
 import Foundation
 import SwiftUI
-import AWSS3
-import Smithy
-import AWSSDKIdentity
 
 @MainActor
 class ImageUploaderService {
+    private struct ImageStorageRequest: Encodable {
+        let action: String
+        let folder: String?
+        let imageBase64: String?
+        let key: String?
+        let contentType: String?
+    }
+
+    private struct ImageStorageResponse: Decodable {
+        let key: String?
+        let ok: Bool?
+    }
+
     enum UploadFolder {
         case avatar
         case recipes
@@ -22,29 +32,9 @@ class ImageUploaderService {
     
     static let shared = ImageUploaderService()
     
-    private let s3Client: S3Client
-    private let bucketName = Secrets.s3BucketName
     private let cloudFrontURL = Secrets.cloudfrontDomain
     
-    private init() {
-        do {
-            let credentials = AWSCredentialIdentity(
-                accessKey: Secrets.awsAccessKeyID,
-                secret: Secrets.awsSecretAccessKey
-            )
-            
-            let identityResolver = StaticAWSCredentialIdentityResolver(credentials)
-            
-            let config = try S3Client.S3ClientConfiguration(
-                awsCredentialIdentityResolver: identityResolver,
-                region: Secrets.s3Region
-            )
-            
-            self.s3Client = S3Client(config: config)
-        } catch {
-            fatalError("❌ AWS S3 configuration failed: \(error)")
-        }
-    }
+    private init() {}
     
     // MARK: - Upload
     /// Uploads image data to the S3 bucket and returns the unique key (path).
@@ -59,19 +49,21 @@ class ImageUploaderService {
             throw NSError(domain: "ImageUploader", code: -2, userInfo: [NSLocalizedDescriptionKey: "JPEG compression failed"])
         }
         
-        // Create a unique name for the image file
-        let key = "\(folder.pathComponent)/\(UUID().uuidString).jpg"
-        let body = ByteStream.data(finalData)
-        
-        let input = PutObjectInput(
-            body: body,
-            bucket: bucketName,
-            contentType: "image/jpeg",
-            key: key
+        let response = try await callImageStorageFunction(
+            ImageStorageRequest(
+                action: "upload",
+                folder: folder.pathComponent,
+                imageBase64: finalData.base64EncodedString(),
+                key: nil,
+                contentType: "image/jpeg"
+            )
         )
-        
-        _ = try await s3Client.putObject(input: input)
-        print("✅ Successfully uploaded image to S3 with key: \(key)")
+
+        guard let key = response.key else {
+            throw NSError(domain: "ImageUploader", code: -3, userInfo: [NSLocalizedDescriptionKey: "Image upload response missing key"])
+        }
+
+        print("✅ Successfully uploaded image with key: \(key)")
         return key
     }
     
@@ -106,12 +98,38 @@ class ImageUploaderService {
     
     // MARK: - Delete
     func deleteImage(for key: String) async throws {
-        let input = DeleteObjectInput(
-            bucket: bucketName,
-            key: key
+        _ = try await callImageStorageFunction(
+            ImageStorageRequest(
+                action: "delete",
+                folder: nil,
+                imageBase64: nil,
+                key: key,
+                contentType: nil
+            )
         )
-        _ = try await s3Client.deleteObject(input: input)
         print("🗑️ Deleted image with key: \(key)")
     }
-}
 
+    private func callImageStorageFunction(_ payload: ImageStorageRequest) async throws -> ImageStorageResponse {
+        let session = try await supabase.auth.session
+        let endpoint = Secrets.supabaseURL.appendingPathComponent("functions/v1/image-storage")
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue(Secrets.supabaseKey, forHTTPHeaderField: "apikey")
+        request.httpBody = try JSONEncoder().encode(payload)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            let message = String(data: data, encoding: .utf8) ?? "Image storage request failed"
+            throw NSError(domain: "ImageUploader", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: message])
+        }
+
+        return try JSONDecoder().decode(ImageStorageResponse.self, from: data)
+    }
+}

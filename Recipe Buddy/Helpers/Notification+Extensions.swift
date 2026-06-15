@@ -11,4 +11,10 @@ extension Notification.Name {
     static let favoriteStatusChanged = Notification.Name("favoriteStatusChangedNotification")
     /// Notification posted when app should switch tab bar selection.
     static let appTabSelectionRequested = Notification.Name("appTabSelectionRequestedNotification")
+    /// Notification posted when APNs device token is updated.
+    static let apnsDeviceTokenUpdated = Notification.Name("apnsDeviceTokenUpdatedNotification")
+    /// Notification posted to indicate whether password recovery flow is active.
+    static let passwordRecoveryFlowStateChanged = Notification.Name("passwordRecoveryFlowStateChangedNotification")
+    /// Notification posted when the app should return to the guest home screen.
+    static let guestHomeRequested = Notification.Name("guestHomeRequestedNotification")
 }

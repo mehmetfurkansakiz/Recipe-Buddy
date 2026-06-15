@@ -1,7 +1,4 @@
 import Foundation
-#if canImport(AppTrackingTransparency)
-import AppTrackingTransparency
-#endif
 
 final class ConsentManager {
     static let shared = ConsentManager()
@@ -15,6 +12,7 @@ final class ConsentManager {
     private let kPersonalization = "consent_personalization"
     private let kMarketing = "consent_marketing"
     private let kLastUpdated = "consent_last_updated"
+    private let kConsentPromptSeen = "consent_prompt_seen_once"
 
     // MARK: - Read State
     func hasUserDecided() -> Bool {
@@ -28,18 +26,18 @@ final class ConsentManager {
 
     func needsGeneralConsent() -> Bool { !hasUserDecided() }
 
-    // MARK: - ATT (Tracking) for Ads/Personalization
-    func requestTrackingAuthorizationIfNeeded() {
-        #if canImport(AppTrackingTransparency)
-        if #available(iOS 14.5, *) {
-            let status = ATTrackingManager.trackingAuthorizationStatus
-            if status == .notDetermined {
-                ATTrackingManager.requestTrackingAuthorization { _ in
-                    // You may handle callbacks here if needed
-                }
-            }
-        }
-        #endif
+    // MARK: - Prompt Flow
+    func hasSeenConsentPrompt() -> Bool {
+        defaults.bool(forKey: kConsentPromptSeen)
+    }
+
+    func markConsentPromptSeen() {
+        defaults.set(true, forKey: kConsentPromptSeen)
+    }
+
+    /// First-run prompt visibility: show only once regardless of user decision.
+    func shouldShowConsentPromptOnce() -> Bool {
+        !hasSeenConsentPrompt()
     }
 
     // MARK: - Sync with Notification Preferences (Marketing)

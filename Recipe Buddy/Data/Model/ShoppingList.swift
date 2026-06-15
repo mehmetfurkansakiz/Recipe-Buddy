@@ -17,9 +17,10 @@ struct ShoppingList: Codable, Identifiable, Hashable {
     }
     
     var formattedDate: String {
-        guard let createdAt = createdAt else { return "Unknown Date" }
+        guard let createdAt = createdAt else { return "Tarih bilinmiyor" }
         
         let formatter = RelativeDateTimeFormatter()
+        formatter.locale = Locale(identifier: "tr_TR")
         formatter.unitsStyle = .full
         
         return formatter.localizedString(for: createdAt, relativeTo: Date())

@@ -19,6 +19,7 @@ class HomeViewModel: ObservableObject {
     // Search
     @Published var searchText = ""
     @Published var searchResults: [Recipe] = []
+    @Published var userSearchResults: [User] = []
     
     // Category Filtering
     @Published var selectedCategory: Category?
@@ -34,15 +35,20 @@ class HomeViewModel: ObservableObject {
     
     func searchRecipes(for query: String) async {
         do {
-            let fetchedRecipes: [Recipe] = try await supabase
+            async let fetchedRecipesTask: [Recipe] = supabase
                 .rpc("search_recipes_and_users", params: ["search_term": query])
                 .select(Recipe.selectQuery)
                 .execute()
                 .value
-            
-            self.searchResults = fetchedRecipes
+
+            async let fetchedUsersTask: [User] = UserService.shared.searchPublicUsers(query: query)
+
+            self.searchResults = try await fetchedRecipesTask
+            self.userSearchResults = try await fetchedUsersTask
         } catch {
-            print("❌ Error searching recipes: \(error)")
+            self.searchResults = []
+            self.userSearchResults = []
+            print("❌ Error searching recipes/users: \(error)")
         }
     }
     
@@ -88,6 +94,7 @@ class HomeViewModel: ObservableObject {
                 
                 if searchText.isEmpty {
                     self.searchResults = []
+                    self.userSearchResults = []
                 } else {
                     Task {
                         await self.searchRecipes(for: searchText)
