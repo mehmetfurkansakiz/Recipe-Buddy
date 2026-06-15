@@ -1,123 +1,184 @@
------
+# Recipe Buddy
 
-# 🧁 Recipe Buddy
+Recipe Buddy is a SwiftUI iOS app for discovering, creating, saving, and managing recipes. It supports public recipe browsing without an account, while account-based features such as creating recipes, favorites, shopping lists, profile management, and preferences require authentication.
 
-**Recipe Buddy** is a modern, SwiftUI-based iOS application designed for recipe lovers. It provides a seamless experience for discovering, creating, and managing recipes, complete with a powerful shopping list feature. The app is built with a modern tech stack, featuring Supabase for the backend and AWS S3 for image storage, making it a robust and scalable solution.
+## Features
 
-## ✨ Features
+- Guest access for public recipe discovery, search, categories, and recipe details.
+- Supabase Auth with email/password, Google, and Apple sign-in.
+- Dynamic home feed with featured recipes and a discover section.
+- Recipe search and category filtering.
+- Recipe details with ingredients, preparation steps, ratings, author profile links, and CloudFront-hosted images.
+- Account-based recipe creation, editing, and deletion.
+- Favorites and recipe ratings for signed-in users.
+- Shopping lists with editable items, ingredient selection, duplicate handling, and check-off states.
+- User profiles with stats, avatar support, and privacy-aware personal fields.
+- Settings for theme, notifications, email preferences, data consent, support, and account actions.
+- Image upload/delete handled through authenticated Supabase Edge Functions instead of shipping AWS credentials in the iOS app.
 
-  - **🥞 Full Recipe Management (CRUD):** Users can create, view, edit, and delete their personal recipes with an intuitive, multi-step creation process.
-  - **🔐 User Authentication:** Secure sign-up and login functionality powered by Supabase Auth.
-  - **🏠 Dynamic Home Feed:** A beautiful home screen featuring top-rated ("Öne Çıkanlar") recipes and a "Discover" ("Keşfet") section with infinite scrolling.
-  - **🔍 Advanced Search & Filtering:** Easily search for public recipes or filter them by category.
-  - **❤️ Favorites & Ratings:** Users can favorite recipes from the community and give them a star rating.
-  - **📝 Personal Recipe Book:** A dedicated tab to view your own created recipes and the ones you've favorited.
-  - **🛒 Smart Shopping List:**
-      - Create and manage multiple shopping lists.
-      - Add all ingredients from a recipe to a list with a single tap.
-      - Intelligently combines duplicate ingredients, summing their amounts.
-      - Check off items as you shop.
-  - **👤 User Profiles:** A profile screen displaying user stats like total recipes and favorites received.
-  - **☁️ Cloud Image Storage:** Recipe images are efficiently handled and served via AWS S3 and CloudFront CDN.
+## Tech Stack
 
-## 🛠️ Technology Stack & Architecture
+- SwiftUI
+- Supabase
+  - Auth
+  - Postgres
+  - PostgREST
+  - RPCs
+  - Edge Functions
+- Amazon S3 for image storage
+- Amazon CloudFront for image delivery
+- Nuke / NukeUI for async image loading
+- Firebase Analytics and Crashlytics
+- Swift Package Manager
 
-### Tech Stack
+## Architecture
 
-  - **UI Framework:** [SwiftUI](https://www.google.com/search?q=https://developer.apple.com/xcode/swiftui/)
-  - **Backend as a Service:** [Supabase](https://supabase.io/)
-      - **Database:** Supabase Postgres
-      - **Authentication:** Supabase Auth
-      - **APIs:** Supabase PostgREST & RPCs for custom functions.
-  - **Image Storage:** [Amazon S3](https://aws.amazon.com/s3/)
-  - **Content Delivery Network (CDN):** [Amazon CloudFront](https://aws.amazon.com/cloudfront/)
-  - **Asynchronous Image Loading:** [Nuke](https://github.com/kean/Nuke)
-  - **Dependencies:** Swift Package Manager (SPM)
+- MVVM for screen-level state and business logic.
+- `AppCoordinator` for app-level routing between splash, onboarding, auth, age gate, guest, and signed-in flows.
+- `DataManager` as shared app state for current user data, home feed data, cached shopping lists, favorites, and profile stats.
+- Service layer for Supabase-backed operations:
+  - `RecipeService`
+  - `UserService`
+  - `ShoppingListService`
+  - `ImageUploaderService`
+  - `NotificationPreferencesService`
+  - `DeviceTokenService`
+- NotificationCenter events for cross-screen updates such as tab changes, recipe updates, APNs token updates, and guest-home routing.
 
-### Architecture
+## Access Model
 
-The project follows a modern and scalable architecture:
+The app intentionally separates public and account-based features:
 
-  - **MVVM (Model-View-ViewModel):** The UI is separated from the business logic, making the codebase clean and maintainable.
-  - **Coordinator Pattern:** An `AppCoordinator` manages the main navigation flow, deciding whether to show the authentication flow or the main app content.
-  - **Singleton Services:** Network operations are handled by singleton services (`RecipeService`, `UserService`, etc.) for easy access and state management.
-  - **DataManager:** A central `DataManager` class, implemented as an `ObservableObject`, acts as the single source of truth for user-specific data (owned recipes, favorites, etc.) and is provided to the views through the SwiftUI `Environment`.
-  - **NotificationCenter:** Used to broadcast changes (like a new recipe being created or a favorite status changing) across the app to ensure all relevant views update in real-time.
+- Available without login:
+  - Home feed
+  - Public recipe browsing
+  - Search
+  - Category filtering
+  - Recipe detail reading
+  - Ingredient viewing and local selection in recipe detail
 
-## 🚀 Getting Started
+- Requires login:
+  - Creating recipes
+  - Editing/deleting owned recipes
+  - Favoriting recipes
+  - Rating recipes
+  - Creating shopping lists
+  - Adding selected recipe ingredients to shopping lists
+  - Profile and account settings
 
-To get a local copy up and running, follow these simple steps.
+When a guest attempts an account-based action, the app presents a sign-in prompt instead of blocking public browsing.
 
-### Prerequisites
+## Backend And Security Notes
 
-  - Xcode 15 or later
-  - An Apple Developer account (for running on a physical device)
+The iOS app uses the Supabase anon key, which is safe to ship only when Row Level Security policies are configured correctly.
 
-### Installation & Setup
+Image storage is intentionally routed through `supabase/functions/image-storage`:
 
-1.  **Clone the repository:**
+- The app sends authenticated upload/delete requests to the Edge Function.
+- AWS credentials are stored only as Supabase secrets.
+- AWS access keys are not included in `Keys.plist` or the app bundle.
 
-    ```sh
-    git clone https://github.com/your-username/RecipeBuddy.git
-    cd RecipeBuddy
-    ```
+Public recipe details require read policies for relation tables. The repository includes:
 
-2.  **Open the project in Xcode:**
-    Open the `Recipe Buddy.xcodeproj` file. Xcode will automatically resolve all Swift Package Manager dependencies.
+```text
+supabase/sql/public_recipe_read_policies.sql
+```
 
-3.  **Configure Backend Keys:**
-    The project requires API keys for Supabase and AWS to function.
+This grants read access to recipe ingredients and recipe categories only for public recipes.
 
-      - In the `RecipeBuddy/Recipe Buddy/Data/Network/` directory, create a new file named `Keys.plist`.
-      - Right-click the file, choose "Open As" -\> "Source Code", and paste the following content.
-      - **Replace the placeholder values** with your actual keys from your Supabase and AWS accounts.
+Notification setup docs are in:
 
-    <!-- end list -->
+```text
+supabase/README_notifications.md
+```
 
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-        <key>CloudFrontDomain</key>
-        <string>https://your-cloudfront-domain.net</string>
-        <key>SupabaseURL</key>
-        <string>https://your-project-id.supabase.co</string>
-        <key>SupabaseKey</key>
-        <string>your-supabase-anon-key</string>
-        <key>AWSAccessKeyID</key>
-        <string>your-aws-access-key-id</string>
-        <key>AWSSecretAccessKey</key>
-        <string>your-aws-secret-access-key</string>
-        <key>S3BucketName</key>
-        <string>your-s3-bucket-name</string>
-        <key>S3Region</key>
-        <string>your-s3-bucket-region</string>
-    </dict>
-    </plist>
-    ```
+Image storage setup docs are in:
 
-4.  **Build and Run:**
-    Select your target simulator or device and run the project (Cmd+R).
+```text
+supabase/README_image_storage.md
+```
 
-### Supabase Backend
+## Local Setup
 
-This project relies on a specific Supabase database schema and several RPCs (Remote Procedure Calls) for functionalities like toggling favorites or fetching aggregated counts. You will need to set up your own Supabase project and replicate the necessary tables and functions.
+### Requirements
 
-## 🤝 Contributing
+- Xcode 16 or later
+- iOS simulator or physical device
+- Supabase project
+- S3 bucket and CloudFront distribution for images
+- Firebase project if analytics/crash reporting is enabled
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+### Configure `Keys.plist`
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Create `Recipe Buddy/Data/Network/Keys.plist` with only client-safe values:
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CloudFrontDomain</key>
+    <string>https://your-cloudfront-domain.net</string>
+    <key>SupabaseURL</key>
+    <string>https://your-project-id.supabase.co</string>
+    <key>SupabaseKey</key>
+    <string>your-supabase-anon-key</string>
+</dict>
+</plist>
+```
 
-## 📄 License
+Do not add AWS access keys to the iOS app.
 
-Distributed under the MIT License. See `LICENSE` file for more information.
+### Supabase Setup
 
------
+Apply the SQL files needed by your environment, including:
+
+```text
+supabase/sql/public_recipe_read_policies.sql
+supabase/sql/notifications_setup.sql
+```
+
+Set Edge Function secrets for image storage:
+
+```bash
+supabase secrets set \
+  AWS_ACCESS_KEY_ID=YOUR_ACCESS_KEY_ID \
+  AWS_SECRET_ACCESS_KEY=YOUR_SECRET_ACCESS_KEY \
+  AWS_REGION=eu-central-1 \
+  S3_BUCKET_NAME=recipe-buddy-images
+```
+
+Deploy the image storage function:
+
+```bash
+supabase functions deploy image-storage
+```
+
+Deploy other functions as needed:
+
+```bash
+supabase functions deploy delete-auth-user
+supabase functions deploy send-marketing-push
+```
+
+## App Store Review Notes
+
+The app supports guest access for non-account-based features. Login is required only when the user performs account-based actions.
+
+The app may collect birth date after account creation for account/profile setup. It does not provide parental controls, parental gates, or age assurance mechanisms.
+
+## Development
+
+Open `Recipe Buddy.xcodeproj` in Xcode and run the `Recipe Buddy` target.
+
+Useful validation steps:
+
+- Browse public recipes while logged out.
+- Open a recipe detail while logged out and verify ingredients render.
+- Select ingredients while logged out and confirm the shopping-list action shows the sign-in prompt.
+- Sign in and verify recipe creation, favorites, ratings, shopping lists, and image upload.
+- Sign out and verify the app returns to the guest home screen.
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for details.
