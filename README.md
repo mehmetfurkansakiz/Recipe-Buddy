@@ -1,5 +1,9 @@
 # 🧁 Recipe Buddy
 
+<a href="https://apps.apple.com/tr/app/tarif-arkada%C5%9F%C4%B1m-ak%C4%B1ll%C4%B1-liste/id6758436559?l=tr" target="_blank">
+  <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="46">
+</a>
+
 Recipe Buddy is a SwiftUI iOS app for discovering, creating, saving, and managing recipes. It supports public recipe browsing without an account, while account-based features such as creating recipes, favorites, shopping lists, profile management, and preferences require authentication.
 
 ---
