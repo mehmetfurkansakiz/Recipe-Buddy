@@ -187,7 +187,7 @@ struct ShoppingListSectionView: View {
                     .foregroundStyle(.TextSecondary)
                     .opacity(0.5)
                 
-                Text("\(list.itemCount) adet")
+                Text(LocalizedText.shoppingItems(list.itemCount))
                     .font(.subheadline)
                     .foregroundStyle(.TextSecondary)
                     .lineLimit(1)

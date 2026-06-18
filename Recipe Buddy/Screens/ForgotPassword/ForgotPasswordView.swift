@@ -130,12 +130,12 @@ struct ForgotPasswordView: View {
             .alert("Bilgilendirme", isPresented: .constant(viewModel.noticeMessage != nil), actions: {
                 Button("Tamam") { viewModel.noticeMessage = nil }
             }, message: {
-                Text(viewModel.noticeMessage ?? "")
+                Text(LocalizedStringKey(viewModel.noticeMessage ?? ""))
             })
             .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil), actions: {
                 Button("Tamam") { viewModel.errorMessage = nil }
             }, message: {
-                Text(viewModel.errorMessage ?? "")
+                Text(LocalizedStringKey(viewModel.errorMessage ?? ""))
             })
         }
         .onAppear {

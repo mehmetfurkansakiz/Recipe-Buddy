@@ -77,9 +77,9 @@ class DataConsentPreferencesViewModel: ObservableObject {
     var formattedLastUpdated: String? {
         guard let lastUpdated = lastUpdated else { return nil }
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = .current
         formatter.dateFormat = "d MMMM yyyy"
         let dateString = formatter.string(from: lastUpdated)
-        return "Son güncelleme: \(dateString)"
+        return String(format: NSLocalizedString("last_updated_format", comment: ""), dateString)
     }
 }

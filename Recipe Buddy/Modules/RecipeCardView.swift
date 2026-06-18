@@ -33,7 +33,7 @@ struct RecipeCardView: View {
                     .resizable()
                     .foregroundStyle(.TextSecondary)
                     .frame(width: 18, height: 18)
-                Text("\(recipe.cookingTime) dk")
+                Text(LocalizedText.minutesShort(recipe.cookingTime))
                     .font(.caption)
                     .foregroundStyle(.TextSecondary)
                 

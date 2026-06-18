@@ -86,7 +86,7 @@ struct EmailPreferencesView: View {
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     if let error = viewModel.errorMessage {
-                        Text(error)
+                        Text(LocalizedStringKey(error))
                             .font(.footnote)
                             .foregroundStyle(.red)
                             .padding(.top, 4)

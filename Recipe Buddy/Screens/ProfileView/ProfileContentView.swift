@@ -125,7 +125,7 @@ struct ProfileContentView: View {
                     }
                     if (user.showBirthDate ?? false), let date = user.birthDate {
                         let age = Calendar.current.dateComponents([.year], from: date, to: .now).year ?? 0
-                        Label("\(age) yaş", systemImage: "calendar")
+                        Label(LocalizedText.age(age), systemImage: "calendar")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
@@ -149,7 +149,7 @@ struct ProfileContentView: View {
     private var recentRecipesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(mode == .currentUser ? "SON TARİFLERİM" : "SON TARİFLER")
+                Text(LocalizedStringKey(mode == .currentUser ? "SON TARİFLERİM" : "SON TARİFLER"))
                     .font(.caption).foregroundStyle(.secondary).padding(.leading, 4)
                 Spacer()
                 if let onSeeAllRecipes {
@@ -160,7 +160,7 @@ struct ProfileContentView: View {
             }
 
             if recipes.isEmpty {
-                Text(mode == .currentUser ? "Henüz tarifin yok." : "Henüz tarif yok.")
+                Text(LocalizedStringKey(mode == .currentUser ? "Henüz tarifin yok." : "Henüz tarif yok."))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                     .padding()
@@ -197,7 +197,7 @@ struct ProfileContentView: View {
                                         Text("\(recipe.favoritedCount)").font(.caption2)
                                         Spacer()
                                         Image(systemName: "clock").font(.caption2)
-                                        Text("\(recipe.cookingTime) dk").font(.caption2)
+                                        Text(LocalizedText.minutesShort(recipe.cookingTime)).font(.caption2)
                                     }
                                     .foregroundStyle(.secondary)
                                 }

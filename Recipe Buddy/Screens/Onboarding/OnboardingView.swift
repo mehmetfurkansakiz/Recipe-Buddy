@@ -252,7 +252,7 @@ private struct OnboardingPageView: View {
                     .clipped()
                     .padding(.top, topPadding)
 
-                    Text(page.title)
+                    Text(LocalizedStringKey(page.title))
                         .font(.system(size: adaptiveTitleSize, weight: .heavy, design: .rounded))
                         .minimumScaleFactor(0.65)
                         .lineLimit(3)
@@ -262,7 +262,7 @@ private struct OnboardingPageView: View {
                         .padding(.horizontal, 18)
                         .padding(.top, 18)
 
-                    Text(page.subtitle)
+                    Text(LocalizedStringKey(page.subtitle))
                         .font(.system(size: adaptiveSubtitleSize, weight: .semibold))
                         .foregroundStyle(Color(red: 0.45, green: 0.32, blue: 0.33))
                         .lineLimit(nil)
@@ -330,12 +330,12 @@ private struct BubbleCard: View {
 
             if let title = spec.title, let subtitle = spec.subtitle {
                 VStack(alignment: .leading, spacing: spec.subtitleSpacing) {
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .font(.system(size: 11, weight: .bold))
                         .foregroundStyle(spec.titleColor)
                         .lineLimit(1)
 
-                    Text(subtitle)
+                    Text(LocalizedStringKey(subtitle))
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(spec.subtitleColor)
                         .lineLimit(1)

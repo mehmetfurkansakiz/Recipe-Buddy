@@ -29,7 +29,7 @@ struct DeleteAccountView: View {
         )) {
             Button("Tamam", role: .cancel) { }
         } message: {
-            Text(viewModel.errorMessage ?? "")
+            Text(LocalizedStringKey(viewModel.errorMessage ?? ""))
         }
     }
 
@@ -83,7 +83,7 @@ struct DeleteAccountView: View {
                     } else {
                         Image(systemName: "trash.fill")
                     }
-                    Text(viewModel.hasPendingRequest ? "Talep Alındı" : "Hesap Silme Talebi Oluştur")
+                    Text(LocalizedStringKey(viewModel.hasPendingRequest ? "Talep Alındı" : "Hesap Silme Talebi Oluştur"))
                         .fontWeight(.semibold)
                     Spacer()
                     if !viewModel.hasPendingRequest {

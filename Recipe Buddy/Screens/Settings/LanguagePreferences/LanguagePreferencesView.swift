@@ -1,27 +1,30 @@
 import SwiftUI
 
-struct ThemePreferencesView: View {
-    @ObservedObject var viewModel: ThemePreferencesViewModel
+struct LanguagePreferencesView: View {
+    @ObservedObject var viewModel: LanguagePreferencesViewModel
 
     var body: some View {
         ZStack {
             Color.Background.ignoresSafeArea()
+
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("GÖRÜNÜM")
+                    Text("DİL")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.leading, 4)
 
                     HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "paintbrush.fill")
+                        Image(systemName: "globe")
                             .foregroundStyle(.AppPrimary)
                             .font(.title3)
+
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Tema Hakkında")
+                            Text("Dil Hakkında")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                            Text("Uygulamanın görünümünü Sistem, Açık veya Koyu olarak ayarlayabilirsin. Değişiklikler anında uygulanır.")
+
+                            Text("Uygulama dilini sistem dilinden bağımsız olarak değiştirebilirsin. Yeni diller eklemek için ilgili çeviri dosyalarının tamamlanması gerekir.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
@@ -33,53 +36,48 @@ struct ThemePreferencesView: View {
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     VStack(spacing: 0) {
-                        themeRow(option: .system)
-                        Divider().padding(.leading)
-                        themeRow(option: .light)
-                        Divider().padding(.leading)
-                        themeRow(option: .dark)
+                        ForEach(LanguageOption.allCases) { option in
+                            languageRow(option: option)
+
+                            if option != LanguageOption.allCases.last {
+                                Divider().padding(.leading)
+                            }
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(.thinMaterial.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
-
-                    if let error = viewModel.errorMessage {
-                        Text(LocalizedStringKey(error))
-                            .font(.footnote)
-                            .foregroundStyle(.red)
-                            .padding(.top, 4)
-                    }
                 }
                 .padding()
             }
-            .navigationTitle("Tema")
+            .navigationTitle("Dil")
             .inlineColoredNavigationBar(titleColor: .AppPrimary, textStyle: .headline, weight: .bold, hidesOnSwipe: true, transparentBackground: true)
-
-            if viewModel.isSaving {
-                Color.black.opacity(0.2).ignoresSafeArea()
-                ProgressView("Kaydediliyor...")
-                    .padding(20)
-                    .background(.thinMaterial)
-                    .cornerRadius(12)
-            }
         }
         .tint(.AppPrimary)
     }
 
-    @ViewBuilder
-    private func themeRow(option: ThemeOption) -> some View {
+    private func languageRow(option: LanguageOption) -> some View {
         Button {
             viewModel.selected = option
             viewModel.save()
         } label: {
             HStack(spacing: 12) {
-                Image(systemName: option.icon).foregroundStyle(.AppPrimary)
+                Image(systemName: option.icon)
+                    .foregroundStyle(.AppPrimary)
+                    .frame(width: 24)
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(LocalizedStringKey(option.title))
                         .fontWeight(.semibold)
+
+                    Text(LocalizedStringKey(option.subtitle))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+
                 Spacer()
+
                 Image(systemName: viewModel.selected == option ? "largecircle.fill.circle" : "circle")
                     .foregroundStyle(viewModel.selected == option ? .AppPrimary : .secondary)
             }
@@ -90,5 +88,8 @@ struct ThemePreferencesView: View {
 }
 
 #Preview {
-    NavigationStack { ThemePreferencesView(viewModel: ThemePreferencesViewModel()) }
+    NavigationStack {
+        LanguagePreferencesView(viewModel: LanguagePreferencesViewModel())
+    }
 }
+

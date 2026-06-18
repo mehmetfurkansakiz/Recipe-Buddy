@@ -18,7 +18,7 @@ struct ShoppingItemRowView: View {
             
             Spacer()
             
-            Text("\(item.formattedAmount) \(item.unit)")
+            Text(LocalizedText.amount(item.formattedAmount, unit: item.unit))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .strikethrough(item.isChecked, color: .secondary)

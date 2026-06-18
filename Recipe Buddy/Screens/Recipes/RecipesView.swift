@@ -195,7 +195,7 @@ struct RecipesView: View {
                             .fontWeight(.semibold)
                             .foregroundStyle(.TextPrimary)
                         Spacer()
-                        Text("\(dataManager.favoritedRecipes.count) tarif")
+                        Text(LocalizedText.recipes(dataManager.favoritedRecipes.count))
                             .foregroundStyle(.TextSecondary)
                         Image(systemName: "chevron.right")
                             .foregroundStyle(.TextSecondary)

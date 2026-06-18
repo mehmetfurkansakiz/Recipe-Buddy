@@ -47,7 +47,7 @@ struct ListEditView: View {
     /// The header view with title and close button.
     private var headerView: some View {
         HStack {
-            Text(viewModel.listToEdit != nil ? "Listeyi Düzenle" : "Yeni Liste Oluştur")
+            Text(LocalizedStringKey(viewModel.listToEdit != nil ? "Listeyi Düzenle" : "Yeni Liste Oluştur"))
                 .font(.headline).fontWeight(.bold)
             Spacer()
             Button(action: onCancel) {
@@ -126,7 +126,7 @@ struct ListEditView: View {
     /// The main save button.
     private var saveButtonView: some View {
         Button(action: onSave) {
-            Text(viewModel.listToEdit != nil ? "Değişiklikleri Kaydet" : "Listeyi Oluştur")
+            Text(LocalizedStringKey(viewModel.listToEdit != nil ? "Değişiklikleri Kaydet" : "Listeyi Oluştur"))
                 .fontWeight(.semibold).frame(maxWidth: .infinity).padding()
                 .background(Color.AppPrimary).foregroundStyle(.white).cornerRadius(12)
         }

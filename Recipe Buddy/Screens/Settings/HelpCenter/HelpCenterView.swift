@@ -209,7 +209,7 @@ private struct LinkRow: View {
             HStack(spacing: 8) {
                 Image(systemName: systemImage)
                     .foregroundStyle(.AppPrimary)
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .foregroundStyle(.TextPrimary)
                     .font(.headline)
                 Spacer()
@@ -238,4 +238,3 @@ private extension View {
         HelpCenterView(viewModel: HelpCenterViewModel())
     }
 }
-

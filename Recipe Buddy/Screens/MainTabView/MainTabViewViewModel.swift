@@ -13,6 +13,7 @@ enum AppNavigation: Hashable {
     case emailPreferences
     case notificationPreferences
     case themePreferences
+    case languagePreferences
     case helpCenter
     case sendFeedback
     case advancedSettings

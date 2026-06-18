@@ -68,7 +68,7 @@ struct FeedbackView: View {
 
             Picker("Tür", selection: $viewModel.selectedType) {
                 ForEach(FeedbackType.allCases) { type in
-                    Text(type.title).tag(type)
+                    Text(LocalizedStringKey(type.title)).tag(type)
                 }
             }
             .pickerStyle(.segmented)

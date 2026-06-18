@@ -60,7 +60,10 @@ class ForgotPasswordViewModel: ObservableObject {
             noticeMessage = "Şifre sıfırlama kodu gönderildi. Lütfen e-postanı kontrol et."
             startTimer(from: countdownDuration)
         } catch {
-            errorMessage = "Şifre sıfırlama kodu gönderilemedi: \(error.localizedDescription)"
+            errorMessage = String(
+                format: NSLocalizedString("Şifre sıfırlama kodu gönderilemedi: %@", comment: ""),
+                error.localizedDescription
+            )
             print("❌ Forgot Password Error: \(error)")
         }
     }

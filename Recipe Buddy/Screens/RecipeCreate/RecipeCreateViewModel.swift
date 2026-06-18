@@ -108,15 +108,7 @@ class RecipeCreateViewModel: ObservableObject {
     }
     
     func formattedDuration(minutes: Int) -> String {
-        let hours = minutes / 60
-        let mins = minutes % 60
-        if hours > 0 && mins > 0 {
-            return "\(hours) saat \(mins) dakika"
-        } else if hours > 0 {
-            return "\(hours) saat"
-        } else {
-            return "\(mins) dakika"
-        }
+        LocalizedText.duration(minutes: minutes)
     }
 
     var isValid: Bool {
@@ -173,7 +165,10 @@ class RecipeCreateViewModel: ObservableObject {
             self.availableCategories = try await categoriesTask
             self.allAvailableIngredients = try await ingredientsTask
         } catch {
-            errorMessage = "Gerekli veriler yüklenemedi: \(error.localizedDescription)"
+            errorMessage = String(
+                format: NSLocalizedString("Gerekli veriler yüklenemedi: %@", comment: ""),
+                error.localizedDescription
+            )
         }
     }
     
@@ -182,7 +177,10 @@ class RecipeCreateViewModel: ObservableObject {
         do {
             self.selectedImageData = try await item.loadTransferable(type: Data.self)
         } catch {
-            errorMessage = "Resim yüklenemedi: \(error.localizedDescription)"
+            errorMessage = String(
+                format: NSLocalizedString("Resim yüklenemedi: %@", comment: ""),
+                error.localizedDescription
+            )
         }
     }
     
@@ -204,7 +202,10 @@ class RecipeCreateViewModel: ObservableObject {
             }
             showSuccess = true
         } catch {
-            errorMessage = "Tarif kaydedilemedi: \(error.localizedDescription)"
+            errorMessage = String(
+                format: NSLocalizedString("Tarif kaydedilemedi: %@", comment: ""),
+                error.localizedDescription
+            )
             print("❌ Save Error: \(error)")
         }
     }
@@ -221,7 +222,10 @@ class RecipeCreateViewModel: ObservableObject {
             NotificationCenter.default.post(name: .recipeDeleted, object: nil, userInfo: ["recipeID": recipeToDelete.id])
             showSuccess = true
         } catch {
-            errorMessage = "Tarif silinemedi: \(error.localizedDescription)"
+            errorMessage = String(
+                format: NSLocalizedString("Tarif silinemedi: %@", comment: ""),
+                error.localizedDescription
+            )
             print("❌ Delete Error: \(error)")
         }
     }
@@ -312,4 +316,3 @@ class RecipeCreateViewModel: ObservableObject {
         if steps.count > 1 { steps.remove(at: index) }
     }
 }
-

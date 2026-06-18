@@ -62,7 +62,7 @@ struct SocialAuthButton: View {
                     iconView
                 }
 
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .fontWeight(.semibold)
 
                 Spacer(minLength: 0)

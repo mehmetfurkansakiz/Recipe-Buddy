@@ -9,9 +9,9 @@ struct AuthTextField: View {
     var body: some View {
         Group {
             if isSecure {
-                SecureField("", text: $text, prompt: Text(placeholder).foregroundStyle(.TextSecondary))
+                SecureField("", text: $text, prompt: Text(LocalizedStringKey(placeholder)).foregroundStyle(.TextSecondary))
             } else {
-                TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(.TextSecondary))
+                TextField("", text: $text, prompt: Text(LocalizedStringKey(placeholder)).foregroundStyle(.TextSecondary))
             }
         }
         .padding()

@@ -63,6 +63,8 @@ struct MainTabView: View {
                     NotificationPreferencesView(viewModel: NotificationPreferencesViewModel())
                 case .themePreferences:
                     ThemePreferencesView(viewModel: ThemePreferencesViewModel())
+                case .languagePreferences:
+                    LanguagePreferencesView(viewModel: LanguagePreferencesViewModel())
                 case .helpCenter:
                     HelpCenterView(viewModel: HelpCenterViewModel())
                 case .sendFeedback:
@@ -155,20 +157,20 @@ struct GuestAccessView: View {
                     .font(.system(size: 46, weight: .semibold))
                     .foregroundStyle(Color.AppPrimary)
 
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.TextPrimary)
                     .multilineTextAlignment(.center)
 
-                Text(message)
+                Text(LocalizedStringKey(message))
                     .font(.subheadline)
                     .foregroundStyle(Color.TextSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
 
                 Button(action: action) {
-                    Text(buttonTitle)
+                    Text(LocalizedStringKey(buttonTitle))
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)

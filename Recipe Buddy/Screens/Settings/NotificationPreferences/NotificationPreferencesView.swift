@@ -40,7 +40,7 @@ struct NotificationPreferencesView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Sistem Bildirim İzni")
                                     .fontWeight(.semibold)
-                                Text(viewModel.pushEnabled ? "Açık" : "Kapalı")
+                                Text(LocalizedStringKey(viewModel.pushEnabled ? "Açık" : "Kapalı"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -126,7 +126,7 @@ struct NotificationPreferencesView: View {
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.SurfaceBorder, lineWidth: 1))
 
                     if let error = viewModel.errorMessage {
-                        Text(error)
+                        Text(LocalizedStringKey(error))
                             .font(.footnote)
                             .foregroundStyle(.red)
                             .padding(.top, 4)
@@ -152,4 +152,3 @@ struct NotificationPreferencesView: View {
 #Preview {
     NavigationStack { NotificationPreferencesView(viewModel: NotificationPreferencesViewModel()) }
 }
-

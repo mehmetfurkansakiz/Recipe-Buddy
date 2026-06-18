@@ -39,12 +39,14 @@ struct EditableShoppingItemRow: View {
 
                 Menu {
                     ForEach(unitOptions, id: \.self) { unit in
-                        Button(unit) {
+                        Button {
                             item.unit = unit
+                        } label: {
+                            Text(LocalizedStringKey("unit.\(unit)"))
                         }
                     }
                 } label: {
-                    editorFieldLabel(title: "Birim", value: item.unit.isEmpty ? "Seç" : item.unit)
+                    editorFieldLabel(title: "Birim", value: item.unit.isEmpty ? "Seç" : LocalizedText.unit(item.unit))
                 }
                 .buttonStyle(.plain)
             }
@@ -91,11 +93,11 @@ struct EditableShoppingItemRow: View {
     private func editorFieldLabel(title: String, value: String) -> some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.caption)
                     .foregroundStyle(.TextSecondary)
 
-                Text(value)
+                Text(LocalizedStringKey(value))
                     .foregroundStyle(.TextPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

@@ -17,7 +17,7 @@ struct ShoppingItemRow: View {
                     .bold()
                     .strikethrough(item.isChecked)
                     .foregroundStyle(item.isChecked ? .TextSecondary : .TextPrimary)
-                Text("\(String(format: "%.1f", item.amount)) \(item.unit)")
+                Text(LocalizedText.amount(String(format: "%.1f", item.amount), unit: item.unit))
                     .strikethrough(item.isChecked)
                     .foregroundStyle(item.isChecked ? .TextSecondary : .TextPrimary)
             }

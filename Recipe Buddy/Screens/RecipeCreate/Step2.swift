@@ -67,7 +67,7 @@ struct Step2_Ingredients: View {
                 viewModel.ingredientAlertMessage = nil
             }
         }, message: {
-            Text(viewModel.ingredientAlertMessage ?? "")
+            Text(LocalizedStringKey(viewModel.ingredientAlertMessage ?? ""))
         })
     }
 }
@@ -121,12 +121,14 @@ struct EditableRecipeIngredientRow: View {
                     ForEach(unitSections, id: \.0) { section in
                         Section(section.0) {
                             ForEach(section.1, id: \.self) { unit in
-                                Button(unit) {
+                                Button {
                                     item.unit = unit
                                     if !quickAmountOptions.contains(item.amount) {
                                         item.amount = defaultAmountForUnit(unit)
                                     }
                                     isEditing = true
+                                } label: {
+                                    Text(LocalizedStringKey("unit.\(unit)"))
                                 }
                             }
                         }
@@ -134,7 +136,7 @@ struct EditableRecipeIngredientRow: View {
                 } label: {
                     pickerFieldLabel(
                         title: "Birim",
-                        value: item.unit.isEmpty ? "Seç" : item.unit
+                        value: item.unit.isEmpty ? "Seç" : LocalizedText.unit(item.unit)
                     )
                 }
                 .buttonStyle(.plain)
@@ -261,7 +263,7 @@ struct EditableRecipeIngredientRow: View {
 
     private func presetButton(_ title: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
@@ -275,10 +277,10 @@ struct EditableRecipeIngredientRow: View {
     private func pickerFieldLabel(title: String, value: String) -> some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.caption)
                     .foregroundStyle(.TextSecondary)
-                Text(value)
+                Text(LocalizedStringKey(value))
                     .foregroundStyle(.TextPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
@@ -313,7 +315,7 @@ struct DisplayRecipeIngredientRow: View {
             
             Spacer()
             
-            Text("\(item.amount) \(item.unit)")
+            Text(LocalizedText.amount(item.amount, unit: item.unit))
                 .foregroundStyle(.secondary)
             
             Button(action: onDelete) {

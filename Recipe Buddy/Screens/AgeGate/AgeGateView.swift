@@ -38,7 +38,7 @@ struct AgeGateView: View {
                 Spacer(minLength: 10)
 
                 VStack(spacing: 8) {
-                    Text(step.title)
+                    Text(LocalizedStringKey(step.title))
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(.AppPrimary)
@@ -63,11 +63,11 @@ struct AgeGateView: View {
                 .padding(.horizontal, 16)
 
                 VStack(spacing: 4) {
-                    Text("Seçilen tarih: \(selectedDateText)")
+                    Text(LocalizedText.selectedDate(selectedDateText))
                         .font(.footnote)
                         .foregroundStyle(.TextSecondary)
 
-                    Text("Yaş: \(calculatedAge)")
+                    Text(LocalizedText.ageLabel(calculatedAge))
                         .font(.footnote)
                         .foregroundStyle(calculatedAge >= minimumAge ? .TextSecondary : .Danger)
                 }
@@ -175,7 +175,7 @@ struct AgeGateView: View {
     private var selectedDateText: String {
         guard let selectedDate else { return "-" }
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = .current
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         return formatter.string(from: selectedDate)
@@ -227,7 +227,7 @@ struct AgeGateView: View {
 
     private func monthShortName(_ month: Int) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
+        formatter.locale = .current
         return formatter.shortMonthSymbols[max(1, min(12, month)) - 1]
     }
 }
@@ -265,7 +265,7 @@ private enum BirthStep: Int, CaseIterable {
     var previous: BirthStep { BirthStep(rawValue: rawValue - 1) ?? .day }
 
     func rangeText(for range: ClosedRange<Int>) -> String {
-        "Aralık: \(range.lowerBound)-\(range.upperBound)"
+        LocalizedText.range(range)
     }
 }
 

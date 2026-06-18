@@ -58,7 +58,7 @@ struct ExploreRecipeCard: View {
                         Image("alarm.icon")
                             .resizable()
                             .frame(width: iconSize, height: iconSize)
-                        Text("\(recipe.cookingTime) dk")
+                        Text(LocalizedText.minutesShort(recipe.cookingTime))
                     }
                     .font(fontSize)
                     .lineLimit(1)

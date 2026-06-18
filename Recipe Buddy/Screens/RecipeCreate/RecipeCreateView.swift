@@ -76,7 +76,7 @@ struct RecipeCreateView: View {
         }
         .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil), actions: {
             Button("Tamam") { viewModel.errorMessage = nil }
-        }, message: { Text(viewModel.errorMessage ?? "") })
+        }, message: { Text(LocalizedStringKey(viewModel.errorMessage ?? "")) })
         .alert("Tarifi Sil", isPresented: $viewModel.showDeleteConfirmAlert) {
             Button("Sil", role: .destructive) {
                 Task { await viewModel.deleteRecipe() }
@@ -157,7 +157,7 @@ struct StepNavigation: View {
                 Button {
                     Task { await viewModel.saveRecipe() }
                 } label: {
-                    Text(viewModel.recipeToEdit != nil ? "Güncelle" : "Kaydet")
+                    Text(LocalizedStringKey(viewModel.recipeToEdit != nil ? "Güncelle" : "Kaydet"))
                         .padding().frame(maxWidth: .infinity)
                 }
                 .background(Color.AppPrimary)

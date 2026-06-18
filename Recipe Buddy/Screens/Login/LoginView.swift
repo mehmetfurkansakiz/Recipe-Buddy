@@ -36,10 +36,10 @@ struct LoginView: View {
                 Spacer(minLength: 0)
 
                 VStack(spacing: 6) {
-                    Text(welcomeTitle)
+                    Text(LocalizedStringKey(welcomeTitle))
                         .font(.largeTitle).fontWeight(.bold)
                         .foregroundStyle(colorScheme == .dark ? .TextPrimary : Color(red: 0.20, green: 0.12, blue: 0.06))
-                    Text(welcomeSubtitle)
+                    Text(LocalizedStringKey(welcomeSubtitle))
                         .font(.subheadline)
                         .foregroundStyle(colorScheme == .dark ? .F_2_F_2_F_7 : Color(red: 0.42, green: 0.30, blue: 0.18))
                 }

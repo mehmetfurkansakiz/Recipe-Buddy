@@ -91,7 +91,10 @@ class EmailConfirmationViewModel: ObservableObject {
                 return
             }
 
-            self.errorMessage = "Onay kodu gönderilemedi: \(error.localizedDescription)"
+            self.errorMessage = String(
+                format: NSLocalizedString("Onay kodu gönderilemedi: %@", comment: ""),
+                error.localizedDescription
+            )
             print("❌ Send OTP Error: \(error)")
         }
     }

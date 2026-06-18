@@ -83,7 +83,7 @@ struct ListSelectorView: View {
                         .frame(width: 4, height: 4)
                         .foregroundStyle(.TextSecondary.opacity(0.5))
                     
-                    Text("\(list.itemCount) öge")
+                    Text(LocalizedText.listItems(list.itemCount))
                         .font(.callout)
                         .foregroundStyle(.TextSecondary)
                     

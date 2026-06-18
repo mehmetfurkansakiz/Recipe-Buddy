@@ -112,6 +112,14 @@ struct SettingsView: View {
                 } label: {
                     SettingsRowView(title: "Tema", icon: "paintbrush.fill", iconColor: .AppPrimary)
                 }
+
+                Divider().padding(.leading)
+
+                Button {
+                    navigationPath.append(AppNavigation.languagePreferences)
+                } label: {
+                    SettingsRowView(title: "Dil", icon: "globe", iconColor: .AppPrimary)
+                }
             }
             .background(.thinMaterial.opacity(0.3))
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -248,7 +256,7 @@ struct SettingsRowView: View {
                 .font(.headline)
                 .foregroundStyle(iconColor)
             
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .foregroundStyle(.TextPrimary)
             
             Spacer()

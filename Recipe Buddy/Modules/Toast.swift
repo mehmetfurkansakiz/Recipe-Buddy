@@ -11,7 +11,7 @@ struct ToastModifier: ViewModifier {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.white)
-                    Text(text)
+                    Text(LocalizedStringKey(text))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                 }

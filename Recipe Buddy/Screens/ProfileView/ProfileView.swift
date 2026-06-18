@@ -174,7 +174,7 @@ struct ProfileStatView: View {
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

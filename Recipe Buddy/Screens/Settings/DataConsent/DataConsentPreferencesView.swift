@@ -119,10 +119,10 @@ private struct ConsentToggleRow: View {
                     .padding(.top, 4)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .foregroundColor(.TextPrimary)
                         .font(.headline)
-                    Text(subtitle)
+                    Text(LocalizedStringKey(subtitle))
                         .foregroundColor(.TextSecondary)
                         .font(.subheadline)
                         .lineLimit(nil)

@@ -256,15 +256,7 @@ struct EditProfileView: View {
     }
 
     private var birthDateDisplayText: String {
-        guard let birthDate = viewModel.birthDate else {
-            return "Doğum tarihi: Belirtilmemiş"
-        }
-
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "tr_TR")
-        formatter.dateStyle = .long
-        formatter.timeStyle = .none
-        return "Doğum tarihi: \(formatter.string(from: birthDate))"
+        LocalizedText.birthDate(viewModel.birthDate)
     }
 
     private var saveSection: some View {

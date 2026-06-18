@@ -117,7 +117,7 @@ struct Step1_BasicInfo: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Porsiyon")
                                     .foregroundStyle(.TextSecondary)
-                                Text("\(viewModel.servings) kişilik")
+                                Text(LocalizedText.servings(viewModel.servings))
                                     .fontWeight(.semibold)
                                     .foregroundStyle(.TextPrimary)
                                     .lineLimit(2)
@@ -138,7 +138,7 @@ struct Step1_BasicInfo: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Süre")
                                     .foregroundStyle(.TextSecondary)
-                                Text("\(viewModel.cookingTime) dk")
+                                Text(LocalizedText.minutesShort(viewModel.cookingTime))
                                     .fontWeight(.semibold)
                                     .foregroundStyle(.TextPrimary)
                                     .lineLimit(2)
@@ -168,7 +168,7 @@ struct Step1_BasicInfo: View {
                     case .servings:
                         Picker("Porsiyon", selection: $viewModel.servings) {
                             ForEach(viewModel.servingsOptions, id: \.self) { value in
-                                Text("\(value) kişilik").tag(value)
+                                Text(LocalizedText.servings(value)).tag(value)
                             }
                         }
                         .pickerStyle(.wheel)
@@ -218,4 +218,3 @@ struct CustomPickerStyle: ButtonStyle {
 #Preview {
     Step1_BasicInfo(viewModel: RecipeCreateViewModel())
 }
-

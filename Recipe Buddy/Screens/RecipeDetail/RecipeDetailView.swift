@@ -188,8 +188,8 @@ struct RecipeDetailView: View {
             }
             
             HStack {
-                RecipeInfoBadge(icon: "alarm.icon", text: "\(viewModel.recipe.cookingTime) dk", color: .TextPrimary)
-                RecipeInfoBadge(icon: "people.icon", text: "\(viewModel.recipe.servings) porsiyon", color: .TextPrimary)
+                RecipeInfoBadge(icon: "alarm.icon", text: LocalizedText.minutesShort(viewModel.recipe.cookingTime), color: .TextPrimary)
+                RecipeInfoBadge(icon: "people.icon", text: LocalizedText.servings(viewModel.recipe.servings), color: .TextPrimary)
                 RecipeInfoBadge(
                     icon: "heart.fill.icon",
                     text: "\(viewModel.recipe.favoritedCount)",
@@ -236,7 +236,7 @@ struct RecipeDetailView: View {
                                 .foregroundStyle(Color.AppPrimary)
                                 .frame(width: 10, height: 10)
                             
-                            Text("\(recipeIngredient.formattedAmount) \(recipeIngredient.unit) \(recipeIngredient.name)")
+                            Text("\(LocalizedText.amount(recipeIngredient.formattedAmount, unit: recipeIngredient.unit)) \(recipeIngredient.name)")
                                 .font(.subheadline)
                                 .foregroundStyle(.TextPrimary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -265,7 +265,7 @@ struct RecipeDetailView: View {
             Button(action: {
                 viewModel.toggleAllIngredients()
             }) {
-                Text(viewModel.areAllIngredientsSelected ? "Tüm Seçimleri Kaldır" : "Tümünü Seç")
+                Text(LocalizedStringKey(viewModel.areAllIngredientsSelected ? "Tüm Seçimleri Kaldır" : "Tümünü Seç"))
                     .font(.subheadline)
                     .fontWeight(.heavy)
                     .foregroundStyle(Color.AppPrimary.opacity(0.8))

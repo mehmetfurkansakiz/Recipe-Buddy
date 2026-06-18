@@ -29,7 +29,7 @@ struct ChangePasswordView: View {
                     }
 
                     if let error = viewModel.errorMessage {
-                        Text(error)
+                        Text(LocalizedStringKey(error))
                             .font(.footnote)
                             .foregroundColor(.red)
                             .padding(.top, 4)

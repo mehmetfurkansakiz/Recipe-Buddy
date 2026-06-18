@@ -9,7 +9,7 @@ struct AuthButton: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .fontWeight(.semibold)
                     .opacity(isLoading ? 0 : 1)
                 

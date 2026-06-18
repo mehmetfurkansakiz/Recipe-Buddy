@@ -86,10 +86,10 @@ struct EmailConfirmationView: View {
             .padding(24)
             .alert("Bilgilendirme", isPresented: .constant(viewModel.noticeMessage != nil), actions: {
                 Button("Tamam") { viewModel.noticeMessage = nil }
-            }, message: { Text(viewModel.noticeMessage ?? "") })
+            }, message: { Text(LocalizedStringKey(viewModel.noticeMessage ?? "")) })
             .alert("Hata", isPresented: .constant(viewModel.errorMessage != nil), actions: {
                 Button("Tamam") { viewModel.errorMessage = nil }
-            }, message: {Text(viewModel.errorMessage ?? "") })
+            }, message: { Text(LocalizedStringKey(viewModel.errorMessage ?? "")) })
         }
         .onAppear {
             viewModel.onAppear(isNewUser: isNewUser)

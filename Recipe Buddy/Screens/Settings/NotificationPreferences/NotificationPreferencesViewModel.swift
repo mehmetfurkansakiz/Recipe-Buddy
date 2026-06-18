@@ -108,7 +108,10 @@ class NotificationPreferencesViewModel: ObservableObject {
                 UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
                     Task { @MainActor [weak self] in
                         if let error = error {
-                            self?.errorMessage = "Bildirim izni alınamadı: \(error.localizedDescription)"
+                            self?.errorMessage = String(
+                                format: NSLocalizedString("Bildirim izni alınamadı: %@", comment: ""),
+                                error.localizedDescription
+                            )
                         }
                         self?.pushEnabled = granted
                         await self?.refreshSystemAuthorizationStatus()
@@ -169,4 +172,3 @@ class NotificationPreferencesViewModel: ObservableObject {
         pushMarketing = defaults.object(forKey: "notif_pushMarketing") as? Bool ?? false
     }
 }
-

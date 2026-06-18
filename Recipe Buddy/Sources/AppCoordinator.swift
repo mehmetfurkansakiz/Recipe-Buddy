@@ -5,6 +5,7 @@ import UIKit
 class AppCoordinator: ObservableObject {
     @Published var currentView: AppView = .splash
     @Published var selectedTheme: ThemeOption = ThemePreferencesViewModel().selected
+    @Published var selectedLanguage: LanguageOption = LanguagePreferencesViewModel().selected
     let dataManager: DataManager
     
     enum AppView {
@@ -21,6 +22,7 @@ class AppCoordinator: ObservableObject {
             return AnyView(
                 SplashView(coordinator: self)
                     .preferredColorScheme(selectedTheme.colorScheme)
+                    .environment(\.locale, selectedLanguage.locale)
             )
         case .onboarding:
             return AnyView(
@@ -28,6 +30,7 @@ class AppCoordinator: ObservableObject {
                     Task { await self.completeOnboarding() }
                 }
                 .preferredColorScheme(selectedTheme.colorScheme)
+                .environment(\.locale, selectedLanguage.locale)
             )
         case .auth:
             return AnyView(
@@ -35,16 +38,19 @@ class AppCoordinator: ObservableObject {
                     self.requestRouteEvaluation()
                 })
                 .preferredColorScheme(selectedTheme.colorScheme)
+                .environment(\.locale, selectedLanguage.locale)
             )
         case .ageGate:
             return AnyView(
                 AgeGateView(coordinator: self)
                     .preferredColorScheme(selectedTheme.colorScheme)
+                    .environment(\.locale, selectedLanguage.locale)
             )
         case .main:
             return AnyView(
                 MainTabView(coordinator: self)
                     .preferredColorScheme(selectedTheme.colorScheme)
+                    .environment(\.locale, selectedLanguage.locale)
             )
         }
     }
@@ -70,6 +76,15 @@ class AppCoordinator: ObservableObject {
                     self.selectedTheme = option
                     // Re-apply nav bar appearance so dynamic colors are resolved for new scheme
                     AppCoordinator.configureNavigationBarAppearance()
+                }
+            }
+        }
+
+        NotificationCenter.default.addObserver(forName: .languageChanged, object: nil, queue: .main) { [weak self] notification in
+            guard let self = self else { return }
+            Task { @MainActor in
+                if let option = notification.object as? LanguageOption {
+                    self.selectedLanguage = option
                 }
             }
         }
